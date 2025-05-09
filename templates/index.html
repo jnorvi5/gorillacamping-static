@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gorilla Camping - Home</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <h1 class="motto">Life is short, camp your way through it</h1>
+    <nav role="navigation" aria-label="Main navigation">
+      <a href="/">Home</a>
+      <a href="/blog">Blog</a>
+      <a href="/gear">Gear</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+  </header>
+  <main>
+    <div id="newsletter-wrapper">
+      <!-- MailerLite Universal -->
+      <script>
+        (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
+        .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+        n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+        (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+        ml('account', '1500893');
+      </script>
+      <div class="ml-embedded" data-form="7qFupG"></div>
+    </div>
+  </main>
+  <footer>Built with Flask & Hustle 🔧</footer>
+</body>
+</html>
