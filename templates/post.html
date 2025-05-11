@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ post['title'] }} - GorillaCmapping</title>
+</head>
+<body>
+  <h1>{{ post['title'] }}</h1>
+  <p><em>Published on {{ post['created_at'].strftime('%Y-%m-%d') }}</em></p>
+  <div>
+    {{ post['content'] | safe }}
+  </div>
+  <p><a href="{{ url_for('blog') }}">← Back to blog</a></p>
+</body>
+</html>
+

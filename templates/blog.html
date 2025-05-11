@@ -1,1 +1,23 @@
-<h1>Blog</h1><p>Coming soon. Sign up for updates!</p>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blog - GorillaCmapping</title>
+</head>
+<body>
+  <h1>Blog Posts</h1>
+  <ul>
+    {% for post in posts %}
+      <li>
+        <a href="{{ url_for('blog_post', slug=post['slug']) }}">
+          {{ post['title'] }}
+        </a>
+        <small>Posted on {{ post['created_at'].strftime('%Y-%m-%d') }}</small>
+      </li>
+    {% else %}
+      <li>No blog posts found.</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
+
+
