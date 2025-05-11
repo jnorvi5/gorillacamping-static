@@ -40,10 +40,23 @@
         <div class="ml-embedded" data-form="7qFupG"></div>
       </div>
       <!-- Sign-Up Form -->
-      <form method="post" action="/">
-        <input type="email" name="email" placeholder="you@example.com" required />
-        <button type="submit">Sign Up</button>
-      </form>
+   <script>
+  document.addEventListener('ml_form_success', function (event) {
+    const email = event.detail.data.email;
+    fetch("/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({ email })
+    }).then(() => {
+      console.log("✅ Email backed up to MongoDB");
+    }).catch(() => {
+      console.warn("⚠️ Backup to MongoDB failed");
+    });
+  });
+</script>
+
     </main>
     <footer>Built with Flask & Hustle 🔧</footer>
   </body>
