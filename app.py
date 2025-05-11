@@ -1,21 +1,30 @@
-from flask import Flask, render_template, request, redirect, url_for
-from pymongo import MongoClient
-from datetime import datetime
 import os
+from flask import Flask, render_template, request, redirect, url_for
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+from datetime import datetime
+
 
 app = Flask(__name__)
 
-# 1. Load and validate your Mongo URI
 MONGO_URI = os.environ.get("MONGO_URI")
-print("🔑 MONGO_URI =", MONGO_URI)
 if not MONGO_URI:
-    raise ValueError("MONGO_URI environment variable is not set")
+    raise ValueError("❌ MONGO_URI environment variable is not set!")
 
-# 2. Connect to MongoDB
-client = MongoClient(MONGO_URI)
+client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
+
+# Test the connection once during startup
+try:
+    client.admin.command("ping")
+    print("✅ MongoDB connected successfully")
+except Exception as e:
+    print("❌ MongoDB connection failed:", e)
+    raise
+
 db = client.get_database("gorillacamping")
 emails = db.get_collection("subscribers")
 posts = db.get_collection("posts")
+
 
 # 3. Home route: GET shows form, POST captures email
 @app.route("/", methods=["GET", "POST"])
