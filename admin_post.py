@@ -27,6 +27,5 @@ post = {
 
 result = post.insert_one(post)
 print(f" Blog post created with ID: {result.inserted_id}")
-result = posts.insert_one(post)
-print(f"✅ Blog post created with ID: {result.inserted_id}")
+
 
