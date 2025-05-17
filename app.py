@@ -3,8 +3,32 @@ from flask import Flask, render_template, request, redirect, url_for
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from datetime import datetime
+import requests
 
 app = Flask(__name__)
+
+# ---- MailerLite Integration ----
+def add_to_mailerlite(email):
+    api_key = os.environ.get("MAILERLITE_API_KEY")
+    if not api_key:
+        print("MailerLite API key missing!")
+        return False
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+    data = {
+        "email": email
+    }
+    url = "https://connect.mailerlite.com/api/subscribers"
+    response = requests.post(url, headers=headers, json=data)
+    if response.status_code in (200, 201):
+        print("Added to MailerLite!")
+        return True
+    else:
+        print("MailerLite error:", response.text)
+        return False
 
 # Load MongoDB connection string from environment variable
 MONGO_URI = os.environ.get("MONGO_URI")
@@ -21,6 +45,7 @@ try:
 except Exception as e:
     print("❌ MongoDB connection failed:", e)
     raise
+
 @app.route("/pingdb")
 def pingdb():
     try:
@@ -28,6 +53,7 @@ def pingdb():
         return "MongoDB connected!", 200
     except Exception as e:
         return f"MongoDB connection failed: {e}", 500
+
 # Database setup
 db = client.get_database("gorillacamping")
 emails = db.get_collection("subscribers")
@@ -43,6 +69,7 @@ def home():
                 "email": email,
                 "timestamp": datetime.utcnow()
             })
+            add_to_mailerlite(email)  # Add to MailerLite!
             return redirect(url_for("home"))
     return render_template("index.html")
 
