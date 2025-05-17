@@ -21,7 +21,13 @@ try:
 except Exception as e:
     print("❌ MongoDB connection failed:", e)
     raise
-
+@app.route("/pingdb")
+def pingdb():
+    try:
+        client.admin.command("ping")
+        return "MongoDB connected!", 200
+    except Exception as e:
+        return f"MongoDB connection failed: {e}", 500
 # Database setup
 db = client.get_database("gorillacamping")
 emails = db.get_collection("subscribers")
