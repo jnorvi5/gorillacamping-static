@@ -25,7 +25,7 @@ app.config.update(
 @app.after_request
 def security_headers(response):
     response.headers.update({
-        'Content-Security-Policy': "default-src 'self'",
+        'Content-Security-Policy': "default-src 'self' https://*.mailerlite.com",
         'X-Content-Type-Options': 'nosniff',
         'X-Frame-Options': 'DENY'
     })
@@ -127,10 +127,11 @@ def pingdb():
     except Exception as e:
         return f"MongoDB connection failed: {e}", 500
 
+# ... [keep all your imports and setup]
+
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
-        # Try to get email from form, JSON, or raw data
         email = (
             request.form.get("email")
             or (request.json.get("email") if request.is_json else None)
@@ -138,29 +139,26 @@ def home():
         )
         if not email:
             print("No email provided!")
-            if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return jsonify({"error": "No email provided"}), 400
-            else:
-                flash("No email provided!", "error")
-                return redirect(url_for("home"))
+            return jsonify({"error": "No email provided"}), 400
 
         email = email.strip().lower()
-        print("Form submitted. Email received:", email)
-        emails.insert_one({
-            "email": email,
-            "timestamp": datetime.utcnow(),
-            "source": "website-form"
-        })
-        print("Inserted into MongoDB:", email)
-
-        # Optional: add_to_mailerlite(email)
-
-        if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return jsonify({"message": "Email saved"}), 200
-        else:
+        try:
+            # Save to MongoDB
+            emails.insert_one({
+                "email": email,
+                "timestamp": datetime.utcnow(),
+                "source": "website-form"
+            })
+            
+            # Add to MailerLite
+            add_to_mailerlite(email)  # NOW ACTIVE
+            
             flash("Thanks for subscribing!", "success")
-            return redirect(url_for("home"))
-
+        except Exception as e:
+            print(f"❌ FATAL ERROR: {str(e)}")
+            flash("Submission failed - try again", "error")
+        return redirect(url_for("home"))
+    
     return render_template("index.html")
 
 
