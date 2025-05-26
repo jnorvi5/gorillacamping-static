@@ -9,10 +9,14 @@
     <link rel="stylesheet" href="https://<your-storage-account-name>.blob.core.windows.net/static/styles.css" />
   </head>
   <body>
-<header>
-  <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Gorilla Camping Logo" class="header-logo">
-  <p class="motto">Life is short, camp your way through it</p>
-  <nav>
+<header class="gc-header">
+  <div class="logo-container">
+    <img src="{{ url_for('static', filename='img/logo.png') }}"
+         alt="Gorilla Camping Logo"
+         class="header-logo-glow">
+  </div>
+  <p class="gc-motto-glow">Life is short, camp your way through it</p>
+  <nav class="gc-nav">
     <a href="/">Home</a>
     <a href="/blog">Blog</a>
     <a href="/gear">Gear</a>
