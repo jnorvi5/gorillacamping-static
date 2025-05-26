@@ -9,16 +9,18 @@
     <link rel="stylesheet" href="https://<your-storage-account-name>.blob.core.windows.net/static/styles.css" />
   </head>
   <body>
-    <header>
-      <h1 class="motto">Life is short, camp your way through it</h1>
-      <nav role="navigation" aria-label="Main navigation">
-        <a href="/">Home</a>
-        <a href="/blog">Blog</a>
-        <a href="/gear">Gear</a>
-        <a href="/about">About</a>
-        <a href="/contact">Contact</a>
-      </nav>
-    </header>
+<header>
+  <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Gorilla Camping Logo" class="header-logo">
+  <p class="motto">Life is short, camp your way through it</p>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/blog">Blog</a>
+    <a href="/gear">Gear</a>
+    <a href="/about">About</a>
+    <a href="/contact">Contact</a>
+  </nav>
+</header>
+
  <main>
   <div id="newsletter-wrapper">
     <!-- MailerLite Universal Widget -->
