@@ -17,6 +17,10 @@
   </div>
   <p class="gc-motto-glow">Life is short, camp your way through it</p>
   <nav class="gc-nav">
+<header>
+  <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Gorilla Camping Logo" class="header-logo-glow">
+  <p class="gc-motto-glow">Life is short, camp your way through it</p>
+  <nav class="gc-nav">
     <a href="/">Home</a>
     <a href="/blog">Blog</a>
     <a href="/gear">Gear</a>
@@ -25,48 +29,27 @@
   </nav>
 </header>
 
- <main>
-  <div id="newsletter-wrapper">
-    <!-- MailerLite Universal Widget -->
+<main>
+  <div class="form-wrapper">
+    <!-- MailerLite Universal Embed -->
     <script>
-      ;(function (w, d, e, u, f, l, n) {
-        ;(w[f] =
-          w[f] ||
-          function () {
-            ;(w[f].q = w[f].q || []).push(arguments)
-          }),
-          (l = d.createElement(e)),
-          (l.async = 1),
-          (l.src = u),
-          (n = d.getElementsByTagName(e)[0]),
-          n.parentNode.insertBefore(l, n)
-      })(window, document, 'script', 'https://assets.mailerlite.com/js/universal.js', 'ml')
-      ml('account', '1500893')
+      (function (w, d, e, u, f, l, n) {
+        (w[f] = w[f] || function () { (w[f].q = w[f].q || []).push(arguments) }),
+        l = d.createElement(e), l.async = 1, l.src = u,
+        n = d.getElementsByTagName(e)[0], n.parentNode.insertBefore(l, n)
+      })(window, document, 'script', 'https://assets.mailerlite.com/js/universal.js', 'ml');
+      ml('account', '1500893');
     </script>
     <div class="ml-embedded" data-form="7qFupG"></div>
   </div>
-
-  <!-- Backup HTML Form (for direct Flask testing and fallback) -->
-  <form method="post" style="margin-top:2em;">
-    <label for="email">Backup Waitlist Signup</label><br>
-    <input type="email" id="email" name="email" placeholder="you@example.com" required>
-    <button type="submit">Sign Up</button>
-  </form>
-
-  <!-- Script to back up MailerLite signups to Flask/MongoDB -->
+  <!-- JS to back up to MongoDB -->
   <script>
     document.addEventListener('ml_form_success', function (event) {
       const email = event.detail.data.email;
       fetch("/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ email })
-      }).then(() => {
-        console.log("✅ Email backed up to MongoDB");
-      }).catch(() => {
-        console.warn("⚠️ Backup to MongoDB failed");
       });
     });
   </script>
