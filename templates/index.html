@@ -8,6 +8,22 @@
     <title>Gorilla Camping - Home</title>
     <link rel="stylesheet" href="https://<your-storage-account-name>.blob.core.windows.net/static/styles.css" />
   </head>
+ <!-- ...your existing MailerLite form embed... -->
+
+<script>
+document.addEventListener('ml_form_loaded', function(event) {
+  const inputs = event.detail.form.querySelectorAll('input');
+  inputs.forEach(input => {
+    if (!input.id && !input.name) {
+      input.name = input.placeholder.toLowerCase().replace(/\s+/g, '_');
+      input.id = input.name;
+    }
+  });
+});
+</script>
+</body>
+</html>
+
   <body>
 <header class="gc-header">
   <div class="logo-container">
