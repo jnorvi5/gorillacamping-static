@@ -1,48 +1,25 @@
 body {
-  background: linear-gradient(135deg, #111 0%, #222 100%);
-  min-height: 100vh;
-  margin: 0;
+  background: #111;
+  color: #fff;
   font-family: 'Montserrat', 'Arial', sans-serif;
-}
-
-/* Center header content */
-.gc-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2.5rem 1rem 1.5rem 1rem;
-  background: rgba(10,20,10,0.85);
-  border-bottom: 2px solid #00ff88;
-  box-shadow: 0 2px 40px #00ff8840;
-}
-
-.logo-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 0.5rem;
+  margin: 0;
+  min-height: 100vh;
 }
 
 .header-logo-glow {
-  width: 120px;
-  height: auto;
+  width: 140px;
+  margin: 2rem auto 0 auto;
+  display: block;
   border-radius: 50%;
-  background: #111;
-  box-shadow:
-    0 0 32px #00ff88,
-    0 0 64px #00ff8840,
-    0 0 8px #00ff88 inset;
-  filter: drop-shadow(0 0 16px #00ff88);
+  box-shadow: 0 0 32px #00ff88, 0 0 64px #111 inset;
+  filter: drop-shadow(0 0 24px #00ff88);
   transition: transform 0.2s;
   animation: logo-pop 1.2s cubic-bezier(.42,0,.58,1) 1;
 }
 
 .header-logo-glow:hover {
-  transform: scale(1.06) rotate(-2deg);
-  box-shadow:
-    0 0 48px #00ff88,
-    0 0 96px #00ff8840,
-    0 0 12px #00ff88 inset;
+  transform: scale(1.08) rotate(-2deg);
+  box-shadow: 0 0 64px #00ff88, 0 0 128px #00ff8840;
 }
 
 @keyframes logo-pop {
@@ -52,42 +29,25 @@ body {
 
 .gc-motto-glow {
   margin: 0.5rem 0 1.2rem 0;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 900;
   color: #00ff88;
   text-align: center;
-  text-shadow:
-    0 0 8px #00ff88,
-    0 0 16px #00ff88,
-    0 0 24px #00ff88,
-    0 0 32px #00ff88;
-  letter-spacing: 1px;
-  border-bottom: 2px solid #00ff88;
+  text-shadow: 0 0 16px #00ff88, 0 0 32px #00ff88;
+  border-bottom: 3px solid #00ff88;
   padding: 0.3em 1.5em;
   border-radius: 12px;
   background: rgba(20,30,20,0.7);
   box-shadow: 0 2px 18px #00ff8840;
   animation: motto-glow 2.5s infinite alternate;
+  letter-spacing: 1.5px;
 }
 
 @keyframes motto-glow {
-  from {
-    text-shadow:
-      0 0 8px #00ff88,
-      0 0 16px #00ff88,
-      0 0 24px #00ff88,
-      0 0 32px #00ff88;
-  }
-  to {
-    text-shadow:
-      0 0 20px #00ff88,
-      0 0 40px #00ff88,
-      0 0 60px #00ff88,
-      0 0 80px #00ff88;
-  }
+  from { text-shadow: 0 0 16px #00ff88, 0 0 32px #00ff88; }
+  to { text-shadow: 0 0 32px #00ff88, 0 0 64px #00ff88; }
 }
 
-/* Navigation Bar Glowing Links */
 .gc-nav {
   display: flex;
   gap: 2rem;
@@ -98,8 +58,8 @@ body {
 .gc-nav a {
   color: #fff;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 1.25rem;
   padding: 0.5em 1.2em;
   border-radius: 8px;
   background: rgba(0,255,136,0.09);
@@ -114,17 +74,54 @@ body {
   text-shadow: 0 0 8px #00ff88, 0 0 16px #00ff88;
 }
 
-/* Responsive for mobile */
-@media (max-width: 600px) {
-  .header-logo-glow {
-    width: 80px;
-  }
-  .gc-motto-glow {
-    font-size: 1.1rem;
-    padding: 0.2em 0.5em;
-  }
-  .gc-nav {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
+.form-wrapper {
+  max-width: 420px;
+  margin: 3rem auto 2rem auto;
+  background: #181f1b;
+  padding: 2.5rem 2rem;
+  border-radius: 14px;
+  box-shadow: 0 0 24px #00ff8840, 0 0 2px #00ff88 inset;
+  text-align: center;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.signup-label {
+  font-size: 1.2rem;
+  color: #00ff88;
+  font-weight: 700;
+  text-shadow: 0 0 8px #00ff88;
+}
+
+.signup-form input[type="email"] {
+  padding: 0.9em 1.2em;
+  border-radius: 8px;
+  border: none;
+  font-size: 1.1rem;
+  background: #222;
+  color: #fff;
+  box-shadow: 0 0 12px #00ff8840 inset;
+}
+
+.signup-btn {
+  padding: 0.9em 1.2em;
+  border-radius: 8px;
+  border: none;
+  background: #00ff88;
+  color: #111;
+  font-weight: 900;
+  font-size: 1.2rem;
+  box-shadow: 0 0 16px #00ff88, 0 0 2px #111 inset;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.signup-btn:hover, .signup-btn:focus {
+  background: #111;
+  color: #00ff88;
+  box-shadow: 0 0 32px #00ff88, 0 0 8px #00ff88 inset;
 }
