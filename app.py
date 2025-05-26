@@ -8,6 +8,24 @@ import requests
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "devkey")  # Change for production!
 
+# In app.py configure session cookies
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax'  # Or 'None' if cross-site needed
+)
+
+# If using SameSite=None, add this too:
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+
+@app.after_request
+def add_header(response):
+    response.headers['Permissions-Policy'] = 'interest-cohort=()'
+    return response
+
+
+
 def add_to_mailerlite(email):
     """Add email to MailerLite with proper error handling and timeout"""
     try:
