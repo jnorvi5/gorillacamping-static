@@ -8,28 +8,63 @@ import requests
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "devkey")  # Change for production!
 
-# ---- MailerLite Integration ----
 def add_to_mailerlite(email):
-    api_key = os.environ.get("MAILERLITE_API_KEY")
-    if not api_key:
-        print("MailerLite API key missing!")
-        return False
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-    }
-    data = {
-        "email": email
-    }
-    url = "https://connect.mailerlite.com/api/subscribers"
-    response = requests.post(url, headers=headers, json=data)
-    if response.status_code in (200, 201):
-        print("Added to MailerLite!")
+    """Add email to MailerLite with proper error handling and timeout"""
+    try:
+        api_key = os.environ.get("MAILERLITE_API_KEY")
+        if not api_key:
+            print("❌ MAILERLITE_API_KEY environment variable missing!")
+            return False
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "email": email,
+            "fields": {
+                "source": "gorilla_camping"
+            }
+        }
+
+        # Add timeout and better error handling
+        response = requests.post(
+            "https://connect.mailerlite.com/api/subscribers",
+            headers=headers,
+            json=data,
+            timeout=10  # 10 seconds for connection and read
+        )
+
+        # This will raise for 4xx/5xx status codes
+        response.raise_for_status()
+
+        # Check for MailerLite-specific errors in successful response
+        response_data = response.json()
+        if 'error' in response_data:
+            print(f"⚠️ MailerLite API error: {response_data['error']}")
+            return False
+
+        print(f"✅ Successfully added {email} to MailerLite")
         return True
-    else:
-        print("MailerLite error:", response.text)
-        return False
+
+    except requests.exceptions.HTTPError as http_err:
+        # Get detailed error message from response
+        error_msg = response.text if response else str(http_err)
+        print(f"❌ HTTP error ({response.status_code}): {error_msg}")
+    
+    except requests.exceptions.ConnectionError:
+        print("❌ Network connection error - check internet/MailerLite status")
+    
+    except requests.exceptions.Timeout:
+        print("❌ Request timed out - MailerLite API not responding")
+    
+    except requests.exceptions.RequestException as err:
+        print(f"❌ Unexpected error: {str(err)}")
+    
+    except json.JSONDecodeError:
+        print("❌ Invalid JSON response from MailerLite API")
+
+    return False
 
 # ---- MongoDB Setup ----
 MONGO_URI = os.environ.get("MONGO_URI")
