@@ -136,6 +136,10 @@ def logout():
     session.pop("logged_in", None)
     flash("Logged out.", "info")
     return redirect(url_for("admin"))
+@app.route("/debug-subscribers")
+def debug_subscribers():
+    docs = list(db.subscribers.find())
+    return {"count": len(docs), "docs": [str(doc) for doc in docs]}
 
 if __name__ == "__main__":
     app.run(debug=True)
