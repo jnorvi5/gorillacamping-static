@@ -8,21 +8,29 @@ import requests
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "devkey")  # Change for production!
 
-# In app.py configure session cookies
+from flask import Flask, session
+from pymongo import MongoClient
+
+app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "secure-fallback-key")
+
+# Enhanced security config
 app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE='Lax'  # Or 'None' if cross-site needed
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=3600
 )
 
-# If using SameSite=None, add this too:
-app.config['SESSION_COOKIE_SECURE'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-
 @app.after_request
-def add_header(response):
-    response.headers['Permissions-Policy'] = 'interest-cohort=()'
+def security_headers(response):
+    response.headers.update({
+        'Content-Security-Policy': "default-src 'self'",
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY'
+    })
     return response
+
 
 
 
