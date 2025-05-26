@@ -44,7 +44,6 @@ document.addEventListener('ml_form_loaded', function(event) {
     <a href="/contact">Contact</a>
   </nav>
 </header>
-
 <main>
   <div class="form-wrapper">
     <!-- MailerLite Universal Embed -->
@@ -59,20 +58,28 @@ document.addEventListener('ml_form_loaded', function(event) {
     <div class="ml-embedded" data-form="7qFupG"></div>
   </div>
   <!-- JS to back up to MongoDB -->
-<!-- Add to your MailerLite form script -->
-<script>
-document.addEventListener('ml_form_loaded', function(event) {
-  const inputs = event.detail.form.querySelectorAll('input');
-  inputs.forEach(input => {
-    if (!input.id && !input.name) {
-      input.name = input.placeholder.toLowerCase().replace(/\s+/g, '_');
-      input.id = input.name;
-    }
-  });
-});
-</script>
-
+  <script>
+    document.addEventListener('ml_form_success', function (event) {
+      const email = event.detail.data.email;
+      fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ email })
+      });
+    });
+    // Accessibility fix for MailerLite form
+    document.addEventListener('ml_form_loaded', function(event) {
+      const inputs = event.detail.form.querySelectorAll('input');
+      inputs.forEach(input => {
+        if (!input.id && !input.name) {
+          input.name = input.placeholder.toLowerCase().replace(/\s+/g, '_');
+          input.id = input.name;
+        }
+      });
+    });
+  </script>
 </main>
+
 
     <footer>Built with Flask & Hustle 🔧</footer>
   </body>
