@@ -45,6 +45,8 @@ try:
 except Exception as e:
     print("❌ MongoDB connection failed:", e)
     raise
+print("Database names:", client.list_database_names())
+print("Collections in gorillacamping:", db.list_collection_names())
 
 @app.route("/pingdb")
 def pingdb():
