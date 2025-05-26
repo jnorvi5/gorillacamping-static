@@ -1,8 +1,8 @@
+from flask import Flask, request, render_template, jsonify, redirect, url_for, flash
+from datetime import datetime
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, session
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-from datetime import datetime
 import requests
 
 app = Flask(__name__)
@@ -66,20 +66,42 @@ def pingdb():
     except Exception as e:
         return f"MongoDB connection failed: {e}", 500
 
-# Home route: handle newsletter form
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
-        email = request.form.get("email")
-        if email:
-            emails.insert_one({
-                "email": email,
-                "timestamp": datetime.utcnow()
-            })
-            add_to_mailerlite(email)
+        # Try to get email from form, JSON, or raw data
+        email = (
+            request.form.get("email")
+            or (request.json.get("email") if request.is_json else None)
+            or request.values.get("email")
+        )
+        if not email:
+            print("No email provided!")
+            if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return jsonify({"error": "No email provided"}), 400
+            else:
+                flash("No email provided!", "error")
+                return redirect(url_for("home"))
+
+        email = email.strip().lower()
+        print("Form submitted. Email received:", email)
+        emails.insert_one({
+            "email": email,
+            "timestamp": datetime.utcnow(),
+            "source": "website-form"
+        })
+        print("Inserted into MongoDB:", email)
+
+        # Optional: add_to_mailerlite(email)
+
+        if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({"message": "Email saved"}), 200
+        else:
             flash("Thanks for subscribing!", "success")
             return redirect(url_for("home"))
+
     return render_template("index.html")
+
 
 # Blog listing
 @app.route("/blog")
