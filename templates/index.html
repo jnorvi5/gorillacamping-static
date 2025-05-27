@@ -96,5 +96,42 @@
     });
   });
 </script>
+  <script>
+document.addEventListener('ml_form_success', function (event) {
+    const email = event.detail.data.email;
+    // Debug: show email in console
+    console.log("ml_form_success:", email);
+    fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ email })
+    })
+    .then(response => {
+        // Try to parse JSON, but allow for non-JSON responses
+        return response.json().catch(() => ({}));
+    })
+    .then(data => {
+        if (Object.keys(data).length) {
+            console.log("Backend response:", data);
+        } else {
+            console.log("✅ Email backed up to MongoDB");
+        }
+    })
+    .catch(() => {
+        console.warn("⚠️ Backup to MongoDB failed");
+    });
+});
+
+// Accessibility fix for MailerLite form
+document.addEventListener('ml_form_loaded', function(event) {
+    const inputs = event.detail.form.querySelectorAll('input');
+    inputs.forEach(input => {
+        if (!input.id && !input.name) {
+            input.name = input.placeholder.toLowerCase().replace(/\s+/g, '_');
+            input.id = input.name;
+        }
+    });
+});
+</script>
 </body>
 </html>
