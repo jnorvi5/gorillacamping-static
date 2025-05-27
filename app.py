@@ -25,7 +25,13 @@ app.config.update(
 @app.after_request
 def security_headers(response):
     response.headers.update({
-        'Content-Security-Policy': "default-src 'self' https://*.mailerlite.com",
+        'Content-Security-Policy': (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' https://*.mailerlite.com https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms; "
+            "connect-src 'self' https://*.mailerlite.com https://www.google-analytics.com https://www.clarity.ms; "
+            "img-src 'self' data: https://*.mailerlite.com https://www.google-analytics.com; "
+            "style-src 'self' 'unsafe-inline' https://*.mailerlite.com;"
+        ),
         'X-Content-Type-Options': 'nosniff',
         'X-Frame-Options': 'DENY'
     })
