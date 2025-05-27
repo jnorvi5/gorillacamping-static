@@ -159,12 +159,7 @@ def home():
             
             # Add to MailerLite
             add_to_mailerlite(email)  # NOW ACTIVE
-            
-            flash("Thanks for subscribing!", "success")
-        except Exception as e:
-            print(f"❌ FATAL ERROR: {str(e)}")
-            flash("Submission failed - try again", "error")
-        return redirect(url_for("home"))
+            return redirect(url_for("thank_you"))
     
     return render_template("index.html")
 
@@ -228,7 +223,10 @@ def logout():
 def debug_subscribers():
     docs = list(db.subscribers.find())
     return {"count": len(docs), "docs": [str(doc) for doc in docs]}
-
+@app.route("/thank-you")
+def thank_you():
+    return render_template("thank_you.html")
+    
 if __name__ == "__main__":
     app.run(debug=True)
 
