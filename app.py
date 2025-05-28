@@ -242,6 +242,22 @@ def debug_subscribers():
 @app.route("/thank-you")
 def thank_you():
     return render_template("thank_you.html")
+from flask import Response
+
+@app.route('/sitemap.xml', methods=['GET'])
+def sitemap():
+    pages = []
+    ten_days_ago = (datetime.now() - timedelta(days=10)).date().isoformat()
+    # Home
+    pages.append(['/', ten_days_ago])
+    # Blog posts
+    for post in posts.find():
+        url = f"/blog/{post['slug']}"
+        lastmod = post.get('updated_at', post.get('created_at', ten_days_ago)).date().isoformat()
+        pages.append([url, lastmod])
+
+    sitemap_xml = render_template('sitemap_template.xml', pages=pages)
+    return Response(sitemap_xml, mimetype='application/xml')
 
 if __name__ == "__main__":
     debug_mode = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
