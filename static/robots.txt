@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: https://gorillacamping.site/sitemap.xml
