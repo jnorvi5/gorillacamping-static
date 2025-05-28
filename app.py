@@ -4,18 +4,18 @@ from datetime import datetime
 from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 import requests
 
 # --- Config & Secrets ---
 SECRET_KEY = os.environ.get("SECRET_KEY")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
+ADMIN_PASSWORD_HASH = os.environ.get("ADMIN_PASSWORD_HASH")
 MONGO_URI = os.environ.get("MONGO_URI")
 MAILERLITE_API_KEY = os.environ.get("MAILERLITE_API_KEY")
 AFFILIATE_ID = os.environ.get("AFFILIATE_ID", "")
 
 assert SECRET_KEY, "❌ SECRET_KEY environment variable is not set!"
-assert ADMIN_PASSWORD, "❌ ADMIN_PASSWORD environment variable is not set!"
+assert ADMIN_PASSWORD_HASH, "❌ ADMIN_PASSWORD_HASH environment variable is not set!"
 assert MONGO_URI, "❌ MONGO_URI environment variable is not set!"
 
 app = Flask(__name__)
@@ -175,11 +175,11 @@ def blog_post(slug):
 # --- Admin: Add Post ---
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
-    # Securely store and hash admin password on first use
+    # Secure session-based login (using hashed password)
     if not session.get("logged_in"):
         if request.method == "POST":
             pw = request.form.get("password", "")
-            if check_password_hash(generate_password_hash(ADMIN_PASSWORD), pw):
+            if ADMIN_PASSWORD_HASH and check_password_hash(ADMIN_PASSWORD_HASH, pw):
                 session["logged_in"] = True
                 return redirect(url_for("admin"))
             else:
