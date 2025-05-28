@@ -3,3 +3,4 @@ pymongo
 gunicorn
 pytest
 requests
+Werkzeug
