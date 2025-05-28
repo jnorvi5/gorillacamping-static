@@ -1,4 +1,4 @@
-                                                             from pymongo import MongoClient
+from pymongo import MongoClient
 
 # Replace with your actual MongoDB URI
 MONGO_URI = "mongodb+srv://jnorvi5:gorillaSecure2025@cluster0.c0gofgp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
