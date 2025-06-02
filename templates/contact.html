@@ -1,62 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Contact Gorilla Camping for collaborations, questions, or to join our guerilla camping community.">
-    <meta name="keywords" content="Gorilla Camping Contact, Guerilla Camping, Outdoor Blog Contact, Affiliate Blog Contact">
-    <meta name="author" content="Your Name">
-    <title>Contact Us - Gorilla Camping</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
-</head>
-<body>
-    <header>
-        <div class="logo">
-            <img src="/static/images/logo-placeholder.png" alt="Gorilla Camping Logo" />
-        </div>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/blog">Blog</a></li>
-                <li><a href="/shop">Shop</a></li>
-                <li><a href="/gear">Gear</a></li>
-                <li><a href="/contact" class="active">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+{% extends "base.html" %}
+{% block title %}Contact Us - Gorilla Camping{% endblock %}
+{% block meta_description %}Contact Gorilla Camping for collaborations, questions, or to join our guerilla camping community.{% endblock %}
+{% block meta_keywords %}Gorilla Camping Contact, Guerilla Camping, Outdoor Blog Contact, Affiliate Blog Contact{% endblock %}
 
-    <main>
-        <section class="contact-section">
-            <h1>Contact Us</h1>
-            <p>
-                Got questions, want to collaborate, or have a guerilla camping story to share?<br>
-                Reach out using the form below or email us anytime.<br>
-                <strong>Email:</strong> <a href="mailto:your@email.com" style="color:#32CD32;">your@email.com</a>
-            </p>
-            
-            <!-- Simple Contact Form -->
-            <form method="POST" action="mailto:your@email.com" enctype="text/plain" style="max-width:500px;">
-                <label for="name">Name:</label><br>
-                <input type="text" id="name" name="name" required style="width:100%;padding:8px;"><br><br>
-                <label for="email">Email:</label><br>
-                <input type="email" id="email" name="email" required style="width:100%;padding:8px;"><br><br>
-                <label for="message">Message:</label><br>
-                <textarea id="message" name="message" rows="5" required style="width:100%;padding:8px;"></textarea><br><br>
-                <input type="submit" value="Send" style="background:#32CD32;color:#1a1a1a;padding:10px 20px;font-weight:bold;border:none;border-radius:4px;cursor:pointer;">
-            </form>
-            
-            <!-- Optional: MailerLite Email Signup Form Embed -->
-            <!--
-            <div style="margin-top:30px;">
-                <h2>Join the Tribe</h2>
-                <iframe src="YOUR_MAILERLITE_FORM_URL" frameborder="0" scrolling="no" style="width:100%; max-width:500px; height:300px;"></iframe>
-            </div>
-            -->
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2025 Gorilla Camping. All Rights Reserved.</p>
-    </footer>
-</body>
-</html>
+{% block content %}
+<section class="contact-section">
+    <h1>Contact Us</h1>
+    <p>
+        Got questions, want to collaborate, or have a guerilla camping story to share?<br>
+        Reach out using the form below or email us anytime.<br>
+        <strong>Email:</strong> <a href="mailto:your@email.com" style="color:#32CD32;">your@email.com</a>
+    </p>
+    
+    <!-- Simple Contact Form -->
+    <form method="POST" action="mailto:your@email.com" enctype="text/plain" style="max-width:500px;">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required style="width:100%;padding:8px;"><br><br>
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required style="width:100%;padding:8px;"><br><br>
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message" rows="5" required style="width:100%;padding:8px;"></textarea><br><br>
+        <input type="submit" value="Send" style="background:#32CD32;color:#1a1a1a;padding:10px 20px;font-weight:bold;border:none;border-radius:4px;cursor:pointer;">
+    </form>
+</section>
+{% endblock %}
