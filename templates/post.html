@@ -35,5 +35,11 @@
   </div>
   <p><a href="{{ url_for('blog') }}">← Back to blog</a></p>
 </body>
+  <h3>Related Posts</h3>
+<ul>
+  {% for rel in related_posts %}
+    <li><a href="/blog/{{ rel.slug }}">{{ rel.title }}</a></li>
+  {% endfor %}
+</ul>
 </html>
 
