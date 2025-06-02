@@ -1,8 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>{{ post.title }} | Gorilla Camping</title>
-<meta name="description" content="{{ post.meta_description }}">
+{% extends "base.html" %}
+{% block title %}{{ post.title }} | Gorilla Camping{% endblock %}
+{% block meta_description %}{{ post.meta_description }}{% endblock %}
+{% block meta_keywords %}Gorilla Camping, Guerilla Camping, Blog, {{ post.title }}, Outdoor, Camping, Review{% endblock %}
+
+{% block extra_head %}
 <link rel="canonical" href="https://gorillacamping.site/blog/{{ post.slug }}">
 <meta property="og:title" content="{{ post.title }}">
 <meta property="og:description" content="{{ post.meta_description }}">
@@ -26,20 +27,25 @@
   }
 }
 </script>
-</head>
-<body>
-  <h1>{{ post['title'] }}</h1>
-  <p><em>Published on {{ post['created_at'].strftime('%Y-%m-%d') }}</em></p>
+{% endblock %}
+
+{% block content %}
+<article class="blog-post">
+  <h1>{{ post.title }}</h1>
+  <p><em>Published on {{ post.created_at.strftime('%Y-%m-%d') }}</em></p>
   <div>
-    {{ post['content'] | safe }}
+    {{ post.content | safe }}
   </div>
   <p><a href="{{ url_for('blog') }}">← Back to blog</a></p>
-</body>
+</article>
+
+<section class="related-posts">
   <h3>Related Posts</h3>
-<ul>
-  {% for rel in related_posts %}
-    <li><a href="/blog/{{ rel.slug }}">{{ rel.title }}</a></li>
-  {% endfor %}
-</ul>
-</html>
+  <ul>
+    {% for rel in related_posts %}
+      <li><a href="/blog/{{ rel.slug }}">{{ rel.title }}</a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}
 
