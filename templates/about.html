@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Discover the story behind Gorilla Camping, a guerilla-style camping and adventure blog. Join the tribe and embrace freedom.">
-    <meta name="keywords" content="Gorilla Camping, Guerilla Camping, Outdoor Adventures, Camping Blog, Affiliate Marketing">
+    <meta name="description" content="Contact Gorilla Camping for collaborations, questions, or to join our guerilla camping community.">
+    <meta name="keywords" content="Gorilla Camping Contact, Guerilla Camping, Outdoor Blog Contact, Affiliate Blog Contact">
     <meta name="author" content="Your Name">
-    <title>About Us - Gorilla Camping</title>
+    <title>Contact Us - Gorilla Camping</title>
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
     <header>
         <div class="logo">
-            <!-- Placeholder for your logo -->
             <img src="/static/images/logo-placeholder.png" alt="Gorilla Camping Logo" />
         </div>
         <nav>
@@ -20,58 +19,38 @@
                 <li><a href="/">Home</a></li>
                 <li><a href="/blog">Blog</a></li>
                 <li><a href="/shop">Shop</a></li>
-                <li><a href="/contact">Contact</a></li>
+                <li><a href="/contact" class="active">Contact</a></li>
             </ul>
         </nav>
     </header>
 
     <main>
-        <section class="about-section">
-            <h1>About Us</h1>
-            <p><strong>Life is short. Camp your way through it.</strong></p>
+        <section class="contact-section">
+            <h1>Contact Us</h1>
             <p>
-                Welcome to Gorilla Camping, where adventure meets ingenuity. My name is [Your Name],
-                and this website is more than just a blog—it's a movement. It's for everyone out 
-                there chasing freedom, living life on their own terms, and refusing to settle for 
-                the ordinary.
+                Got questions, want to collaborate, or have a guerilla camping story to share? 
+                Reach out using the form below or email us anytime.<br>
+                <strong>Email:</strong> <a href="mailto:your@email.com" style="color:#32CD32;">your@email.com</a>
             </p>
-
-            <h2>My Story</h2>
-            <p>
-                Not too long ago, I was on a different path—one that didn't feel like my own. I craved 
-                something more, something real. So, I made a choice: to take life into my own hands 
-                and live it <em>guerilla style</em>. That's where "Gorilla Camping" was born—a play 
-                on the word "guerilla" because I believe in resourcefulness, grit, and making the most 
-                out of what you have.
-            </p>
-
-            <div class="image-placeholder">
-                <!-- Placeholder for a story-related image -->
-                <img src="/static/images/about-story-placeholder.png" alt="Your Story Image">
+            
+            <!-- Simple Contact Form -->
+            <form method="POST" action="mailto:your@email.com" enctype="text/plain" style="max-width:500px;">
+                <label for="name">Name:</label><br>
+                <input type="text" id="name" name="name" required style="width:100%;padding:8px;"><br><br>
+                <label for="email">Email:</label><br>
+                <input type="email" id="email" name="email" required style="width:100%;padding:8px;"><br><br>
+                <label for="message">Message:</label><br>
+                <textarea id="message" name="message" rows="5" required style="width:100%;padding:8px;"></textarea><br><br>
+                <input type="submit" value="Send" style="background:#32CD32;color:#1a1a1a;padding:10px 20px;font-weight:bold;border:none;border-radius:4px;cursor:pointer;">
+            </form>
+            
+            <!-- Optional: MailerLite Email Signup Form Embed -->
+            <!--
+            <div style="margin-top:30px;">
+                <h2>Join the Tribe</h2>
+                <iframe src="YOUR_MAILERLITE_FORM_URL" frameborder="0" scrolling="no" style="width:100%; max-width:500px; height:300px;"></iframe>
             </div>
-
-            <h2>The Journey We're On</h2>
-            <p>
-                Now, I’m building this platform not just for me, but for <strong>us</strong>. I’m looking 
-                for a tribe of like-minded adventurers, hustlers, and dreamers to join me as we figure 
-                this out together. This site isn’t just about camping gear, tips, or affiliate marketing 
-                (though I’ll share some great finds!)—it’s about embracing the guerilla mindset. It’s 
-                about finding freedom, building something from scratch, and supporting each other along 
-                the way.
-            </p>
-
-            <div class="image-placeholder">
-                <!-- Placeholder for a community-related image -->
-                <img src="/static/images/community-placeholder.png" alt="Community Image">
-            </div>
-
-            <h2>Why I Built Gorilla Camping</h2>
-            <p>
-                I’m on a mission to not just survive—but thrive. My goal is to turn this passion into a 
-                sustainable income while helping others do the same. Whether you're here for the camping 
-                stories, the product recommendations, or the community, know this: you’re part of something 
-                real. Together, we’ll hustle smart, live fully, and create a life worth living.
-            </p>
+            -->
         </section>
     </main>
 
@@ -108,18 +87,20 @@
             text-decoration: none;
             font-weight: bold;
         }
-        nav a:hover {
+        nav a.active, nav a:hover {
             text-decoration: underline;
         }
-        .about-section {
+        .contact-section {
             padding: 20px;
         }
-        .image-placeholder img {
-            width: 100%;
-            max-width: 600px;
-            margin: 20px 0;
-            border: 2px solid #32CD32;
-            border-radius: 5px;
+        input, textarea {
+            background: #242424;
+            color: #e0e0e0;
+            border: 1px solid #32CD32;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            margin-top: 10px;
         }
         footer {
             text-align: center;
