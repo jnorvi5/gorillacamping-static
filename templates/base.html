@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Gorilla Camping: Guerilla-style camping blog, tips, and gear picks for outdoor adventurers and hustlers.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}Gorilla Camping, Guerilla Camping, Camping Blog, Outdoor Gear, Affiliate Marketing{% endblock %}">
+    <meta name="author" content="Your Name">
+    <title>{% block title %}Gorilla Camping{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TE4BHZ89TL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TE4BHZ89TL');
+    </script>
+    <!-- End Google Analytics -->
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="/static/images/logo-placeholder.png" alt="Gorilla Camping Logo" />
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/" {% if request.path=='/' %}class="active"{% endif %}>Home</a></li>
+                <li><a href="/blog" {% if request.path.startswith('/blog') %}class="active"{% endif %}>Blog</a></li>
+                <li><a href="/shop" {% if request.path=='/shop' %}class="active"{% endif %}>Shop</a></li>
+                <li><a href="/gear" {% if request.path=='/gear' %}class="active"{% endif %}>Gear</a></li>
+                <li><a href="/contact" {% if request.path=='/contact' %}class="active"{% endif %}>Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2025 Gorilla Camping. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>
