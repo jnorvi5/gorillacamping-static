@@ -165,12 +165,18 @@ def blog():
 
 # Individual blog post
 @app.route("/blog/<slug>")
+import random
+
+@app.route("/blog/<slug>")
 def blog_post(slug):
     post = posts.find_one({"slug": slug})
     if not post:
         return "404 Not Found", 404
-    post["affiliate_link"] = affiliate_link(slug)
-    return render_template("post.html", post=post)
+    # Get 2 random other posts
+    all_slugs = [p["slug"] for p in posts.find({"slug": {"$ne": slug}})]
+    related_slugs = random.sample(all_slugs, min(2, len(all_slugs)))
+    related_posts = list(posts.find({"slug": {"$in": related_slugs}}))
+    return render_template("post.html", post=post, related_posts=related_posts)
 
 # --- Admin: Add Post ---
 @app.route("/admin", methods=["GET", "POST"])
