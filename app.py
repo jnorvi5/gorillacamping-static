@@ -1,8 +1,8 @@
 import os
 import re
 import  random
-from datetime import datetime
-from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session
+from datetime import datetime, timedelta
+from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session, Response
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from werkzeug.security import check_password_hash
@@ -245,7 +245,6 @@ def debug_subscribers():
 @app.route("/thank-you")
 def thank_you():
     return render_template("thank_you.html")
-from flask import Response
 
 @app.route('/sitemap.xml', methods=['GET'])
 def sitemap():
@@ -261,6 +260,19 @@ def sitemap():
 
     sitemap_xml = render_template('sitemap_template.xml', pages=pages)
     return Response(sitemap_xml, mimetype='application/xml')
+
+# --- Static Pages: About, Contact, Gear ---
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
+
+@app.route("/gear")
+def gear():
+    return render_template("gear.html")
 
 if __name__ == "__main__":
     debug_mode = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
