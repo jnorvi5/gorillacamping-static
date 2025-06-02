@@ -1,80 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Discover the story behind Gorilla Camping, a guerilla-style camping and adventure blog. Join the tribe and embrace freedom.">
-    <meta name="keywords" content="Gorilla Camping, Guerilla Camping, Outdoor Adventures, Camping Blog, Affiliate Marketing">
-    <meta name="author" content="Your Name">
-    <title>About Us - Gorilla Camping</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
-</head>
-<body>
-    <header>
-        <div class="logo">
-            <img src="/static/images/logo-placeholder.png" alt="Gorilla Camping Logo" />
-        </div>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/blog">Blog</a></li>
-                <li><a href="/shop">Shop</a></li>
-                <li><a href="/gear">Gear</a></li>
-                <li><a href="/contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+{% extends "base.html" %}
+{% block title %}About Us - Gorilla Camping{% endblock %}
+{% block meta_description %}Discover the story behind Gorilla Camping, a guerilla-style camping and adventure blog. Join the tribe and embrace freedom.{% endblock %}
+{% block meta_keywords %}Gorilla Camping, Guerilla Camping, Outdoor Adventures, Camping Blog, Affiliate Marketing{% endblock %}
 
-    <main>
-        <section class="about-section">
-            <h1>About Us</h1>
-            <p><strong>Life is short. Camp your way through it.</strong></p>
-            <p>
-                Welcome to Gorilla Camping, where adventure meets ingenuity. My name is [Your Name],
-                and this website is more than just a blog—it's a movement. It's for everyone out 
-                there chasing freedom, living life on their own terms, and refusing to settle for 
-                the ordinary.
-            </p>
+{% block content %}
+<section class="about-section">
+    <h1>About Us</h1>
+    <p><strong>Life is short. Camp your way through it.</strong></p>
+    <p>
+        Welcome to Gorilla Camping, where adventure meets ingenuity. My name is [Your Name],
+        and this website is more than just a blog—it's a movement. It's for everyone out 
+        there chasing freedom, living life on their own terms, and refusing to settle for 
+        the ordinary.
+    </p>
 
-            <h2>My Story</h2>
-            <p>
-                Not too long ago, I was on a different path—one that didn't feel like my own. I craved 
-                something more, something real. So, I made a choice: to take life into my own hands 
-                and live it <em>guerilla style</em>. That's where "Gorilla Camping" was born—a play 
-                on the word "guerilla" because I believe in resourcefulness, grit, and making the most 
-                out of what you have.
-            </p>
+    <h2>My Story</h2>
+    <p>
+        Not too long ago, I was on a different path—one that didn't feel like my own. I craved 
+        something more, something real. So, I made a choice: to take life into my own hands 
+        and live it <em>guerilla style</em>. That's where "Gorilla Camping" was born—a play 
+        on the word "guerilla" because I believe in resourcefulness, grit, and making the most 
+        out of what you have.
+    </p>
 
-            <div class="image-placeholder">
-                <img src="/static/images/about-story-placeholder.png" alt="Your Story Image">
-            </div>
+    <div class="image-placeholder">
+        <img src="/static/images/about-story-placeholder.png" alt="Your Story Image">
+    </div>
 
-            <h2>The Journey We're On</h2>
-            <p>
-                Now, I’m building this platform not just for me, but for <strong>us</strong>. I’m looking 
-                for a tribe of like-minded adventurers, hustlers, and dreamers to join me as we figure 
-                this out together. This site isn’t just about camping gear, tips, or affiliate marketing 
-                (though I’ll share some great finds!)—it’s about embracing the guerilla mindset. It’s 
-                about finding freedom, building something from scratch, and supporting each other along 
-                the way.
-            </p>
+    <h2>The Journey We're On</h2>
+    <p>
+        Now, I’m building this platform not just for me, but for <strong>us</strong>. I’m looking 
+        for a tribe of like-minded adventurers, hustlers, and dreamers to join me as we figure 
+        this out together. This site isn’t just about camping gear, tips, or affiliate marketing 
+        (though I’ll share some great finds!)—it’s about embracing the guerilla mindset. It’s 
+        about finding freedom, building something from scratch, and supporting each other along 
+        the way.
+    </p>
 
-            <div class="image-placeholder">
-                <img src="/static/images/community-placeholder.png" alt="Community Image">
-            </div>
+    <div class="image-placeholder">
+        <img src="/static/images/community-placeholder.png" alt="Community Image">
+    </div>
 
-            <h2>Why I Built Gorilla Camping</h2>
-            <p>
-                I’m on a mission to not just survive—but thrive. My goal is to turn this passion into a 
-                sustainable income while helping others do the same. Whether you're here for the camping 
-                stories, the product recommendations, or the community, know this: you’re part of something 
-                real. Together, we’ll hustle smart, live fully, and create a life worth living.
-            </p>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2025 Gorilla Camping. All Rights Reserved.</p>
-    </footer>
-</body>
-</html>
+    <h2>Why I Built Gorilla Camping</h2>
+    <p>
+        I’m on a mission to not just survive—but thrive. My goal is to turn this passion into a 
+        sustainable income while helping others do the same. Whether you're here for the camping 
+        stories, the product recommendations, or the community, know this: you’re part of something 
+        real. Together, we’ll hustle smart, live fully, and create a life worth living.
+    </p>
+</section>
+{% endblock %}
