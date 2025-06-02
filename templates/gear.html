@@ -1,72 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Hand-picked camping gear by Gorilla Camping. Guerilla-style recommendations for outdoor adventurers on a budget.">
-    <meta name="keywords" content="Camping Gear, Gorilla Camping, Guerilla Gear, Outdoor Equipment, Camping Essentials">
-    <meta name="author" content="Your Name">
-    <title>Gear - Gorilla Camping</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
-</head>
-<body>
-    <header>
-        <div class="logo">
-            <img src="/static/images/logo-placeholder.png" alt="Gorilla Camping Logo" />
-        </div>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/blog">Blog</a></li>
-                <li><a href="/shop">Shop</a></li>
-                <li><a href="/gear" class="active">Gear</a></li>
-                <li><a href="/contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+{% extends "base.html" %}
+{% block title %}Gear - Gorilla Camping{% endblock %}
+{% block meta_description %}Hand-picked camping gear by Gorilla Camping. Guerilla-style picks for outdoor adventurers.{% endblock %}
+{% block meta_keywords %}Camping Gear, Gorilla Camping, Guerilla Gear, Outdoor Equipment, Camping Essentials, Affiliate Picks{% endblock %}
 
-    <main>
-        <section class="gear-section">
-            <h1>Gorilla Camping Gear Picks</h1>
-            <p>
-                These are my hand-picked, tested, and trusted pieces of gear. Everything here is chosen for value, utility, and that guerilla spirit!
-            </p>
-
-            <ul class="gear-list">
-                <li>
-                    <div class="gear-item">
-                        <!-- Placeholder for Gear Item 1 -->
-                        <div class="gear-img">
-                            <img src="/static/images/gear-placeholder1.png" alt="Gear Item 1">
-                        </div>
-                        <div class="gear-info">
-                            <h2>Gear Item 1</h2>
-                            <p>Description and why I recommend it. Affiliate link goes here.</p>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="gear-item">
-                        <!-- Placeholder for Gear Item 2 -->
-                        <div class="gear-img">
-                            <img src="/static/images/gear-placeholder2.png" alt="Gear Item 2">
-                        </div>
-                        <div class="gear-info">
-                            <h2>Gear Item 2</h2>
-                            <p>Description and why I recommend it. Affiliate link goes here.</p>
-                        </div>
-                    </div>
-                </li>
-                <!-- Add more gear items as needed -->
-            </ul>
-            <p style="margin-top:30px;">
-                <em>More gear coming soon. Stay tuned for updates!</em>
-            </p>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2025 Gorilla Camping. All Rights Reserved.</p>
-    </footer>
-</body>
-</html>
+{% block content %}
+<section class="gear-section">
+    <h1>Gorilla Camping Gear Picks</h1>
+    <p>
+        These are my hand-picked, tested, and trusted pieces of gear. Everything here is chosen for value, utility, and that guerilla spirit! I only recommend what I use or would use myself—always with a shoestring budget and max ROI in mind.
+    </p>
+    <ul class="gear-list">
+        <li>
+            <div class="gear-item">
+                <div class="gear-img">
+                    <img src="/static/images/gear-placeholder1.png" alt="Gear Item 1">
+                </div>
+                <div class="gear-info">
+                    <h2>Gear Item 1</h2>
+                    <p>Description and why I recommend it. <a href="https://your-affiliate-link.com" target="_blank" rel="noopener">Check price</a></p>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="gear-item">
+                <div class="gear-img">
+                    <img src="/static/images/gear-placeholder2.png" alt="Gear Item 2">
+                </div>
+                <div class="gear-info">
+                    <h2>Gear Item 2</h2>
+                    <p>Description and why I recommend it. <a href="https://your-affiliate-link.com" target="_blank" rel="noopener">Check price</a></p>
+                </div>
+            </div>
+        </li>
+        <!-- Add more gear items as you grow your site -->
+    </ul>
+    <p style="margin-top:30px;">
+        <em>More gear coming soon. Stay tuned for updates!</em>
+    </p>
+</section>
+{% endblock %}
