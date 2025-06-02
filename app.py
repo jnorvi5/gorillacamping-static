@@ -1,5 +1,6 @@
 import os
 import re
+import  random
 from datetime import datetime
 from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session
 from pymongo import MongoClient
@@ -162,10 +163,6 @@ def blog():
     per_page = 10
     all_posts, total = get_posts_paginated(page, per_page)
     return render_template("blog.html", posts=all_posts, page=page, total=total, per_page=per_page)
-
-# Individual blog post
-@app.route("/blog/<slug>")
-import random
 
 @app.route("/blog/<slug>")
 def blog_post(slug):
