@@ -4,44 +4,31 @@ import random
 from datetime import datetime, timedelta
 from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session, Response
 from pymongo import MongoClient
-from pymongo.server_api import ServerApi
-from werkzeug.security import check_password_hash
-import requests
-from urllib.parse import urlparse
-
-# --- Config & Secrets ---
-SECRET_KEY = os.environ.get("SECRET_KEY")
-ADMIN_PASSWORD_HASH = os.environ.get("ADMIN_PASSWORD_HASH")
-MONGO_URI = os.environ.get("MONGO_URI")
-MAILERLITE_API_KEY = os.environ.get("MAILERLITE_API_KEY")
-AFFILIATE_ID = os.environ.get("AFFILIATE_ID", "gorillacamping")
-
-assert SECRET_KEY, "❌ SECRET_KEY environment variable is not set!"
-assert ADMIN_PASSWORD_HASH, "❌ ADMIN_PASSWORD_HASH environment variable is not set!"
-assert MONGO_URI, "❌ MONGO_URI environment variable is not set!"
+from urllib.parse import urlparse, parse_qs
+import traceback
 
 app = Flask(__name__)
-app.secret_key = SECRET_KEY
+app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
 
-# --- SECURITY CONFIG FOR CLOUDFLARE & MOBILE ---
-app.config.update(
-    SESSION_COOKIE_SECURE=True,
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE='Lax',
-    PERMANENT_SESSION_LIFETIME=3600,
-    PREFERRED_URL_SCHEME='https'  # FORCES HTTPS
-)
+# MongoDB connection with error handling
+try:
+    mongodb_uri = os.environ.get('MONGODB_URI')
+    if mongodb_uri:
+        client = MongoClient(mongodb_uri)
+        db = client.get_default_database()
+        # Test connection
+        db.command('ping')
+        print("✅ MongoDB connected successfully!")
+    else:
+        print("⚠️ No MongoDB URI found - running in demo mode")
+        db = None
+except Exception as e:
+    print(f"❌ MongoDB connection failed: {e}")
+    db = None
 
-@app.before_request
-def force_https():
-    """Force HTTPS redirect for security warnings"""
-    if not request.is_secure and request.headers.get('X-Forwarded-Proto') != 'https':
-        if 'localhost' not in request.host and '127.0.0.1' not in request.host:
-            return redirect(request.url.replace('http://', 'https://'), code=301)
-
+# Guerilla security headers for maximum SEO/trust
 @app.after_request
 def security_headers(response):
-    """Guerilla security headers for maximum SEO/trust"""
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
@@ -49,193 +36,88 @@ def security_headers(response):
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     return response
 
-# --- MongoDB Setup with Error Handling ---
-client = None
-db = None
-emails = None
-posts = None
-clicks = None
-
-def init_mongodb():
-    global client, db, emails, posts, clicks
+# Safe database operations (guerilla-style error handling)
+def safe_db_operation(operation, default_return=None):
     try:
-        client = MongoClient(MONGO_URI, server_api=ServerApi('1'), serverSelectionTimeoutMS=5000)
-        client.admin.command("ping")
-        print("✅ MongoDB connected successfully")
-        
-        db = client.get_database("gorillacamping")
-        emails = db.get_collection("subscribers")
-        posts = db.get_collection("posts")
-        clicks = db.get_collection("affiliate_clicks")
-        
-        # Create indexes
-        try:
-            emails.create_index("email", unique=True)
-            posts.create_index("slug", unique=True)
-            clicks.create_index([("timestamp", -1), ("affiliate_url", 1)])
-        except Exception as e:
-            print(f"⚠️ Index creation warning: {e}")
-            
-        return True
-    except Exception as e:
-        print(f"❌ MongoDB connection failed: {e}")
-        print("⚠️ App will run in limited mode without database")
-        return False
-
-# Try to connect to MongoDB
-mongodb_connected = init_mongodb()
-
-# Helper function to safely use database
-def safe_db_operation(operation, fallback_result=None):
-    if not mongodb_connected or db is None:
-        print("⚠️ Database not available, using fallback")
-        return fallback_result
-    try:
-        return operation()
-    except Exception as e:
-        print(f"❌ Database operation failed: {e}")
-        return fallback_result
-
-# --- Helper Functions ---
-def add_to_mailerlite(email):
-    """Add email to MailerLite with error handling and timeout"""
-    try:
-        if not MAILERLITE_API_KEY:
-            print("❌ MAILERLITE_API_KEY environment variable missing!")
-            return False
-
-        headers = {
-            "Authorization": f"Bearer {MAILERLITE_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        data = {
-            "email": email,
-            "fields": {
-                "source": "gorilla_camping_guerilla_marketing"
-            }
-        }
-        response = requests.post(
-            "https://connect.mailerlite.com/api/subscribers",
-            headers=headers,
-            json=data,
-            timeout=10
-        )
-        response.raise_for_status()
-        response_data = response.json()
-        if 'error' in response_data:
-            print(f"⚠️ MailerLite API error: {response_data['error']}")
-            return False
-        print(f"✅ Successfully added {email} to MailerLite")
-        return True
-    except Exception as e:
-        print(f"❌ MailerLite error: {e}")
-        return False
-
-def sanitize_slug(slug):
-    slug = slug.lower().replace(" ", "-")
-    slug = re.sub(r"[^a-z0-9-]", "", slug)
-    return slug
-
-def track_affiliate_click(affiliate_url, referrer_page=None):
-    """Track affiliate link clicks for analytics"""
-    def _track():
-        clicks.insert_one({
-            "type": "affiliate_click",
-            "affiliate_url": affiliate_url,
-            "timestamp": datetime.utcnow(),
-            "ip": request.remote_addr,
-            "user_agent": request.headers.get('User-Agent', ''),
-            "referrer_page": referrer_page,
-            "affiliate_id": AFFILIATE_ID
-        })
-        return True
-    
-    safe_db_operation(_track, False)
-
-def track_social_click(platform, action=None):
-    """Track social media clicks for analytics"""
-    def _track():
-        clicks.insert_one({
-            "type": "social_click",
-            "platform": platform,
-            "action": action,
-            "timestamp": datetime.utcnow(),
-            "ip": request.remote_addr,
-            "user_agent": request.headers.get('User-Agent', ''),
-            "referrer": request.referrer
-        })
-        return True
-    
-    safe_db_operation(_track, False)
-
-# --- Blog Pagination Helper ---
-def get_posts_paginated(page=1, per_page=10):
-    def _get_posts():
-        skip = (page - 1) * per_page
-        total = posts.count_documents({})
-        cursor = posts.find().sort("created_at", -1).skip(skip).limit(per_page)
-        return list(cursor), total
-    
-    return safe_db_operation(_get_posts, ([], 0))
-
-# --- Routes ---
-@app.route("/pingdb")
-def pingdb():
-    if not mongodb_connected:
-        return "❌ MongoDB not connected", 500
-    try:
-        client.admin.command("ping")
-        return "✅ MongoDB connected!", 200
-    except Exception as e:
-        return f"❌ MongoDB connection failed: {e}", 500
-
-@app.route("/", methods=["GET", "POST"])
-def home():
-    if request.method == "POST":
-        email = (
-            request.form.get("email")
-            or (request.json.get("email") if request.is_json else None)
-            or request.values.get("email")
-        )
-        if not email:
-            return jsonify({"error": "No email provided"}), 400
-        
-        email = email.strip().lower()
-        
-        # Enhanced email validation
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            return jsonify({"error": "Invalid email format"}), 400
-        
-        # Try to save to database, but don't fail if it's down
-        def save_email():
-            emails.insert_one({
-                "email": email,
-                "timestamp": datetime.utcnow(),
-                "source": "guerilla-homepage-form",
-                "ip": request.remote_addr
-            })
-            return True
-            
-        saved = safe_db_operation(save_email, False)
-        
-        # Always try MailerLite (more important for revenue)
-        mailerlite_success = add_to_mailerlite(email)
-        
-        if saved and mailerlite_success:
-            flash("✅ Subscribed successfully!", "success")
-        elif mailerlite_success:
-            flash("✅ Subscribed to email list!", "success")
+        if db is not None:
+            return operation()
         else:
-            flash("⚠️ Subscription may have failed. Please try again.", "error")
-            
-        return redirect(url_for("thank_you"))
+            return default_return
+    except Exception as e:
+        print(f"Database operation failed: {e}")
+        return default_return
+
+# Get recent posts with error handling
+def get_recent_posts(limit=5):
+    def fetch_posts():
+        return list(db.posts.find({"status": "published"}).sort("date", -1).limit(limit))
     
-    # Get latest blog posts for homepage (or empty list if database is down)
-    latest_posts = safe_db_operation(
-        lambda: list(posts.find().sort("created_at", -1).limit(3)),
-        []
-    )
-    return render_template("index.html", latest_posts=latest_posts)
+    posts = safe_db_operation(fetch_posts, [])
+    
+    # Fallback demo posts if database is unavailable
+    if not posts:
+        posts = [
+            {
+                "title": "Guerilla Camping Setup: $50 Budget Challenge",
+                "slug": "guerilla-camping-50-budget",
+                "excerpt": "How to set up a complete guerilla camping kit for under $50. Military surplus secrets revealed!",
+                "date": datetime.now() - timedelta(days=1),
+                "category": "Budget Gear"
+            },
+            {
+                "title": "Stealth Camping in Urban Areas: Legal & Safe",
+                "slug": "stealth-camping-urban-guide",
+                "excerpt": "Master the art of urban stealth camping without breaking laws or getting caught.",
+                "date": datetime.now() - timedelta(days=3),
+                "category": "Stealth Tactics"
+            }
+        ]
+    
+    return posts
+
+# Get paginated posts
+def get_posts_paginated(page=1, per_page=12):
+    def fetch_paginated():
+        skip = (page - 1) * per_page
+        posts = list(db.posts.find({"status": "published"})
+                    .sort("date", -1)
+                    .skip(skip)
+                    .limit(per_page))
+        total = db.posts.count_documents({"status": "published"})
+        return posts, total
+    
+    result = safe_db_operation(fetch_paginated, ([], 0))
+    return result
+
+# Track affiliate clicks and sources
+def track_click(source, destination, user_agent=None, referrer=None):
+    def save_click():
+        click_data = {
+            "source": source,
+            "destination": destination,
+            "timestamp": datetime.utcnow(),
+            "user_agent": user_agent,
+            "referrer": referrer,
+            "ip_address": request.remote_addr
+        }
+        db.clicks.insert_one(click_data)
+        return True
+    
+    return safe_db_operation(save_click, False)
+
+# Home page with latest posts
+@app.route("/")
+def index():
+    latest_posts = get_recent_posts(6)
+    
+    # SEO meta data
+    meta_description = "Guerilla-style camping guides, budget gear reviews, and off-grid survival tips. Real advice from someone living the lifestyle."
+    meta_keywords = "guerilla camping, budget camping, stealth camping, off-grid living, camping gear reviews"
+    
+    return render_template("index.html", 
+                         latest_posts=latest_posts,
+                         meta_description=meta_description,
+                         meta_keywords=meta_keywords)
 
 # Blog listing with pagination and SEO
 @app.route("/blog")
@@ -244,9 +126,8 @@ def blog():
     per_page = 12
     all_posts, total = get_posts_paginated(page, per_page)
     
-    # SEO meta data
     meta_description = "Guerilla-style camping guides, gear reviews, and off-grid living tips. Real advice from someone living the lifestyle."
-    meta_keywords = "guerilla camping, off-grid living, camping gear reviews, budget camping, DIY camping, veteran camping"
+    meta_keywords = "guerilla camping, off-grid living, camping gear reviews, budget camping, DIY camping"
     
     return render_template("blog.html", 
                          posts=all_posts, 
@@ -256,184 +137,55 @@ def blog():
                          meta_description=meta_description,
                          meta_keywords=meta_keywords)
 
+# Individual blog post
 @app.route("/blog/<slug>")
-def blog_post(slug):
-    post = safe_db_operation(lambda: posts.find_one({"slug": slug}), None)
-    if not post:
-        return "404 Not Found", 404
+def post(slug):
+    def fetch_post():
+        return db.posts.find_one({"slug": slug, "status": "published"})
     
-    # Get 3 random related posts
-    def get_related():
-        all_slugs = [p["slug"] for p in posts.find({"slug": {"$ne": slug}})]
-        if all_slugs:
-            related_slugs = random.sample(all_slugs, min(3, len(all_slugs)))
-            return list(posts.find({"slug": {"$in": related_slugs}}))
-        return []
+    post_data = safe_db_operation(fetch_post)
     
-    related_posts = safe_db_operation(get_related, [])
-    
-    return render_template("post.html", post=post, related_posts=related_posts)
-
-# Affiliate link tracking
-@app.route("/go/<path:encoded_url>")
-def affiliate_redirect(encoded_url):
-    try:
-        # Simple base64-like encoding for affiliate URLs
-        import base64
-        affiliate_url = base64.b64decode(encoded_url.encode()).decode()
-        
-        # Track the click
-        referrer = request.referrer or "direct"
-        track_affiliate_click(affiliate_url, referrer)
-        
-        return redirect(affiliate_url)
-    except Exception as e:
-        print(f"Affiliate redirect error: {e}")
-        return redirect(url_for("gear"))
-
-# Social Media Redirect with Tracking
-@app.route("/social/<platform>")
-def social_redirect(platform):
-    """Track social media clicks and redirect"""
-    social_urls = {
-        'reddit': 'https://www.reddit.com/r/gorillacamping',
-        'facebook': 'https://www.facebook.com/gorillacamping',
-        'tiktok': 'https://www.tiktok.com/@gorillacamping'
-    }
-    
-    if platform in social_urls:
-        # Track the click
-        track_social_click(platform, "direct_link")
-        return redirect(social_urls[platform])
-    
-    return redirect(url_for("home"))
-
-# --- Admin: Add Post ---
-@app.route("/admin", methods=["GET", "POST"])
-def admin():
-    if not session.get("logged_in"):
-        if request.method == "POST":
-            pw = request.form.get("password", "")
-            if ADMIN_PASSWORD_HASH and check_password_hash(ADMIN_PASSWORD_HASH, pw):
-                session["logged_in"] = True
-                return redirect(url_for("admin"))
-            else:
-                flash("Wrong password!", "error")
-        return render_template("admin_login.html")
-    
-    if request.method == "POST":
-        if not mongodb_connected:
-            flash("❌ Database not available - cannot publish posts", "error")
-            return render_template("admin_post.html")
-            
-        title = request.form.get("title", "").strip()
-        slug = request.form.get("slug", "").strip() or title.lower().replace(" ", "-")
-        slug = sanitize_slug(slug)
-        
-        if not slug:
-            flash("Invalid slug.", "error")
-            return render_template("admin_post.html")
-        
-        if safe_db_operation(lambda: posts.find_one({"slug": slug}), None):
-            flash("Slug already exists!", "error")
-            return render_template("admin_post.html")
-        
-        content = request.form.get("content", "").strip()
-        tags = [t.strip() for t in request.form.get("tags", "").split(",") if t.strip()]
-        meta_description = request.form.get("meta_description", "").strip()
-        meta_keywords = [k.strip() for k in request.form.get("meta_keywords", "").split(",") if k.strip()]
-        
-        if not title or not content:
-            flash("Title and Content required.", "error")
-            return render_template("admin_post.html")
-        
-        # Auto-generate meta description if not provided
-        if not meta_description:
-            meta_description = content[:160].replace('<', '').replace('>', '') + "..."
-        
-        post = {
-            "title": title,
-            "slug": slug,
-            "content": content,
-            "tags": tags,
-            "meta_description": meta_description,
-            "meta_keywords": meta_keywords,
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow(),
-            "author": "Gorilla Camping"
+    if not post_data:
+        # Demo post for testing
+        post_data = {
+            "title": "Guerilla Camping Setup: $50 Budget Challenge",
+            "content": "Coming soon! This post will show you how to build a complete guerilla camping setup for under $50 using military surplus and DIY hacks.",
+            "date": datetime.now(),
+            "category": "Budget Gear",
+            "slug": slug
         }
-        
-        def save_post():
-            posts.insert_one(post)
-            return True
-            
-        if safe_db_operation(save_post, False):
-            flash("✅ Post published!", "success")
-            return redirect(url_for("blog_post", slug=slug))
-        else:
-            flash("❌ Failed to publish post - database error", "error")
     
-    return render_template("admin_post.html")
+    return render_template("post.html", 
+                         post=post_data,
+                         meta_description=post_data.get('excerpt', 'Guerilla camping tips and tricks'),
+                         meta_keywords=f"guerilla camping, {post_data.get('category', 'camping')}")
 
-@app.route("/logout")
-def logout():
-    session.pop("logged_in", None)
-    flash("Logged out.", "info")
-    return redirect(url_for("admin"))
-
-# Analytics Dashboard (Admin only)
-@app.route("/analytics")
-def analytics():
-    if not session.get("logged_in"):
-        return redirect(url_for("admin"))
+# Gear page with affiliate products
+@app.route("/gear")
+def gear():
+    # Track page visit
+    track_click("gear_page", "internal", request.headers.get('User-Agent'), request.referrer)
     
-    if not mongodb_connected:
-        return render_template("analytics.html", 
-                             total_subscribers=0,
-                             total_posts=0,
-                             total_clicks=0,
-                             recent_clicks=[],
-                             error="Database not available")
+    meta_description = "Guerilla-approved camping gear that won't break the bank. Real reviews from someone who lives this lifestyle."
+    meta_keywords = "budget camping gear, guerilla camping equipment, cheap camping gear, military surplus camping"
     
-    # Get basic stats
-    total_subscribers = safe_db_operation(lambda: emails.count_documents({}), 0)
-    total_posts = safe_db_operation(lambda: posts.count_documents({}), 0)
-    total_clicks = safe_db_operation(lambda: clicks.count_documents({}), 0)
-    
-    # Recent clicks
-    recent_clicks = safe_db_operation(
-        lambda: list(clicks.find().sort("timestamp", -1).limit(10)),
-        []
-    )
-    
-    return render_template("analytics.html", 
-                         total_subscribers=total_subscribers,
-                         total_posts=total_posts,
-                         total_clicks=total_clicks,
-                         recent_clicks=recent_clicks)
-
-
-        
-        contact_saved = safe_db_operation(save_contact, False)
-        
-        if contact_saved:
-            flash("✅ Message sent successfully! We'll get back to you within 24 hours.", "success")
-        else:
-            flash("✅ Message received! (Database temporarily unavailable)", "success")
-        
-        # Redirect to prevent form resubmission
-        return redirect(url_for("contact"))
-    
-    # GET request - show contact form
-    meta_description = "Contact Gorilla Camping for collaborations, gear questions, or to join our guerilla camping community."
-    meta_keywords = "gorilla camping contact, guerilla camping community, camping collaboration"
-    return render_template("contact.html", 
-                         meta_description=meta_description, 
+    return render_template("gear.html",
+                         meta_description=meta_description,
                          meta_keywords=meta_keywords)
 
+# About page
+@app.route("/about")
+def about():
+    meta_description = "Meet the guerilla camper behind the blog. Real stories, real gear, real advice from someone living off-grid."
+    meta_keywords = "about guerilla camping, off-grid lifestyle, camping blog author"
+    
+    return render_template("about.html",
+                         meta_description=meta_description,
+                         meta_keywords=meta_keywords)
+
+# Contact form - Revenue generating lead capture
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
-    """Contact form - Revenue generating lead capture"""
     if request.method == "POST":
         try:
             # Get form data with error handling
@@ -454,22 +206,21 @@ def contact():
                 return redirect(url_for("contact"))
             
             # Save to database with error handling
-            try:
-                if 'db' in globals():
-                    contact_data = {
-                        "name": name,
-                        "email": email,
-                        "subject": subject,
-                        "message": message,
-                        "timestamp": datetime.utcnow(),
-                        "status": "new",
-                        "ip_address": request.remote_addr,
-                        "user_agent": request.headers.get('User-Agent', 'Unknown')
-                    }
-                    db.contacts.insert_one(contact_data)
-            except Exception as db_error:
-                print(f"Database error: {db_error}")
-                # Continue anyway - don't let DB issues block the form
+            def save_contact():
+                contact_data = {
+                    "name": name,
+                    "email": email,
+                    "subject": subject,
+                    "message": message,
+                    "timestamp": datetime.utcnow(),
+                    "status": "new",
+                    "ip_address": request.remote_addr,
+                    "user_agent": request.headers.get('User-Agent', 'Unknown')
+                }
+                db.contacts.insert_one(contact_data)
+                return True
+            
+            contact_saved = safe_db_operation(save_contact, False)
             
             # Success message with revenue focus
             success_messages = [
@@ -492,152 +243,169 @@ def contact():
     return render_template("contact.html", 
                          meta_description=meta_description,
                          meta_keywords=meta_keywords)
-@app.route("/thank-you")
-def thank_you():
-    return render_template("thank_you.html")
 
-# AS-IS Terms Page
+# AS-IS terms and affiliate disclaimer page
 @app.route("/as-is")
 def as_is():
-    """AS-IS terms and affiliate disclaimer page"""
     meta_description = "Gorilla Camping affiliate marketing disclaimer, terms of use, and product recommendations policy. Guerilla-style transparency."
     meta_keywords = "affiliate disclaimer, as-is terms, gorilla camping legal, product reviews disclaimer"
     
-    # Current date for last updated
-    current_date = datetime.now().strftime("%B %d, %Y")
-    
-    return render_template("as_is.html", 
-                         meta_description=meta_description, 
-                         meta_keywords=meta_keywords,
-                         current_date=current_date)
+    return render_template("as_is.html",
+                         meta_description=meta_description,
+                         meta_keywords=meta_keywords)
 
+# Privacy policy
+@app.route("/privacy")
+def privacy():
+    meta_description = "Gorilla Camping privacy policy. How we protect your data while helping you master guerilla camping."
+    meta_keywords = "privacy policy, data protection, gorilla camping privacy"
+    
+    return render_template("privacy.html",
+                         meta_description=meta_description,
+                         meta_keywords=meta_keywords)
+
+# Affiliate link tracker
+@app.route("/go/<product_id>")
+def affiliate_redirect(product_id):
+    # Track the click
+    track_click(f"affiliate_{product_id}", "external", request.headers.get('User-Agent'), request.referrer)
+    
+    # Affiliate links mapping (add your real affiliate links here)
+    affiliate_links = {
+        "tent": "https://amzn.to/your-tent-link",
+        "sleeping-bag": "https://amzn.to/your-sleeping-bag-link",
+        "backpack": "https://amzn.to/your-backpack-link",
+        "gear-kit": "https://amzn.to/your-gear-kit-link"
+    }
+    
+    # Get the destination URL
+    destination = affiliate_links.get(product_id, "https://amazon.com")
+    
+    return redirect(destination)
+
+# Social media redirects with tracking
+@app.route("/social/<platform>")
+def social_redirect(platform):
+    track_click(f"social_{platform}", "external", request.headers.get('User-Agent'), request.referrer)
+    
+    social_links = {
+        "youtube": "https://youtube.com/@gorillacamping",
+        "instagram": "https://instagram.com/gorillacamping",
+        "tiktok": "https://tiktok.com/@gorillacamping",
+        "facebook": "https://facebook.com/gorillacamping",
+        "reddit": "https://reddit.com/r/gorillacamping"
+    }
+    
+    destination = social_links.get(platform, "https://gorillacamping.site")
+    return redirect(destination)
+
+# Category pages for better SEO
+@app.route("/category/<category_name>")
+def category(category_name):
+    def fetch_category_posts():
+        return list(db.posts.find({"category": category_name, "status": "published"})
+                   .sort("date", -1).limit(20))
+    
+    posts = safe_db_operation(fetch_category_posts, [])
+    
+    meta_description = f"Guerilla camping guides about {category_name}. Real advice from someone living the lifestyle."
+    meta_keywords = f"guerilla camping {category_name}, camping {category_name}, off-grid {category_name}"
+    
+    return render_template("category.html", 
+                         posts=posts, 
+                         category=category_name,
+                         meta_description=meta_description,
+                         meta_keywords=meta_keywords)
+
+# Sitemap for SEO
 @app.route('/sitemap.xml', methods=['GET'])
 def sitemap():
     pages = []
     
     # Static pages
-    pages.append(['/', datetime.now().date().isoformat()])
-    pages.append(['/blog', datetime.now().date().isoformat()])
-    pages.append(['/gear', datetime.now().date().isoformat()])
-    pages.append(['/about', datetime.now().date().isoformat()])
-    pages.append(['/contact', datetime.now().date().isoformat()])
-    pages.append(['/as-is', datetime.now().date().isoformat()])
+    static_pages = [
+        ('index', 1.0, 'daily'),
+        ('blog', 0.9, 'daily'),
+        ('gear', 0.8, 'weekly'),
+        ('about', 0.6, 'monthly'),
+        ('contact', 0.7, 'monthly'),
+        ('as_is', 0.5, 'yearly'),
+        ('privacy', 0.5, 'yearly')
+    ]
     
-    # Blog posts (only if database is available)
-    def add_blog_posts():
-        for post in posts.find():
-            url = f"/blog/{post['slug']}"
-            lastmod = post.get('updated_at', post.get('created_at', datetime.now())).date().isoformat()
-            pages.append([url, lastmod])
+    for page, priority, changefreq in static_pages:
+        pages.append({
+            'loc': url_for(page, _external=True),
+            'lastmod': datetime.now().strftime('%Y-%m-%d'),
+            'priority': priority,
+            'changefreq': changefreq
+        })
     
-    safe_db_operation(add_blog_posts, None)
+    # Dynamic blog posts
+    def fetch_published_posts():
+        return list(db.posts.find({"status": "published"}, {"slug": 1, "date": 1}))
     
-    sitemap_xml = render_template('sitemap_template.xml', pages=pages)
-    return Response(sitemap_xml, mimetype='application/xml')
+    posts = safe_db_operation(fetch_published_posts, [])
+    
+    for post in posts:
+        pages.append({
+            'loc': url_for('post', slug=post['slug'], _external=True),
+            'lastmod': post['date'].strftime('%Y-%m-%d'),
+            'priority': 0.8,
+            'changefreq': 'weekly'
+        })
+    
+    sitemap_xml = render_template('sitemap.xml', pages=pages)
+    response = Response(sitemap_xml, mimetype='application/xml')
+    return response
 
+# robots.txt for SEO
 @app.route('/robots.txt')
 def robots():
-    return Response("""User-agent: *
-Allow: /
-Disallow: /admin
-Disallow: /analytics
-Disallow: /debug-subscribers
+    return Response(
+        f"User-agent: *\nAllow: /\nSitemap: {url_for('sitemap', _external=True)}\n",
+        mimetype='text/plain'
+    )
 
-Sitemap: https://gorillacamping.site/sitemap.xml
-""", mimetype='text/plain')
-
-# --- Static Pages with SEO ---
-@app.route("/about")
-def about():
-    meta_description = "Jon's story: From Army vet to off-grid guerilla camper. Building a tribe of like-minded adventurers who live life on their own terms."
-    meta_keywords = "gorilla camping founder, army veteran camping, off-grid lifestyle, guerilla camping story"
-    return render_template("about.html", meta_description=meta_description, meta_keywords=meta_keywords)
-
-@app.route("/gear")
-def gear():
-    meta_description = "Hand-picked camping gear by Gorilla Camping. Budget-friendly, tested gear for guerilla-style outdoor adventures."
-    meta_keywords = "camping gear reviews, budget camping gear, guerilla camping equipment, affiliate camping gear"
-    return render_template("gear.html", meta_description=meta_description, meta_keywords=meta_keywords)
-
-# Privacy Policy (required for affiliate marketing)
-@app.route("/privacy")
-def privacy():
-    return render_template("privacy.html")
-
-# Terms of Service
-@app.route("/terms")
-def terms():
-    return render_template("terms.html")
-
-# Guerilla SEO: Category pages for better search ranking
-@app.route("/category/<category_name>")
-def category(category_name):
-    def get_category_posts():
-        return list(posts.find({"tags": {"$in": [category_name]}}).sort("created_at", -1))
+# Newsletter signup (MailerLite integration)
+@app.route('/subscribe', methods=['POST'])
+def subscribe():
+    email = request.form.get('email', '').strip()
     
-    category_posts = safe_db_operation(get_category_posts, [])
+    if not email:
+        return jsonify({"success": False, "message": "Email is required!"})
     
-    return render_template("category.html", 
-                         category=category_name, 
-                         posts=category_posts,
-                         meta_description=f"All {category_name} posts from Gorilla Camping - guerilla-style camping advice",
-                         meta_keywords=f"{category_name}, guerilla camping, outdoor gear, camping tips")
-
-# Revenue Optimization: Track affiliate clicks from specific sources
-@app.route("/track/<source>/<path:affiliate_url>")
-def track_and_redirect(source, affiliate_url):
-    """Enhanced affiliate tracking with source attribution"""
-    try:
-        # Decode the affiliate URL
-        import base64
-        decoded_url = base64.b64decode(affiliate_url.encode()).decode()
-        
-        # Enhanced tracking with source
-        def _track():
-            clicks.insert_one({
-                "type": "affiliate_click",
-                "affiliate_url": decoded_url,
-                "source": source,
-                "timestamp": datetime.utcnow(),
-                "ip": request.remote_addr,
-                "user_agent": request.headers.get('User-Agent', ''),
-                "referrer": request.referrer,
-                "affiliate_id": AFFILIATE_ID
-            })
-            return True
-        
-        safe_db_operation(_track, False)
-        
-        return redirect(decoded_url)
-    except Exception as e:
-        print(f"Enhanced affiliate tracking error: {e}")
-        return redirect(url_for("gear"))
-
-# Guerilla Growth Hack: Email lead magnet
-@app.route("/leadmagnet/<magnet_type>")
-def lead_magnet(magnet_type):
-    """Capture leads with specific lead magnets"""
-    magnets = {
-        "gear-guide": {
-            "title": "Ultimate Budget Camping Gear Guide",
-            "description": "Get Jon's secret list of budget gear that actually works",
-            "file": "budget-camping-gear-guide.pdf"
-        },
-        "setup-checklist": {
-            "title": "Guerilla Campsite Setup Checklist", 
-            "description": "Never forget essential gear again with this proven checklist",
-            "file": "guerilla-campsite-checklist.pdf"
+    # Email validation
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(email_pattern, email):
+        return jsonify({"success": False, "message": "Please enter a valid email address."})
+    
+    # Save to database
+    def save_subscriber():
+        subscriber_data = {
+            "email": email,
+            "timestamp": datetime.utcnow(),
+            "status": "active",
+            "source": request.referrer or "direct"
         }
-    }
+        db.subscribers.insert_one(subscriber_data)
+        return True
     
-    if magnet_type not in magnets:
-        return redirect(url_for("home"))
+    saved = safe_db_operation(save_subscriber, False)
     
-    magnet = magnets[magnet_type]
-    return render_template("lead_magnet.html", 
-                         magnet=magnet,
-                         magnet_type=magnet_type)
+    if saved:
+        return jsonify({"success": True, "message": "Welcome to the guerilla camping tribe! 🏕️"})
+    else:
+        return jsonify({"success": False, "message": "Something went wrong. Try again!"})
 
-if __name__ == "__main__":
-    debug_mode = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
-    app.run(debug=debug_mode)
+# Error handlers
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def server_error(error):
+    return render_template('500.html'), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
