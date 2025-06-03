@@ -41,25 +41,12 @@ def force_https():
 
 @app.after_request
 def security_headers(response):
-    """Enhanced security headers for Cloudflare"""
-    response.headers.update({
-        'Content-Security-Policy': (
-            "default-src 'self' https:; "
-            "script-src 'self' 'unsafe-inline' https://*.mailerlite.com https://*.googletagmanager.com https://*.google-analytics.com https://*.clarity.ms https://*.cloudflare.com https://*.amazon.com; "
-            "connect-src 'self' https://*.mailerlite.com https://*.google-analytics.com https://*.clarity.ms https://*.cloudflare.com; "
-            "img-src 'self' data: https: blob:; "
-            "style-src 'self' 'unsafe-inline' https:; "
-            "font-src 'self' https:; "
-            "frame-src 'self' https://*.mailerlite.com https://*.google.com; "
-            "media-src 'self' https:; "
-        ),
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'SAMEORIGIN',
-        'X-XSS-Protection': '1; mode=block',
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
-        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
-    })
+    """Guerilla security headers for maximum SEO/trust"""
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     return response
 
 # --- MongoDB Setup with Error Handling ---
