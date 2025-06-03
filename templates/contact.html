@@ -1,149 +1,66 @@
 {% extends "base.html" %}
-{% block title %}Contact Us - Gorilla Camping{% endblock %}
-{% block meta_description %}Contact Gorilla Camping for collaborations, questions, or to join our guerilla camping community.{% endblock %}
-{% block meta_keywords %}Gorilla Camping Contact, Guerilla Camping, Outdoor Blog Contact, Affiliate Blog Contact{% endblock %}
+{% block title %}Contact - Gorilla Camping{% endblock %}
+{% block meta_description %}Contact Gorilla Camping for gear reviews, collaborations, and guerilla camping advice. Get in touch guerilla-style!{% endblock %}
 
 {% block content %}
-<section class="contact-section">
-    <div class="contact-header">
-        <h1>Contact the Guerilla Tribe</h1>
-        <p>
-            Got questions, want to collaborate, or have a guerilla camping story to share?<br>
-            Drop us a line and join the movement!
-        </p>
+<div class="container">
+    <div class="contact-hero">
+        <h1>Get In Touch - Guerilla Style! 🏕️</h1>
+        <p>Brand collaborations? Gear questions? Let's talk business!</p>
     </div>
-    
-    <div class="contact-wrapper">
-        <!-- SECURE CONTACT FORM WITH AUTOFILL -->
-        <form method="POST" action="{{ url_for('contact') }}" class="contact-form" autocomplete="on">
-            <!-- CSRF Protection -->
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            
-            <div class="form-group">
-                <label for="contact-name">Name *</label>
-                <input type="text" 
-                       id="contact-name" 
-                       name="name" 
-                       required 
-                       autocomplete="name"
-                       placeholder="Your name">
-            </div>
-            
-            <div class="form-group">
-                <label for="contact-email">Email *</label>
-                <input type="email" 
-                       id="contact-email" 
-                       name="email" 
-                       required 
-                       autocomplete="email"
-                       placeholder="your@email.com">
-            </div>
-            
-            <div class="form-group">
-                <label for="contact-subject">Subject</label>
-                <select id="contact-subject" name="subject" autocomplete="off">
-                    <option value="">Choose a topic...</option>
-                    <option value="collaboration">Collaboration Opportunity</option>
-                    <option value="gear-review">Gear Review Request</option>
-                    <option value="general">General Question</option>
-                    <option value="media">Media Inquiry</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="contact-message">Message *</label>
-                <textarea id="contact-message" 
-                          name="message" 
-                          rows="6" 
-                          required 
-                          placeholder="Tell us about your guerilla camping adventures, questions, or ideas..."></textarea>
-            </div>
-            
-            <button type="submit" class="contact-submit">Send Message →</button>
-        </form>
-        
-        <!-- CONTACT INFO SIDEBAR -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="contact-container">
+        <div class="contact-form-section">
+            <h2>Drop Me a Line</h2>
+            <form method="POST" class="contact-form">
+                <div class="form-group">
+                    <input type="text" name="name" placeholder="Your Name *" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="Your Email *" required>
+                </div>
+                <div class="form-group">
+                    <select name="subject" required>
+                        <option value="">What's This About? *</option>
+                        <option value="collaboration">🤝 Brand Collaboration</option>
+                        <option value="gear-review">⚙️ Gear Review Request</option>
+                        <option value="affiliate">💰 Affiliate Partnership</option>
+                        <option value="general">💬 General Question</option>
+                        <option value="guest-post">📝 Guest Post Opportunity</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <textarea name="message" rows="6" placeholder="Your Message *" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Send Message 🚀</button>
+            </form>
+        </div>
+
         <div class="contact-info">
-            <h3>Quick Connect</h3>
+            <h3>Let's Make Money Together!</h3>
             <div class="contact-methods">
                 <div class="contact-method">
-                    <strong>📧 Email Response:</strong> Usually within 24 hours
+                    <h4>📧 Email Response</h4>
+                    <p>I respond to all emails within 24 hours. Guerilla-fast!</p>
                 </div>
                 <div class="contact-method">
-                    <strong>🏕️ Location:</strong> Danville, Virginia
+                    <h4>🤝 Collaborations Welcome</h4>
+                    <p>Gear brands, affiliate opportunities, sponsored content - let's talk!</p>
                 </div>
                 <div class="contact-method">
-                    <strong>⚡ Best for:</strong> Gear reviews, collaborations, camping tips
-                </div>
-            </div>
-            
-            <!-- SOCIAL QUICK LINKS -->
-            <div class="contact-social">
-                <h4>Follow the Movement</h4>
-                <div class="contact-social-links">
-                    <a href="{{ url_for('social_redirect', platform='reddit') }}" 
-                       class="contact-social-link reddit"
-                       onclick="trackSocialClick('reddit', 'contact_page')">
-                        Reddit Community
-                    </a>
-                    <a href="{{ url_for('social_redirect', platform='facebook') }}" 
-                       class="contact-social-link facebook"
-                       onclick="trackSocialClick('facebook', 'contact_page')">
-                        Facebook Page
-                    </a>
-                    <a href="{{ url_for('social_redirect', platform='tiktok') }}" 
-                       class="contact-social-link tiktok"
-                       onclick="trackSocialClick('tiktok', 'contact_page')">
-                        TikTok Videos
-                    </a>
+                    <h4>📝 Guest Posts</h4>
+                    <p>Got guerilla camping knowledge? Share it with my audience!</p>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- FAQ SECTION FOR SEO -->
-    <div class="contact-faq">
-        <h2>Frequently Asked Questions</h2>
-        <div class="faq-grid">
-            <div class="faq-item">
-                <h3>🎯 Want to collaborate?</h3>
-                <p>I'm always looking for authentic gear to test and review. If you've got something that fits the guerilla camping lifestyle, let's talk!</p>
-            </div>
-            <div class="faq-item">
-                <h3>📝 Have a story to share?</h3>
-                <p>Guest posts from fellow guerilla campers are welcome! Share your off-grid adventures and budget-friendly tips.</p>
-            </div>
-            <div class="faq-item">
-                <h3>🛠️ Need gear advice?</h3>
-                <p>Drop me a line with your budget and camping style. I'll point you toward gear that actually works without breaking the bank.</p>
-            </div>
-            <div class="faq-item">
-                <h3>🎥 Media inquiries?</h3>
-                <p>Interviews, podcasts, and media appearances welcome. Let's spread the guerilla camping message!</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Schema for ContactPage -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "ContactPage",
-  "name": "Contact Gorilla Camping",
-  "description": "Get in touch with Gorilla Camping for collaborations, gear reviews, and guerilla camping questions",
-  "url": "https://gorillacamping.site/contact",
-  "mainEntity": {
-    "@type": "Organization",
-    "name": "Gorilla Camping",
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "contactType": "Customer Service",
-      "areaServed": "US",
-      "availableLanguage": "English"
-    }
-  }
-}
-</script>
+</div>
 {% endblock %}
