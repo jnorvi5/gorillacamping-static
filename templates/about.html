@@ -11,7 +11,7 @@
              class="about-photo">
         <div class="about-intro">
             <h1>About Jon</h1>
-            <p class="about-tagline"><strong>Life is short. Camp your way through it.</strong></p>
+            <p class="about-tagline"><strong>Life is short, just camp through it!</strong></p>
         </div>
     </div>
 
@@ -80,6 +80,22 @@
             <h3>Ready to Join the Tribe?</h3>
             <p>Get exclusive guerilla camping tips, gear deals, and stories that don't make it to the blog.</p>
             <a href="/#signup" class="cta-button">Join the Email List →</a>
+            
+            <!-- SOCIAL CTA -->
+            <div class="social-cta">
+                <p><strong>Follow the guerilla movement:</strong></p>
+                <div class="social-mini">
+                    <a href="{{ url_for('social_redirect', platform='reddit') }}" 
+                       class="mini-social reddit"
+                       onclick="trackSocialClick('reddit', 'about_page')">Reddit</a>
+                    <a href="{{ url_for('social_redirect', platform='facebook') }}" 
+                       class="mini-social facebook"
+                       onclick="trackSocialClick('facebook', 'about_page')">Facebook</a>
+                    <a href="{{ url_for('social_redirect', platform='tiktok') }}" 
+                       class="mini-social tiktok"
+                       onclick="trackSocialClick('tiktok', 'about_page')">TikTok</a>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -95,7 +111,10 @@
   "description": "Army veteran and off-grid camping enthusiast sharing budget-friendly outdoor adventures and gear reviews",
   "url": "https://gorillacamping.site/about",
   "sameAs": [
-    "https://gorillacamping.site"
+    "https://gorillacamping.site",
+    "https://www.reddit.com/r/gorillacamping",
+    "https://www.facebook.com/gorillacamping",
+    "https://www.tiktok.com/@gorillacamping"
   ],
   "knowsAbout": [
     "Camping",
