@@ -600,3 +600,18 @@ def lead_magnet(magnet_type):
 if __name__ == "__main__":
     debug_mode = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
     app.run(debug=debug_mode)
+# Add this route to your existing app.py
+
+@app.route("/as-is")
+def as_is():
+    """AS-IS terms and affiliate disclaimer page"""
+    meta_description = "Gorilla Camping affiliate marketing disclaimer, terms of use, and product recommendations policy. Guerilla-style transparency."
+    meta_keywords = "affiliate disclaimer, as-is terms, gorilla camping legal, product reviews disclaimer"
+    
+    # Current date for last updated
+    current_date = datetime.now().strftime("%B %d, %Y")
+    
+    return render_template("as_is.html", 
+                         meta_description=meta_description, 
+                         meta_keywords=meta_keywords,
+                         current_date=current_date)
