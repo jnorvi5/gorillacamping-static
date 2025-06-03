@@ -23,29 +23,42 @@ assert MONGO_URI, "❌ MONGO_URI environment variable is not set!"
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 
-# --- Security Config ---
+# --- SECURITY CONFIG FOR CLOUDFLARE & MOBILE ---
 app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
-    PERMANENT_SESSION_LIFETIME=3600
+    PERMANENT_SESSION_LIFETIME=3600,
+    PREFERRED_URL_SCHEME='https'  # FORCES HTTPS
 )
+
+@app.before_request
+def force_https():
+    """Force HTTPS redirect for security warnings"""
+    if not request.is_secure and request.headers.get('X-Forwarded-Proto') != 'https':
+        if 'localhost' not in request.host and '127.0.0.1' not in request.host:
+            return redirect(request.url.replace('http://', 'https://'), code=301)
 
 @app.after_request
 def security_headers(response):
+    """Enhanced security headers for Cloudflare"""
     response.headers.update({
         'Content-Security-Policy': (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://*.mailerlite.com https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://assets.mlcdn.com https://affiliate-program.amazon.com https://*.amazon.com; "
-            "connect-src 'self' https://*.mailerlite.com https://www.google-analytics.com https://analytics.google.com https://www.clarity.ms https://l.clarity.ms; "
-            "img-src 'self' data: https://*.mailerlite.com https://www.google-analytics.com https://www.googletagmanager.com https://www.clarity.ms https://*.amazon.com https://m.media-amazon.com; "
-            "style-src 'self' 'unsafe-inline' https://*.mailerlite.com https://assets.mlcdn.com; "
-            "font-src 'self' https://assets.mlcdn.com; "
-            "frame-src 'self' https://assets.mlcdn.com; "
-            "frame-src 'self' https://*.mailerlite.com https://www.google.com;"
+            "default-src 'self' https:; "
+            "script-src 'self' 'unsafe-inline' https://*.mailerlite.com https://*.googletagmanager.com https://*.google-analytics.com https://*.clarity.ms https://*.cloudflare.com https://*.amazon.com; "
+            "connect-src 'self' https://*.mailerlite.com https://*.google-analytics.com https://*.clarity.ms https://*.cloudflare.com; "
+            "img-src 'self' data: https: blob:; "
+            "style-src 'self' 'unsafe-inline' https:; "
+            "font-src 'self' https:; "
+            "frame-src 'self' https://*.mailerlite.com https://*.google.com; "
+            "media-src 'self' https:; "
         ),
         'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY'
+        'X-Frame-Options': 'SAMEORIGIN',
+        'X-XSS-Protection': '1; mode=block',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
     })
     return response
 
@@ -471,6 +484,21 @@ def contact():
 def thank_you():
     return render_template("thank_you.html")
 
+# AS-IS Terms Page
+@app.route("/as-is")
+def as_is():
+    """AS-IS terms and affiliate disclaimer page"""
+    meta_description = "Gorilla Camping affiliate marketing disclaimer, terms of use, and product recommendations policy. Guerilla-style transparency."
+    meta_keywords = "affiliate disclaimer, as-is terms, gorilla camping legal, product reviews disclaimer"
+    
+    # Current date for last updated
+    current_date = datetime.now().strftime("%B %d, %Y")
+    
+    return render_template("as_is.html", 
+                         meta_description=meta_description, 
+                         meta_keywords=meta_keywords,
+                         current_date=current_date)
+
 @app.route('/sitemap.xml', methods=['GET'])
 def sitemap():
     pages = []
@@ -481,6 +509,7 @@ def sitemap():
     pages.append(['/gear', datetime.now().date().isoformat()])
     pages.append(['/about', datetime.now().date().isoformat()])
     pages.append(['/contact', datetime.now().date().isoformat()])
+    pages.append(['/as-is', datetime.now().date().isoformat()])
     
     # Blog posts (only if database is available)
     def add_blog_posts():
@@ -600,18 +629,3 @@ def lead_magnet(magnet_type):
 if __name__ == "__main__":
     debug_mode = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
     app.run(debug=debug_mode)
-# Add this route to your existing app.py
-
-@app.route("/as-is")
-def as_is():
-    """AS-IS terms and affiliate disclaimer page"""
-    meta_description = "Gorilla Camping affiliate marketing disclaimer, terms of use, and product recommendations policy. Guerilla-style transparency."
-    meta_keywords = "affiliate disclaimer, as-is terms, gorilla camping legal, product reviews disclaimer"
-    
-    # Current date for last updated
-    current_date = datetime.now().strftime("%B %d, %Y")
-    
-    return render_template("as_is.html", 
-                         meta_description=meta_description, 
-                         meta_keywords=meta_keywords,
-                         current_date=current_date)
