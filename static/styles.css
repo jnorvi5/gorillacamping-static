@@ -1012,3 +1012,115 @@ body {
     padding: 1rem;
   }
 }
+/* Add this to your existing styles.css */
+
+/* Legal Pages Styling */
+.legal-section {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.legal-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.legal-header h1 {
+  color: var(--gorilla-green);
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 1rem;
+  text-shadow: 0 0 16px var(--gorilla-green);
+}
+
+.legal-tagline {
+  font-size: 1.2rem;
+  color: var(--text-gray);
+  font-style: italic;
+}
+
+.legal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.disclaimer-card {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(0,255,136,0.3);
+  box-shadow: 0 0 12px rgba(0,255,136,0.2);
+}
+
+.disclaimer-card h2 {
+  color: var(--gorilla-green);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  text-shadow: 0 0 8px var(--gorilla-green);
+}
+
+.disclaimer-card h3 {
+  color: var(--gorilla-green);
+  margin: 1.5rem 0 0.8rem 0;
+  font-size: 1.2rem;
+}
+
+.legal-list {
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+
+.legal-list li {
+  margin: 0.5rem 0;
+  color: var(--text-gray);
+  line-height: 1.6;
+}
+
+.legal-list li strong {
+  color: var(--text-white);
+}
+
+.contact-legal {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(0,255,136,0.3);
+  text-align: center;
+}
+
+.contact-legal h2 {
+  color: var(--gorilla-green);
+  margin-bottom: 1rem;
+  text-shadow: 0 0 8px var(--gorilla-green);
+}
+
+.legal-link {
+  color: var(--gorilla-green);
+  text-decoration: none;
+  font-weight: 700;
+  transition: var(--transition);
+}
+
+.legal-link:hover {
+  text-shadow: 0 0 8px var(--gorilla-green);
+  text-decoration: underline;
+}
+
+.update-notice {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: var(--text-gray);
+  font-style: italic;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .disclaimer-card {
+    padding: 1.5rem;
+  }
+  
+  .legal-section {
+    padding: 1rem 0.5rem;
+  }
+}
