@@ -86,7 +86,7 @@ mongodb_connected = init_mongodb()
 
 # Helper function to safely use database
 def safe_db_operation(operation, fallback_result=None):
-    if not mongodb_connected or not db:
+    if not mongodb_connected or db is None:
         print("⚠️ Database not available, using fallback")
         return fallback_result
     try:
