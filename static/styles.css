@@ -211,6 +211,145 @@ body {
   border-color: var(--gorilla-green);
 }
 
+/* Social Links Section */
+.social-links {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.social-links h3 {
+  color: var(--gorilla-green);
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  text-shadow: 0 0 8px var(--gorilla-green);
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7em 1.2em;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: var(--transition);
+  border: 2px solid transparent;
+  background: rgba(0,255,136,0.1);
+  color: var(--text-white);
+}
+
+.social-icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* Platform-specific colors */
+.social-link.reddit {
+  border-color: #ff4500;
+}
+
+.social-link.reddit:hover {
+  background: #ff4500;
+  color: white;
+  box-shadow: 0 0 20px #ff4500;
+  transform: translateY(-2px);
+}
+
+.social-link.facebook {
+  border-color: #1877f2;
+}
+
+.social-link.facebook:hover {
+  background: #1877f2;
+  color: white;
+  box-shadow: 0 0 20px #1877f2;
+  transform: translateY(-2px);
+}
+
+.social-link.tiktok {
+  border-color: #fe2c55;
+}
+
+.social-link.tiktok:hover {
+  background: #fe2c55;
+  color: white;
+  box-shadow: 0 0 20px #fe2c55;
+  transform: translateY(-2px);
+}
+
+/* Share Section */
+.share-section {
+  margin: 3rem 0;
+  padding: 2rem;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  text-align: center;
+  border: 1px solid rgba(0,255,136,0.3);
+}
+
+.share-section h3 {
+  color: var(--gorilla-green);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 8px var(--gorilla-green);
+}
+
+.share-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.share-btn {
+  padding: 0.8em 1.5em;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 700;
+  color: white;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+}
+
+.share-btn.reddit {
+  background: #ff4500;
+}
+
+.share-btn.reddit:hover {
+  background: #cc3700;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255,69,0,0.4);
+}
+
+.share-btn.facebook {
+  background: #1877f2;
+}
+
+.share-btn.facebook:hover {
+  background: #145ec2;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(24,119,242,0.4);
+}
+
+.share-btn.tiktok {
+  background: #fe2c55;
+}
+
+.share-btn.tiktok:hover {
+  background: #e50044;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(254,44,85,0.4);
+}
+
 /* Form Styles */
 .form-wrapper {
   max-width: 420px;
@@ -450,6 +589,45 @@ body {
   border: 1px solid rgba(0,255,136,0.3);
 }
 
+.social-cta {
+  margin-top: 2rem;
+}
+
+.social-mini {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.mini-social {
+  padding: 0.5em 1em;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  color: white;
+}
+
+.mini-social.reddit {
+  background: #ff4500;
+}
+
+.mini-social.facebook {
+  background: #1877f2;
+}
+
+.mini-social.tiktok {
+  background: #fe2c55;
+}
+
+.mini-social:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
 /* Flash Messages */
 .flash-messages {
   max-width: 600px;
@@ -532,6 +710,26 @@ body {
   .gc-nav a {
     padding: 0.6em 1em;
     font-size: 1rem;
+  }
+  
+  .social-icons {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .social-link {
+    width: 200px;
+    justify-content: center;
+  }
+  
+  .share-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .share-btn {
+    width: 200px;
   }
 }
 
