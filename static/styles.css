@@ -1,6 +1,8 @@
-/* Gorilla Camping - Enhanced Guerilla Style CSS */
+/* Gorilla Camping - GUERILLA MOTTO ENHANCEMENT */
 :root {
   --gorilla-green: #00ff88;
+  --neon-green: #39ff14;
+  --electric-green: #00ff00;
   --dark-bg: #111;
   --card-bg: #181f1b;
   --text-white: #fff;
@@ -51,32 +53,137 @@ body {
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* GUERILLA MOTTO - SCREAMING NEON STYLE */
 .gc-motto-glow {
-  margin: 1rem 0 2rem 0;
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  margin: 2rem 0 3rem 0;
+  font-size: clamp(2rem, 6vw, 4rem);
   font-weight: 900;
-  color: var(--gorilla-green);
+  color: var(--neon-green);
   text-align: center;
-  text-shadow: 0 0 16px var(--gorilla-green), 0 0 32px var(--gorilla-green);
-  border-bottom: 3px solid var(--gorilla-green);
-  padding: 0.5em 1em;
-  border-radius: 12px;
-  background: rgba(20,30,20,0.7);
-  box-shadow: 0 2px 18px rgba(0,255,136,0.4);
-  animation: motto-glow 2.5s infinite alternate;
-  letter-spacing: 1px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  
+  /* INSANE NEON GLOW */
+  text-shadow: 
+    0 0 5px var(--neon-green),
+    0 0 10px var(--neon-green),
+    0 0 20px var(--neon-green),
+    0 0 40px var(--neon-green),
+    0 0 80px var(--neon-green),
+    0 0 120px var(--neon-green);
+  
+  /* PULSATING BORDER */
+  border: 4px solid var(--neon-green);
+  padding: 1.5em 2em;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  
+  /* GLOWING BOX SHADOW */
+  box-shadow: 
+    0 0 20px var(--neon-green),
+    0 0 40px var(--neon-green),
+    0 0 80px rgba(57, 255, 20, 0.5),
+    inset 0 0 20px rgba(57, 255, 20, 0.1);
+  
+  /* AGGRESSIVE ANIMATIONS */
+  animation: 
+    motto-pulse 2s infinite alternate,
+    motto-flicker 0.1s infinite alternate;
+  
+  /* MAKE IT SHAKE ON HOVER */
+  transition: all 0.3s ease;
+  position: relative;
 }
 
-@keyframes motto-glow {
-  from { text-shadow: 0 0 16px var(--gorilla-green), 0 0 32px var(--gorilla-green); }
-  to { text-shadow: 0 0 32px var(--gorilla-green), 0 0 64px var(--gorilla-green); }
+.gc-motto-glow:hover {
+  animation: 
+    motto-pulse 0.5s infinite alternate,
+    motto-shake 0.1s infinite,
+    motto-flicker 0.05s infinite;
+  transform: scale(1.05);
+  color: var(--electric-green);
+  text-shadow: 
+    0 0 10px var(--electric-green),
+    0 0 20px var(--electric-green),
+    0 0 40px var(--electric-green),
+    0 0 80px var(--electric-green),
+    0 0 160px var(--electric-green);
+}
+
+/* PULSATING ANIMATION */
+@keyframes motto-pulse {
+  0% { 
+    text-shadow: 
+      0 0 5px var(--neon-green),
+      0 0 10px var(--neon-green),
+      0 0 20px var(--neon-green),
+      0 0 40px var(--neon-green);
+    box-shadow: 
+      0 0 20px var(--neon-green),
+      0 0 40px var(--neon-green);
+  }
+  100% { 
+    text-shadow: 
+      0 0 10px var(--neon-green),
+      0 0 20px var(--neon-green),
+      0 0 40px var(--neon-green),
+      0 0 80px var(--neon-green),
+      0 0 120px var(--neon-green);
+    box-shadow: 
+      0 0 40px var(--neon-green),
+      0 0 80px var(--neon-green),
+      0 0 120px rgba(57, 255, 20, 0.8);
+  }
+}
+
+/* SUBTLE FLICKER EFFECT */
+@keyframes motto-flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    opacity: 0.95;
+  }
+}
+
+/* HOVER SHAKE EFFECT */
+@keyframes motto-shake {
+  0% { transform: translate(1px, 1px) rotate(0deg) scale(1.05); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg) scale(1.05); }
+  20% { transform: translate(-3px, 0px) rotate(1deg) scale(1.05); }
+  30% { transform: translate(3px, 2px) rotate(0deg) scale(1.05); }
+  40% { transform: translate(1px, -1px) rotate(1deg) scale(1.05); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg) scale(1.05); }
+  60% { transform: translate(-3px, 1px) rotate(0deg) scale(1.05); }
+  70% { transform: translate(3px, 1px) rotate(-1deg) scale(1.05); }
+  80% { transform: translate(-1px, -1px) rotate(1deg) scale(1.05); }
+  90% { transform: translate(1px, 2px) rotate(0deg) scale(1.05); }
+  100% { transform: translate(1px, -2px) rotate(-1deg) scale(1.05); }
+}
+
+/* GUERILLA STYLE RESPONSIVE */
+@media (max-width: 768px) {
+  .gc-motto-glow {
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    padding: 1em 1.5em;
+    letter-spacing: 1px;
+    margin: 1.5rem 0 2rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .gc-motto-glow {
+    font-size: clamp(1.2rem, 4vw, 2rem);
+    padding: 0.8em 1em;
+    letter-spacing: 0.5px;
+  }
 }
 
 /* Navigation */
 .gc-nav {
   display: flex;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 2rem;
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -445,6 +552,9 @@ body {
 
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
+  .gc-motto-glow {
+    animation: none !important;
+  }
   * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
@@ -456,6 +566,8 @@ body {
 @media (prefers-contrast: high) {
   :root {
     --gorilla-green: #00ff00;
+    --neon-green: #00ff00;
+    --electric-green: #00ff00;
     --text-white: #ffffff;
     --dark-bg: #000000;
   }
