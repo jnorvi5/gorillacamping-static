@@ -1,52 +1,117 @@
 {% extends "base.html" %}
-{% block title %}About Us - Gorilla Camping{% endblock %}
-{% block meta_description %}Discover the story behind Gorilla Camping, a guerilla-style camping and adventure blog. Join the tribe and embrace freedom.{% endblock %}
-{% block meta_keywords %}Gorilla Camping, Guerilla Camping, Outdoor Adventures, Camping Blog, Affiliate Marketing{% endblock %}
+{% block title %}About Jon - Gorilla Camping{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block meta_keywords %}{{ meta_keywords }}{% endblock %}
 
 {% block content %}
 <section class="about-section">
-    <h1>About Us</h1>
-    <p><strong>Life is short. Camp your way through it.</strong></p>
-    <p>
-        Welcome to Gorilla Camping, where adventure meets ingenuity. My name is [Your Name],
-        and this website is more than just a blog—it's a movement. It's for everyone out 
-        there chasing freedom, living life on their own terms, and refusing to settle for 
-        the ordinary.
-    </p>
-
-    <h2>My Story</h2>
-    <p>
-        Not too long ago, I was on a different path—one that didn't feel like my own. I craved 
-        something more, something real. So, I made a choice: to take life into my own hands 
-        and live it <em>guerilla style</em>. That's where "Gorilla Camping" was born—a play 
-        on the word "guerilla" because I believe in resourcefulness, grit, and making the most 
-        out of what you have.
-    </p>
-
-    <div class="image-placeholder">
-        <img src="/static/images/about-story-placeholder.png" alt="Your Story Image">
+    <div class="about-hero">
+        <img src="{{ url_for('static', filename='images/jon-camping.jpg') }}" 
+             alt="Jon camping in Virginia" 
+             class="about-photo">
+        <div class="about-intro">
+            <h1>About Jon</h1>
+            <p class="about-tagline"><strong>Life is short. Camp your way through it.</strong></p>
+        </div>
     </div>
 
-    <h2>The Journey We're On</h2>
-    <p>
-        Now, I’m building this platform not just for me, but for <strong>us</strong>. I’m looking 
-        for a tribe of like-minded adventurers, hustlers, and dreamers to join me as we figure 
-        this out together. This site isn’t just about camping gear, tips, or affiliate marketing 
-        (though I’ll share some great finds!)—it’s about embracing the guerilla mindset. It’s 
-        about finding freedom, building something from scratch, and supporting each other along 
-        the way.
-    </p>
+    <div class="about-content">
+        <h2>My Story</h2>
+        <p>
+            Hey there! I'm Jon, an Army veteran turned guerilla camping enthusiast living in 
+            Danville, Virginia. After years of following someone else's rules and living someone 
+            else's dream, I decided to take life into my own hands and live it <em>guerilla style</em>.
+        </p>
 
-    <div class="image-placeholder">
-        <img src="/static/images/community-placeholder.png" alt="Community Image">
+        <p>
+            That's where "Gorilla Camping" was born—a play on the word "guerilla" because I believe 
+            in resourcefulness, grit, and making the most out of what you have. Whether you've got 
+            $50 or $500, there's a way to get outdoors and live free.
+        </p>
+
+        <h2>Why Guerilla Camping?</h2>
+        <p>
+            This isn't your typical family-friendly camping blog. It's a little rough around the edges, 
+            real, and honest—like that crazy uncle at the barbecue who has the most interesting stories 
+            because he chose to do things his own way.
+        </p>
+
+        <p>I'm building this for:</p>
+        <ul class="about-list">
+            <li><strong>Army vets like myself</strong> who have a pension or disability and are looking for a place to fall into</li>
+            <li><strong>People who know how to make a little go a long way</strong> and want the freedom of not being tied to a mortgage</li>
+            <li><strong>Anyone tired of the conventional path</strong> and ready to live life on their own terms</li>
+        </ul>
+
+        <h2>What You'll Find Here</h2>
+        <p>
+            This site is more than just gear reviews and camping tips (though I've got plenty of both). 
+            You'll find real talk about:
+        </p>
+        
+        <ul class="about-list">
+            <li>Living off-grid on a budget</li>
+            <li>Gear that actually works (not just expensive stuff)</li>
+            <li>Alternative lifestyle choices</li>
+            <li>Growing your own food (including legal cannabis and mushroom research)</li>
+            <li>Building a sustainable income while living free</li>
+        </ul>
+
+        <h3>The Virginia Setup</h3>
+        <p>
+            I'm currently going to school at WGU while building this guerilla camping empire from 
+            Danville. I grow my own food (including some legal cannabis and mushrooms for "research purposes" 
+            😉), test gear in the Virginia wilderness, and document everything for the tribe.
+        </p>
+
+        <h2>Join the Movement</h2>
+        <p>
+            I'm looking for a tribe of like-minded adventurers, hustlers, and dreamers to join me as 
+            we figure this out together. This isn't just about camping gear or affiliate marketing 
+            (though I'll share some great finds!)—it's about embracing the guerilla mindset.
+        </p>
+
+        <p>
+            It's about finding freedom, building something from scratch, and supporting each other along 
+            the way. My goal is to turn this passion into $1,000+ per month while helping others do the same.
+        </p>
+
+        <div class="about-cta">
+            <h3>Ready to Join the Tribe?</h3>
+            <p>Get exclusive guerilla camping tips, gear deals, and stories that don't make it to the blog.</p>
+            <a href="/#signup" class="cta-button">Join the Email List →</a>
+        </div>
     </div>
-
-    <h2>Why I Built Gorilla Camping</h2>
-    <p>
-        I’m on a mission to not just survive—but thrive. My goal is to turn this passion into a 
-        sustainable income while helping others do the same. Whether you're here for the camping 
-        stories, the product recommendations, or the community, know this: you’re part of something 
-        real. Together, we’ll hustle smart, live fully, and create a life worth living.
-    </p>
 </section>
+
+<!-- Schema for Person -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": "https://gorillacamping.site/about#jon",
+  "name": "Jon",
+  "jobTitle": "Guerilla Camping Expert & Content Creator",
+  "description": "Army veteran and off-grid camping enthusiast sharing budget-friendly outdoor adventures and gear reviews",
+  "url": "https://gorillacamping.site/about",
+  "sameAs": [
+    "https://gorillacamping.site"
+  ],
+  "knowsAbout": [
+    "Camping",
+    "Off-grid living",
+    "Budget outdoor gear",
+    "Military life",
+    "Sustainable living"
+  ],
+  "alumniOf": {
+    "@type": "Organization",
+    "name": "United States Army"
+  },
+  "homeLocation": {
+    "@type": "Place",
+    "name": "Danville, Virginia"
+  }
+}
+</script>
 {% endblock %}
