@@ -48,8 +48,6 @@ def security_headers(response):
     })
     return response
 
-# Replace the MongoDB connection section in your app.py with this:
-
 # --- MongoDB Setup with Error Handling ---
 client = None
 db = None
@@ -97,13 +95,12 @@ def safe_db_operation(operation, fallback_result=None):
         print(f"❌ Database operation failed: {e}")
         return fallback_result
 
-# --- Indexes ---
-emails.create_index("email", unique=True)
-posts.create_index("slug", unique=True)
-clicks.create_index([("timestamp", -1), ("affiliate_url", 1)])
-
-print("Database names:", client.list_database_names())
-print("Collections in gorillacamping:", db.list_collection_names())
+# --- REMOVE THESE LINES - They'll crash if database is down ---
+# emails.create_index("email", unique=True)  # DELETE THIS
+# posts.create_index("slug", unique=True)    # DELETE THIS
+# clicks.create_index([("timestamp", -1), ("affiliate_url", 1)])  # DELETE THIS
+# print("Database names:", client.list_database_names())  # DELETE THIS
+# print("Collections in gorillacamping:", db.list_collection_names())  # DELETE THIS
 
 # --- Helper Functions ---
 def add_to_mailerlite(email):
@@ -147,7 +144,7 @@ def sanitize_slug(slug):
 
 def track_affiliate_click(affiliate_url, referrer_page=None):
     """Track affiliate link clicks for analytics"""
-    try:
+    def _track():
         clicks.insert_one({
             "affiliate_url": affiliate_url,
             "timestamp": datetime.utcnow(),
@@ -156,24 +153,30 @@ def track_affiliate_click(affiliate_url, referrer_page=None):
             "referrer_page": referrer_page,
             "affiliate_id": AFFILIATE_ID
         })
-    except Exception as e:
-        print(f"❌ Click tracking error: {e}")
+        return True
+    
+    safe_db_operation(_track, False)
 
 # --- Blog Pagination Helper ---
 def get_posts_paginated(page=1, per_page=10):
-    skip = (page - 1) * per_page
-    total = posts.count_documents({})
-    cursor = posts.find().sort("created_at", -1).skip(skip).limit(per_page)
-    return list(cursor), total
+    def _get_posts():
+        skip = (page - 1) * per_page
+        total = posts.count_documents({})
+        cursor = posts.find().sort("created_at", -1).skip(skip).limit(per_page)
+        return list(cursor), total
+    
+    return safe_db_operation(_get_posts, ([], 0))
 
 # --- Routes ---
 @app.route("/pingdb")
 def pingdb():
+    if not mongodb_connected:
+        return "❌ MongoDB not connected", 500
     try:
         client.admin.command("ping")
-        return "MongoDB connected!", 200
+        return "✅ MongoDB connected!", 200
     except Exception as e:
-        return f"MongoDB connection failed: {e}", 500
+        return f"❌ MongoDB connection failed: {e}", 500
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -192,21 +195,35 @@ def home():
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             return jsonify({"error": "Invalid email format"}), 400
         
-        try:
+        # Try to save to database, but don't fail if it's down
+        def save_email():
             emails.insert_one({
                 "email": email,
                 "timestamp": datetime.utcnow(),
                 "source": "guerilla-homepage-form",
                 "ip": request.remote_addr
             })
-            add_to_mailerlite(email)
-            return redirect(url_for("thank_you"))
-        except Exception as e:
-            print(f"Email insert error: {e}")
-            return jsonify({"error": "Email submission failed"}), 500
+            return True
+            
+        saved = safe_db_operation(save_email, False)
+        
+        # Always try MailerLite (more important for revenue)
+        mailerlite_success = add_to_mailerlite(email)
+        
+        if saved and mailerlite_success:
+            flash("✅ Subscribed successfully!", "success")
+        elif mailerlite_success:
+            flash("✅ Subscribed to email list!", "success")
+        else:
+            flash("⚠️ Subscription may have failed. Please try again.", "error")
+            
+        return redirect(url_for("thank_you"))
     
-    # Get latest blog posts for homepage
-    latest_posts = list(posts.find().sort("created_at", -1).limit(3))
+    # Get latest blog posts for homepage (or empty list if database is down)
+    latest_posts = safe_db_operation(
+        lambda: list(posts.find().sort("created_at", -1).limit(3)),
+        []
+    )
     return render_template("index.html", latest_posts=latest_posts)
 
 # Blog listing with pagination and SEO
@@ -230,14 +247,17 @@ def blog():
 
 @app.route("/blog/<slug>")
 def blog_post(slug):
-    post = posts.find_one({"slug": slug})
+    post = safe_db_operation(lambda: posts.find_one({"slug": slug}), None)
     if not post:
         return "404 Not Found", 404
     
     # Get 3 random related posts
-    all_slugs = [p["slug"] for p in posts.find({"slug": {"$ne": slug}})]
-    related_slugs = random.sample(all_slugs, min(3, len(all_slugs)))
-    related_posts = list(posts.find({"slug": {"$in": related_slugs}}))
+    def get_related():
+        all_slugs = [p["slug"] for p in posts.find({"slug": {"$ne": slug}})]
+        related_slugs = random.sample(all_slugs, min(3, len(all_slugs)))
+        return list(posts.find({"slug": {"$in": related_slugs}}))
+    
+    related_posts = safe_db_operation(get_related, [])
     
     return render_template("post.html", post=post, related_posts=related_posts)
 
@@ -272,6 +292,10 @@ def admin():
         return render_template("admin_login.html")
     
     if request.method == "POST":
+        if not mongodb_connected:
+            flash("❌ Database not available - cannot publish posts", "error")
+            return render_template("admin_post.html")
+            
         title = request.form.get("title", "").strip()
         slug = request.form.get("slug", "").strip() or title.lower().replace(" ", "-")
         slug = sanitize_slug(slug)
@@ -280,7 +304,7 @@ def admin():
             flash("Invalid slug.", "error")
             return render_template("admin_post.html")
         
-        if posts.find_one({"slug": slug}):
+        if safe_db_operation(lambda: posts.find_one({"slug": slug}), None):
             flash("Slug already exists!", "error")
             return render_template("admin_post.html")
         
@@ -309,9 +333,15 @@ def admin():
             "author": "Gorilla Camping"
         }
         
-        posts.insert_one(post)
-        flash("✅ Post published!", "success")
-        return redirect(url_for("blog_post", slug=slug))
+        def save_post():
+            posts.insert_one(post)
+            return True
+            
+        if safe_db_operation(save_post, False):
+            flash("✅ Post published!", "success")
+            return redirect(url_for("blog_post", slug=slug))
+        else:
+            flash("❌ Failed to publish post - database error", "error")
     
     return render_template("admin_post.html")
 
@@ -327,13 +357,24 @@ def analytics():
     if not session.get("logged_in"):
         return redirect(url_for("admin"))
     
+    if not mongodb_connected:
+        return render_template("analytics.html", 
+                             total_subscribers=0,
+                             total_posts=0,
+                             total_clicks=0,
+                             recent_clicks=[],
+                             error="Database not available")
+    
     # Get basic stats
-    total_subscribers = emails.count_documents({})
-    total_posts = posts.count_documents({})
-    total_clicks = clicks.count_documents({})
+    total_subscribers = safe_db_operation(lambda: emails.count_documents({}), 0)
+    total_posts = safe_db_operation(lambda: posts.count_documents({}), 0)
+    total_clicks = safe_db_operation(lambda: clicks.count_documents({}), 0)
     
     # Recent clicks
-    recent_clicks = list(clicks.find().sort("timestamp", -1).limit(10))
+    recent_clicks = safe_db_operation(
+        lambda: list(clicks.find().sort("timestamp", -1).limit(10)),
+        []
+    )
     
     return render_template("analytics.html", 
                          total_subscribers=total_subscribers,
@@ -356,12 +397,15 @@ def sitemap():
     pages.append(['/about', datetime.now().date().isoformat()])
     pages.append(['/contact', datetime.now().date().isoformat()])
     
-    # Blog posts
-    for post in posts.find():
-        url = f"/blog/{post['slug']}"
-        lastmod = post.get('updated_at', post.get('created_at', datetime.now())).date().isoformat()
-        pages.append([url, lastmod])
-
+    # Blog posts (only if database is available)
+    def add_blog_posts():
+        for post in posts.find():
+            url = f"/blog/{post['slug']}"
+            lastmod = post.get('updated_at', post.get('created_at', datetime.now())).date().isoformat()
+            pages.append([url, lastmod])
+    
+    safe_db_operation(add_blog_posts, None)
+    
     sitemap_xml = render_template('sitemap_template.xml', pages=pages)
     return Response(sitemap_xml, mimetype='application/xml')
 
