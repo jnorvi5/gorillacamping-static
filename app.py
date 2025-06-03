@@ -48,20 +48,54 @@ def security_headers(response):
     })
     return response
 
-# --- MongoDB Setup ---
-client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
+# Replace the MongoDB connection section in your app.py with this:
 
-try:
-    client.admin.command("ping")
-    print("✅ MongoDB connected successfully")
-except Exception as e:
-    print("❌ MongoDB connection failed:", e)
-    raise
+# --- MongoDB Setup with Error Handling ---
+client = None
+db = None
+emails = None
+posts = None
+clicks = None
 
-db = client.get_database("gorillacamping")
-emails = db.get_collection("subscribers")
-posts = db.get_collection("posts")
-clicks = db.get_collection("affiliate_clicks")
+def init_mongodb():
+    global client, db, emails, posts, clicks
+    try:
+        client = MongoClient(MONGO_URI, server_api=ServerApi('1'), serverSelectionTimeoutMS=5000)
+        client.admin.command("ping")
+        print("✅ MongoDB connected successfully")
+        
+        db = client.get_database("gorillacamping")
+        emails = db.get_collection("subscribers")
+        posts = db.get_collection("posts")
+        clicks = db.get_collection("affiliate_clicks")
+        
+        # Create indexes
+        try:
+            emails.create_index("email", unique=True)
+            posts.create_index("slug", unique=True)
+            clicks.create_index([("timestamp", -1), ("affiliate_url", 1)])
+        except Exception as e:
+            print(f"⚠️ Index creation warning: {e}")
+            
+        return True
+    except Exception as e:
+        print(f"❌ MongoDB connection failed: {e}")
+        print("⚠️ App will run in limited mode without database")
+        return False
+
+# Try to connect to MongoDB
+mongodb_connected = init_mongodb()
+
+# Helper function to safely use database
+def safe_db_operation(operation, fallback_result=None):
+    if not mongodb_connected or not db:
+        print("⚠️ Database not available, using fallback")
+        return fallback_result
+    try:
+        return operation()
+    except Exception as e:
+        print(f"❌ Database operation failed: {e}")
+        return fallback_result
 
 # --- Indexes ---
 emails.create_index("email", unique=True)
