@@ -3,21 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{{ self.meta_description() }}">
-    <meta name="keywords" content="{{ self.meta_keywords() }}">
-    <meta name="author" content="Your Name">
-    <title>{% block title %}Gorilla Camping{% endblock %}</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <meta name="description" content="{% block meta_description %}Gorilla Camping - Guerilla-style camping guides, gear reviews, and off-grid living tips for budget-conscious adventurers.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}guerilla camping, off-grid living, camping gear reviews, budget camping, DIY camping, veteran camping{% endblock %}">
+    <meta name="author" content="Jon - Gorilla Camping">
+    <title>{% block title %}Gorilla Camping - Guerilla-Style Camping & Off-Grid Living{% endblock %}</title>
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://gorillacamping.site{{ request.path }}">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
 
-    <!-- Favicon and social meta tags -->
-    <link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
-    <meta property="og:title" content="{{ self.title() }}">
-    <meta property="og:description" content="{{ self.meta_description() }}">
-    <meta property="og:image" content="https://gorillacamping.site/static/images/og-image.jpg">
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+
+    <!-- Social Meta Tags -->
+    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="og:image" content="https://gorillacamping.site{{ url_for('static', filename='images/og-gorilla-camping.jpg') }}">
+    <meta property="og:url" content="https://gorillacamping.site{{ request.path }}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:site_name" content="Gorilla Camping">
+    
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ self.title() }}">
     <meta name="twitter:description" content="{{ self.meta_description() }}">
-    <meta name="twitter:image" content="https://gorillacamping.site/static/images/og-image.jpg">
+    <meta name="twitter:image" content="https://gorillacamping.site{{ url_for('static', filename='images/og-gorilla-camping.jpg') }}">
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Gorilla Camping",
+      "url": "https://gorillacamping.site",
+      "logo": "https://gorillacamping.site{{ url_for('static', filename='images/logo.png') }}",
+      "description": "Guerilla-style camping guides, gear reviews, and off-grid living tips for budget-conscious adventurers.",
+      "founder": {
+        "@type": "Person",
+        "name": "Jon",
+        "description": "Army veteran and off-grid camping enthusiast"
+      },
+      "sameAs": [
+        "https://www.facebook.com/gorillacamping",
+        "https://www.instagram.com/gorillacamping"
+      ]
+    }
+    </script>
 
     {% block extra_head %}{% endblock %}
 
@@ -28,40 +62,120 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-TE4BHZ89TL');
+      
+      // Enhanced affiliate tracking
+      function trackAffiliateClick(affiliateUrl, productName) {
+        gtag('event', 'affiliate_click', {
+          'event_category': 'Affiliate',
+          'event_label': affiliateUrl,
+          'custom_parameter_1': productName
+        });
+      }
     </script>
-    <!-- End Google Analytics -->
-    <!-- Microsoft Clarity Analytics -->
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "rprq55166f");
-</script>
+
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "rprq55166f");
+    </script>
+
+    <!-- MailerLite Universal -->
+    <script>
+        (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
+        .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+        n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+        (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+        ml('account', '1500893');
+    </script>
 </head>
 <body>
-    <header>
-        <a href="/" class="logo" aria-label="Gorilla Camping Home">
-            <img src="/static/images/logo-placeholder.png" alt="Gorilla Camping Logo" />
-        </a>
-        <nav>
-            <ul>
-                <li><a href="/" {% if request.path=='/' %}class="active"{% endif %}>Home</a></li>
-                <li><a href="/blog" {% if request.path.startswith('/blog') %}class="active"{% endif %}>Blog</a></li>
-                <li><a href="/shop" {% if request.path=='/shop' %}class="active"{% endif %}>Shop</a></li>
-                <li><a href="/gear" {% if request.path=='/gear' %}class="active"{% endif %}>Gear</a></li>
-                <li><a href="/contact" {% if request.path=='/contact' %}class="active"{% endif %}>Contact</a></li>
-            </ul>
+    <header class="gc-header">
+        <div class="logo-container">
+            <a href="/" aria-label="Gorilla Camping Home">
+                <img src="{{ url_for('static', filename='images/logo.png') }}"
+                     alt="Gorilla Camping Logo - Guerilla Style Camping"
+                     class="header-logo-glow"
+                     width="140"
+                     height="140">
+            </a>
+        </div>
+        <h1 class="gc-motto-glow">Life is short, camp your way through it</h1>
+        <nav class="gc-nav" role="navigation" aria-label="Main Navigation">
+            <a href="/" {% if request.path=='/' %}class="active" aria-current="page"{% endif %}>Home</a>
+            <a href="/blog" {% if request.path.startswith('/blog') %}class="active" aria-current="page"{% endif %}>Blog</a>
+            <a href="/gear" {% if request.path=='/gear' %}class="active" aria-current="page"{% endif %}>Gear</a>
+            <a href="/about" {% if request.path=='/about' %}class="active" aria-current="page"{% endif %}>About</a>
+            <a href="/contact" {% if request.path=='/contact' %}class="active" aria-current="page"{% endif %}>Contact</a>
         </nav>
     </header>
-    <main>
+
+    <main role="main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="flash flash-{{ category }}" role="alert">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
         {% block content %}{% endblock %}
     </main>
-    <footer>
-        <p>&copy; 2025 Gorilla Camping. All Rights Reserved.</p>
-        <p style="font-size:smaller;">
-            Guerilla-style affiliate marketing. Some links may earn us a small commission, at no extra cost to you. <a href="/privacy" style="color:#32CD32;">Privacy Policy</a>
-        </p>
+
+    <footer class="gc-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Gorilla Camping. All Rights Reserved.</p>
+            <p class="disclaimer">
+                Guerilla-style affiliate marketing. Some links may earn us a small commission at no extra cost to you. 
+                <a href="/privacy" class="footer-link">Privacy Policy</a> | 
+                <a href="/contact" class="footer-link">Contact</a>
+            </p>
+            <div class="footer-social">
+                <p>Built with Flask, MongoDB & Pure Guerilla Hustle 🏕️💪</p>
+            </div>
+        </div>
     </footer>
+
+    <!-- Enhanced tracking scripts -->
+    <script>
+        // Affiliate link tracking
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.affiliate-link').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    var affiliateUrl = this.getAttribute('href');
+                    var productName = this.getAttribute('data-product') || 'Unknown Product';
+                    
+                    // Track with Google Analytics
+                    if (typeof gtag !== 'undefined') {
+                        trackAffiliateClick(affiliateUrl, productName);
+                    }
+                    
+                    // Small delay to ensure tracking fires
+                    e.preventDefault();
+                    setTimeout(function() {
+                        window.open(affiliateUrl, '_blank');
+                    }, 100);
+                });
+            });
+
+            // MailerLite success tracking
+            document.addEventListener('ml_form_success', function (event) {
+                const email = event.detail.data.email;
+                fetch("/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ email })
+                }).then(() => {
+                    console.log("✅ Email backed up to MongoDB");
+                }).catch(() => {
+                    console.warn("⚠️ Backup to MongoDB failed");
+                });
+            });
+        });
+    </script>
 </body>
 </html>
