@@ -412,43 +412,7 @@ def analytics():
                          total_clicks=total_clicks,
                          recent_clicks=recent_clicks)
 
-# Contact Form Handler
-@app.route("/contact", methods=["GET", "POST"])
-def contact():
-    if request.method == "POST":
-        # Get form data
-        name = request.form.get("name", "").strip()
-        email = request.form.get("email", "").strip()
-        subject = request.form.get("subject", "").strip()
-        message = request.form.get("message", "").strip()
-        
-        # Validate required fields
-        if not name or not email or not message:
-            flash("❌ Please fill in all required fields.", "error")
-            return render_template("contact.html", 
-                                 meta_description="Contact Gorilla Camping for collaborations, gear questions, or to join our guerilla camping community.",
-                                 meta_keywords="gorilla camping contact, guerilla camping community, camping collaboration")
-        
-        # Validate email format
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            flash("❌ Please enter a valid email address.", "error")
-            return render_template("contact.html",
-                                 meta_description="Contact Gorilla Camping for collaborations, gear questions, or to join our guerilla camping community.",
-                                 meta_keywords="gorilla camping contact, guerilla camping community, camping collaboration")
-        
-        # Save contact form submission to database
-        def save_contact():
-            contacts = db.get_collection("contact_submissions")
-            contacts.insert_one({
-                "name": name,
-                "email": email,
-                "subject": subject or "General Inquiry",
-                "message": message,
-                "timestamp": datetime.utcnow(),
-                "ip": request.remote_addr,
-                "user_agent": request.headers.get('User-Agent', '')
-            })
-            return True
+
         
         contact_saved = safe_db_operation(save_contact, False)
         
@@ -467,6 +431,67 @@ def contact():
                          meta_description=meta_description, 
                          meta_keywords=meta_keywords)
 
+@app.route("/contact", methods=["GET", "POST"])
+def contact():
+    """Contact form - Revenue generating lead capture"""
+    if request.method == "POST":
+        try:
+            # Get form data with error handling
+            name = request.form.get("name", "").strip()
+            email = request.form.get("email", "").strip()
+            subject = request.form.get("subject", "").strip()
+            message = request.form.get("message", "").strip()
+            
+            # Basic validation
+            if not all([name, email, subject, message]):
+                flash("All fields are required! Don't leave money on the table.", "error")
+                return redirect(url_for("contact"))
+            
+            # Email validation
+            email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            if not re.match(email_pattern, email):
+                flash("Please enter a valid email address.", "error")
+                return redirect(url_for("contact"))
+            
+            # Save to database with error handling
+            try:
+                if 'db' in globals():
+                    contact_data = {
+                        "name": name,
+                        "email": email,
+                        "subject": subject,
+                        "message": message,
+                        "timestamp": datetime.utcnow(),
+                        "status": "new",
+                        "ip_address": request.remote_addr,
+                        "user_agent": request.headers.get('User-Agent', 'Unknown')
+                    }
+                    db.contacts.insert_one(contact_data)
+            except Exception as db_error:
+                print(f"Database error: {db_error}")
+                # Continue anyway - don't let DB issues block the form
+            
+            # Success message with revenue focus
+            success_messages = [
+                "Message sent! I'll get back to you guerilla-fast! 🚀",
+                "Got it! Expect a response within 24 hours. Let's make money! 💰",
+                "Message received! Time to turn this into revenue! 🏕️"
+            ]
+            flash(random.choice(success_messages), "success")
+            return redirect(url_for("contact"))
+            
+        except Exception as e:
+            print(f"Contact form error: {e}")
+            flash("Oops! Something went wrong. Try again - don't let tech stop the money!", "error")
+            return redirect(url_for("contact"))
+    
+    # GET request - show the form
+    meta_description = "Contact Gorilla Camping for gear reviews, brand collaborations, and guerilla camping advice. Let's make money together!"
+    meta_keywords = "contact gorilla camping, brand collaboration, gear review, affiliate partnership, camping blog"
+    
+    return render_template("contact.html", 
+                         meta_description=meta_description,
+                         meta_keywords=meta_keywords)
 @app.route("/thank-you")
 def thank_you():
     return render_template("thank_you.html")
