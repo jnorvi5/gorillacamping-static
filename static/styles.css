@@ -770,3 +770,245 @@ body {
     --dark-bg: #000000;
   }
 }
+/* Add this to your existing styles.css */
+
+/* Contact Section */
+.contact-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.contact-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.contact-header h1 {
+  color: var(--gorilla-green);
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 1rem;
+  text-shadow: 0 0 16px var(--gorilla-green);
+}
+
+.contact-wrapper {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 3rem;
+  margin-bottom: 4rem;
+}
+
+/* Contact Form */
+.contact-form {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(0,255,136,0.3);
+  box-shadow: 0 0 24px rgba(0,255,136,0.2);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  color: var(--gorilla-green);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 2px solid rgba(0,255,136,0.3);
+  border-radius: 8px;
+  background: #222;
+  color: var(--text-white);
+  font-size: 1rem;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--gorilla-green);
+  box-shadow: 0 0 12px rgba(0,255,136,0.4);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--text-gray);
+  opacity: 0.8;
+}
+
+.contact-submit {
+  width: 100%;
+  padding: 1rem 2rem;
+  background: var(--gorilla-green);
+  color: var(--dark-bg);
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 0 16px var(--gorilla-green);
+}
+
+.contact-submit:hover {
+  background: var(--dark-bg);
+  color: var(--gorilla-green);
+  box-shadow: 0 0 32px var(--gorilla-green), 0 0 8px var(--gorilla-green) inset;
+  transform: translateY(-2px);
+}
+
+/* Contact Info Sidebar */
+.contact-info {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(0,255,136,0.3);
+  height: fit-content;
+}
+
+.contact-info h3 {
+  color: var(--gorilla-green);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 8px var(--gorilla-green);
+}
+
+.contact-methods {
+  margin-bottom: 2rem;
+}
+
+.contact-method {
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  background: rgba(0,255,136,0.05);
+  border-radius: 8px;
+  border-left: 3px solid var(--gorilla-green);
+}
+
+.contact-social h4 {
+  color: var(--gorilla-green);
+  margin-bottom: 1rem;
+}
+
+.contact-social-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.contact-social-link {
+  display: block;
+  padding: 0.8rem 1rem;
+  background: rgba(0,255,136,0.1);
+  color: var(--text-white);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: var(--transition);
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+
+.contact-social-link.reddit {
+  border-color: #ff4500;
+}
+
+.contact-social-link.reddit:hover {
+  background: #ff4500;
+  color: white;
+}
+
+.contact-social-link.facebook {
+  border-color: #1877f2;
+}
+
+.contact-social-link.facebook:hover {
+  background: #1877f2;
+  color: white;
+}
+
+.contact-social-link.tiktok {
+  border-color: #fe2c55;
+}
+
+.contact-social-link.tiktok:hover {
+  background: #fe2c55;
+  color: white;
+}
+
+/* FAQ Section */
+.contact-faq {
+  background: var(--card-bg);
+  padding: 3rem 2rem;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(0,255,136,0.3);
+}
+
+.contact-faq h2 {
+  color: var(--gorilla-green);
+  text-align: center;
+  margin-bottom: 2rem;
+  text-shadow: 0 0 8px var(--gorilla-green);
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.faq-item {
+  background: rgba(0,255,136,0.05);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 3px solid var(--gorilla-green);
+}
+
+.faq-item h3 {
+  color: var(--gorilla-green);
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+}
+
+.faq-item p {
+  color: var(--text-gray);
+  line-height: 1.6;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .contact-wrapper {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .faq-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .contact-form,
+  .contact-info,
+  .contact-faq {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-section {
+    padding: 1rem 0.5rem;
+  }
+  
+  .contact-form,
+  .contact-info {
+    padding: 1rem;
+  }
+}
