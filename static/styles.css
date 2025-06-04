@@ -1313,4 +1313,35 @@ body {
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
+/* EMERGENCY MOBILE SOCIAL FIX - REVENUE CRITICAL */
+@media (max-width: 768px) {
+  .social-icons {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1rem !important;
+  }
+  
+  .social-link {
+    display: flex !important;
+    width: 280px !important;
+    max-width: 90vw !important;
+    justify-content: center !important;
+    margin: 0.5rem 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    padding: 1rem 1.5rem !important;
+    font-size: 1.1rem !important;
+    min-height: 48px !important;
+    touch-action: manipulation !important;
+  }
+  
+  .share-btn {
+    display: flex !important;
+    width: 280px !important;
+    max-width: 90vw !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
 
