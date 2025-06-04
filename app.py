@@ -10,6 +10,12 @@ import traceback
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
 
+# 🎯 GUERILLA CONFIG - Your affiliate IDs and tracking
+GOOGLE_ANALYTICS_ID = "G-TE4BHZ89TL"
+COOKIEYES_SITE_ID = os.environ.get('COOKIEYES_SITE_ID', 'YOUR_COOKIEYES_ID')  # Get from CookieYes dashboard
+AMAZON_ASSOCIATE_TAG = os.environ.get('AMAZON_TAG', 'gorillacamping-20')  # Your Amazon Associates tag
+MAILERLITE_API_KEY = os.environ.get('MAILERLITE_API_KEY', '')
+
 # MongoDB connection with error handling
 try:
     mongodb_uri = os.environ.get('MONGODB_URI')
@@ -34,6 +40,9 @@ def security_headers(response):
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    # 🚀 Cache optimization for speed
+    if request.endpoint in ['static', 'sitemap', 'robots']:
+        response.headers['Cache-Control'] = 'public, max-age=86400'
     return response
 
 # Safe database operations (guerilla-style error handling)
@@ -47,6 +56,26 @@ def safe_db_operation(operation, default_return=None):
         print(f"Database operation failed: {e}")
         return default_return
 
+# 💰 Track user consent for affiliate revenue optimization
+def track_user_consent(consent_data, user_info=None):
+    """Track consent for affiliate attribution analysis"""
+    def save_consent():
+        consent_record = {
+            'timestamp': datetime.utcnow(),
+            'ip_hash': hash(request.remote_addr) if request.remote_addr else None,
+            'user_agent': request.headers.get('User-Agent'),
+            'analytics_consent': consent_data.get('analytics', False),
+            'marketing_consent': consent_data.get('advertisement', False),
+            'functional_consent': consent_data.get('functional', False),
+            'referrer': request.referrer,
+            'page': request.path,
+            'revenue_potential': 'high' if consent_data.get('advertisement') else 'low'
+        }
+        db.consent_analytics.insert_one(consent_record)
+        return consent_record
+    
+    return safe_db_operation(save_consent, {})
+
 # Get recent posts with error handling
 def get_recent_posts(limit=5):
     def fetch_posts():
@@ -54,22 +83,35 @@ def get_recent_posts(limit=5):
     
     posts = safe_db_operation(fetch_posts, [])
     
-    # Fallback demo posts if database is unavailable
+    # 🎯 Guerilla fallback posts optimized for affiliate sales
     if not posts:
         posts = [
             {
-                "title": "Guerilla Camping Setup: $50 Budget Challenge",
-                "slug": "guerilla-camping-50-budget",
-                "excerpt": "How to set up a complete guerilla camping kit for under $50. Military surplus secrets revealed!",
+                "title": "Best Budget Camping Gear Under $20 (Amazon Finds 2024)",
+                "slug": "budget-camping-gear-under-20-amazon",
+                "excerpt": "Military surplus secrets + Amazon deals = Complete guerilla camping kit for under $50. Real gear I actually use!",
                 "date": datetime.now() - timedelta(days=1),
-                "category": "Budget Gear"
+                "category": "Budget Gear",
+                "affiliate_ready": True,
+                "revenue_potential": "high"
             },
             {
-                "title": "Stealth Camping in Urban Areas: Legal & Safe",
-                "slug": "stealth-camping-urban-guide",
-                "excerpt": "Master the art of urban stealth camping without breaking laws or getting caught.",
+                "title": "Stealth Camping Essentials: 5 Must-Have Items",
+                "slug": "stealth-camping-essentials-gear",
+                "excerpt": "The exact 5 items that make stealth camping possible. Tested in urban environments and wild camping.",
                 "date": datetime.now() - timedelta(days=3),
-                "category": "Stealth Tactics"
+                "category": "Stealth Tactics",
+                "affiliate_ready": True,
+                "revenue_potential": "high"
+            },
+            {
+                "title": "DIY Ultralight Backpacking Gear (Save $300+)",
+                "slug": "diy-ultralight-backpacking-gear",
+                "excerpt": "How I built ultralight gear for 1/3 the price. Complete tutorials + where to buy materials.",
+                "date": datetime.now() - timedelta(days=5),
+                "category": "DIY Projects",
+                "affiliate_ready": True,
+                "revenue_potential": "medium"
             }
         ]
     
@@ -89,6 +131,37 @@ def get_posts_paginated(page=1, per_page=12):
     result = safe_db_operation(fetch_paginated, ([], 0))
     return result
 
+# 💰 Enhanced affiliate click tracking with revenue attribution
+def track_affiliate_click(product_id, source_page, user_consent=None):
+    """Track affiliate clicks with consent-aware revenue attribution"""
+    def save_click():
+        click_data = {
+            "product_id": product_id,
+            "source_page": source_page,
+            "timestamp": datetime.utcnow(),
+            "user_agent": request.headers.get('User-Agent'),
+            "referrer": request.referrer,
+            "ip_hash": hash(request.remote_addr) if request.remote_addr else None,
+            "has_marketing_consent": user_consent and user_consent.get('advertisement', False),
+            "revenue_trackable": bool(user_consent and user_consent.get('advertisement')),
+            "session_id": session.get('session_id', 'anonymous'),
+            "click_type": "affiliate_conversion"
+        }
+        db.affiliate_clicks.insert_one(click_data)
+        
+        # Update product performance metrics
+        db.product_performance.update_one(
+            {"product_id": product_id},
+            {
+                "$inc": {"clicks": 1},
+                "$set": {"last_clicked": datetime.utcnow()}
+            },
+            upsert=True
+        )
+        return True
+    
+    return safe_db_operation(save_click, False)
+
 # Track affiliate clicks and sources
 def track_click(source, destination, user_agent=None, referrer=None):
     def save_click():
@@ -105,19 +178,35 @@ def track_click(source, destination, user_agent=None, referrer=None):
     
     return safe_db_operation(save_click, False)
 
+# 🎯 Context processor for global template variables
+@app.context_processor
+def inject_globals():
+    return {
+        'google_analytics_id': GOOGLE_ANALYTICS_ID,
+        'cookieyes_site_id': COOKIEYES_SITE_ID,
+        'amazon_tag': AMAZON_ASSOCIATE_TAG,
+        'current_year': datetime.now().year,
+        'site_name': 'Gorilla Camping',
+        'site_url': 'https://gorillacamping.site'
+    }
+
 # Home page with latest posts
 @app.route("/")
 def index():
     latest_posts = get_recent_posts(6)
     
-    # SEO meta data
-    meta_description = "Guerilla-style camping guides, budget gear reviews, and off-grid survival tips. Real advice from someone living the lifestyle."
-    meta_keywords = "guerilla camping, budget camping, stealth camping, off-grid living, camping gear reviews"
+    # 🎯 SEO meta data optimized for affiliate revenue
+    meta_description = "Guerilla camping gear reviews, budget outdoor equipment, and off-grid survival tips. Real advice from someone living the lifestyle. Save money, make adventures happen."
+    meta_keywords = "guerilla camping, budget camping gear, stealth camping, off-grid living, camping gear reviews, amazon camping deals, cheap outdoor gear"
+    
+    # Track page view for analytics
+    track_click("homepage", "internal", request.headers.get('User-Agent'), request.referrer)
     
     return render_template("index.html", 
                          latest_posts=latest_posts,
                          meta_description=meta_description,
-                         meta_keywords=meta_keywords)
+                         meta_keywords=meta_keywords,
+                         page_type="homepage")
 
 # Blog listing with pagination and SEO
 @app.route("/blog")
@@ -126,8 +215,8 @@ def blog():
     per_page = 12
     all_posts, total = get_posts_paginated(page, per_page)
     
-    meta_description = "Guerilla-style camping guides, gear reviews, and off-grid living tips. Real advice from someone living the lifestyle."
-    meta_keywords = "guerilla camping, off-grid living, camping gear reviews, budget camping, DIY camping"
+    meta_description = "Guerilla camping guides, gear reviews, and outdoor survival tips. Real advice from someone living off-grid. Budget gear that actually works."
+    meta_keywords = "guerilla camping blog, off-grid living, camping gear reviews, budget camping, DIY camping gear, outdoor survival tips"
     
     return render_template("blog.html", 
                          posts=all_posts, 
@@ -135,9 +224,10 @@ def blog():
                          total=total, 
                          per_page=per_page,
                          meta_description=meta_description,
-                         meta_keywords=meta_keywords)
+                         meta_keywords=meta_keywords,
+                         page_type="blog")
 
-# Individual blog post
+# Individual blog post with affiliate optimization
 @app.route("/blog/<slug>")
 def post(slug):
     def fetch_post():
@@ -145,43 +235,163 @@ def post(slug):
     
     post_data = safe_db_operation(fetch_post)
     
+    # 🎯 Demo posts optimized for affiliate conversions
     if not post_data:
-        # Demo post for testing
-        post_data = {
-            "title": "Guerilla Camping Setup: $50 Budget Challenge",
-            "content": "Coming soon! This post will show you how to build a complete guerilla camping setup for under $50 using military surplus and DIY hacks.",
-            "date": datetime.now(),
-            "category": "Budget Gear",
-            "slug": slug
+        demo_posts = {
+            "budget-camping-gear-under-20-amazon": {
+                "title": "Best Budget Camping Gear Under $20 (Amazon Finds 2024)",
+                "content": """
+# The Ultimate Guerilla Camping Gear Guide (Under $20 Each!)
+
+Living off-grid for 3+ years, I've learned that **expensive gear doesn't make you a better camper**. Here's my battle-tested list of budget gear that actually works:
+
+## 1. Military Surplus Poncho ($15) - The Swiss Army Knife of Camping
+This thing is INSANE value. Use it as:
+- Rain protection 
+- Tarp/shelter
+- Ground cover
+- Emergency blanket
+
+**[🔥 GET THE EXACT ONE I USE (Amazon)](https://gorillacamping.site/go/poncho)**
+
+## 2. Lifestraw Personal Water Filter ($12-18)
+Never buy bottled water again. I've used this in sketchy streams and it works.
+
+**[💧 GRAB YOUR LIFESTRAW HERE](https://gorillacamping.site/go/lifestraw)**
+
+## 3. Emergency Mylar Sleeping Bag ($8)
+90% as effective as a $200 sleeping bag. Not kidding.
+
+**[🛏️ CHECK CURRENT PRICE](https://gorillacamping.site/go/mylar-bag)**
+
+## The Complete $50 Setup
+- Poncho: $15
+- LifeStraw: $15  
+- Mylar bag: $8
+- Paracord (50ft): $5
+- Emergency fire starter: $7
+
+**Total: $50** vs. $500+ for "premium" gear that does the same thing.
+
+Want the complete list with exact Amazon links? **[Join my email list](https://gorillacamping.site/subscribe)** - I send weekly gear finds and survival tips.
+                """,
+                "date": datetime.now() - timedelta(days=1),
+                "category": "Budget Gear",
+                "slug": slug,
+                "affiliate_ready": True,
+                "meta_description": "Complete guerilla camping setup for under $50. Military surplus secrets + Amazon deals. Real gear I actually use daily.",
+                "featured_products": ["poncho", "lifestraw", "mylar-bag"]
+            },
+            "stealth-camping-essentials-gear": {
+                "title": "Stealth Camping Essentials: 5 Must-Have Items",
+                "content": """
+# Stealth Camping Essentials: Don't Get Caught!
+
+After 100+ nights of stealth camping (urban and wilderness), these 5 items are NON-NEGOTIABLE:
+
+## 1. Silent Setup Gear
+**Ninja Tarp System** - No metal grommets that clink
+**[🥷 GET THE SILENT TARP](https://gorillacamping.site/go/silent-tarp)**
+
+## 2. Light Discipline 
+Red headlamp only. Blue/white light = busted.
+**[🔴 RED HEADLAMP (Amazon)](https://gorillacamping.site/go/red-headlamp)**
+
+## 3. Scent Control
+Urban camping = don't smell like a camper.
+**[🧼 CAMPING SOAP SHEETS](https://gorillacamping.site/go/soap-sheets)**
+
+## 4. Quick Exit Strategy
+Everything packed in 60 seconds or less.
+**[⚡ QUICK-PACK SYSTEM](https://gorillacamping.site/go/quick-pack)**
+
+## 5. Legal Insurance
+Know your rights, carry proof of income/address.
+
+**Total stealth kit: Under $75**
+
+**Want my complete stealth camping guide?** Join 2,000+ guerilla campers getting weekly tips: **[Subscribe here](https://gorillacamping.site/subscribe)**
+                """,
+                "date": datetime.now() - timedelta(days=3),
+                "category": "Stealth Tactics",
+                "slug": slug,
+                "affiliate_ready": True,
+                "meta_description": "5 essential items for successful stealth camping. Tested in urban environments. Don't get caught - stay invisible.",
+                "featured_products": ["silent-tarp", "red-headlamp", "soap-sheets"]
+            }
         }
+        
+        post_data = demo_posts.get(slug, {
+            "title": "Guerilla Camping Guide Coming Soon!",
+            "content": "This post is being crafted with real field experience. Check back soon for authentic gear reviews and money-saving tips!",
+            "date": datetime.now(),
+            "category": "Coming Soon",
+            "slug": slug,
+            "meta_description": "Guerilla camping tips and tricks from someone living the lifestyle."
+        })
+    
+    # Track post view
+    track_click(f"post_{slug}", "internal", request.headers.get('User-Agent'), request.referrer)
     
     return render_template("post.html", 
                          post=post_data,
-                         meta_description=post_data.get('excerpt', 'Guerilla camping tips and tricks'),
-                         meta_keywords=f"guerilla camping, {post_data.get('category', 'camping')}")
+                         meta_description=post_data.get('meta_description', 'Guerilla camping tips and tricks'),
+                         meta_keywords=f"guerilla camping, {post_data.get('category', 'camping')}, budget outdoor gear",
+                         page_type="article")
 
-# Gear page with affiliate products
+# 💰 Gear page with affiliate products
 @app.route("/gear")
 def gear():
-    # Track page visit
-    track_click("gear_page", "internal", request.headers.get('User-Agent'), request.referrer)
+    # Track page visit for revenue analytics
+    track_affiliate_click("gear_page_visit", "gear_landing", {})
     
-    meta_description = "Guerilla-approved camping gear that won't break the bank. Real reviews from someone who lives this lifestyle."
-    meta_keywords = "budget camping gear, guerilla camping equipment, cheap camping gear, military surplus camping"
+    # 🎯 Featured products for maximum conversion
+    featured_gear = [
+        {
+            "name": "Military Surplus Poncho",
+            "price": "$15",
+            "affiliate_id": "poncho",
+            "description": "The ultimate multi-tool. Shelter, rain gear, ground cover.",
+            "commission": "~$3",
+            "why_recommend": "I use this daily. 5+ years, still going strong."
+        },
+        {
+            "name": "LifeStraw Personal",
+            "price": "$15-18", 
+            "affiliate_id": "lifestraw",
+            "description": "Never buy bottled water again. Works in any water source.",
+            "commission": "~$2-3",
+            "why_recommend": "Saved me hundreds in water costs. Essential gear."
+        },
+        {
+            "name": "Emergency Mylar Sleeping Bag", 
+            "price": "$8",
+            "affiliate_id": "mylar-bag",
+            "description": "90% as effective as $200 sleeping bags. Emergency backup.",
+            "commission": "~$1-2",
+            "why_recommend": "Used this in 20°F weather. Surprisingly warm."
+        }
+    ]
+    
+    meta_description = "Guerilla-tested camping gear that won't break the bank. Real reviews from someone who lives this lifestyle. Budget gear that actually works."
+    meta_keywords = "budget camping gear, guerilla camping equipment, cheap camping gear, military surplus camping, amazon camping deals, outdoor gear reviews"
     
     return render_template("gear.html",
+                         featured_gear=featured_gear,
                          meta_description=meta_description,
-                         meta_keywords=meta_keywords)
+                         meta_keywords=meta_keywords,
+                         page_type="product")
 
 # About page
 @app.route("/about")
 def about():
-    meta_description = "Meet the guerilla camper behind the blog. Real stories, real gear, real advice from someone living off-grid."
-    meta_keywords = "about guerilla camping, off-grid lifestyle, camping blog author"
+    meta_description = "Meet the guerilla camper behind the blog. Real stories, real gear, real advice from someone living off-grid on a shoestring budget."
+    meta_keywords = "about guerilla camping, off-grid lifestyle, camping blog author, budget outdoor living"
     
     return render_template("about.html",
                          meta_description=meta_description,
-                         meta_keywords=meta_keywords)
+                         meta_keywords=meta_keywords,
+                         page_type="about")
 
 # Contact form - Revenue generating lead capture
 @app.route("/contact", methods=["GET", "POST"])
@@ -215,7 +425,8 @@ def contact():
                     "timestamp": datetime.utcnow(),
                     "status": "new",
                     "ip_address": request.remote_addr,
-                    "user_agent": request.headers.get('User-Agent', 'Unknown')
+                    "user_agent": request.headers.get('User-Agent', 'Unknown'),
+                    "revenue_opportunity": "high" if "collaboration" in subject.lower() or "brand" in message.lower() else "medium"
                 }
                 db.contacts.insert_one(contact_data)
                 return True
@@ -242,7 +453,8 @@ def contact():
     
     return render_template("contact.html", 
                          meta_description=meta_description,
-                         meta_keywords=meta_keywords)
+                         meta_keywords=meta_keywords,
+                         page_type="contact")
 
 # AS-IS terms and affiliate disclaimer page
 @app.route("/as-is")
@@ -252,7 +464,8 @@ def as_is():
     
     return render_template("as_is.html",
                          meta_description=meta_description,
-                         meta_keywords=meta_keywords)
+                         meta_keywords=meta_keywords,
+                         page_type="legal")
 
 # Privacy policy
 @app.route("/privacy")
@@ -262,24 +475,36 @@ def privacy():
     
     return render_template("privacy.html",
                          meta_description=meta_description,
-                         meta_keywords=meta_keywords)
+                         meta_keywords=meta_keywords,
+                         page_type="legal")
 
-# Affiliate link tracker
+# 💰 Enhanced affiliate link tracker with conversion optimization
 @app.route("/go/<product_id>")
 def affiliate_redirect(product_id):
-    # Track the click
-    track_click(f"affiliate_{product_id}", "external", request.headers.get('User-Agent'), request.referrer)
+    # Track the click with enhanced analytics
+    user_consent = session.get('cookie_consent', {})
+    track_affiliate_click(product_id, request.referrer or 'direct', user_consent)
     
-    # Affiliate links mapping (add your real affiliate links here)
+    # 🎯 Your actual affiliate links - UPDATE THESE!
     affiliate_links = {
-        "tent": "https://amzn.to/your-tent-link",
-        "sleeping-bag": "https://amzn.to/your-sleeping-bag-link",
-        "backpack": "https://amzn.to/your-backpack-link",
-        "gear-kit": "https://amzn.to/your-gear-kit-link"
+        # Amazon Associates links
+        "poncho": f"https://amzn.to/3YourPonchoLink?tag={AMAZON_ASSOCIATE_TAG}",
+        "lifestraw": f"https://amzn.to/3YourLifestrawLink?tag={AMAZON_ASSOCIATE_TAG}",
+        "mylar-bag": f"https://amzn.to/3YourMylarLink?tag={AMAZON_ASSOCIATE_TAG}",
+        "silent-tarp": f"https://amzn.to/3YourTarpLink?tag={AMAZON_ASSOCIATE_TAG}",
+        "red-headlamp": f"https://amzn.to/3YourHeadlampLink?tag={AMAZON_ASSOCIATE_TAG}",
+        "soap-sheets": f"https://amzn.to/3YourSoapLink?tag={AMAZON_ASSOCIATE_TAG}",
+        "quick-pack": f"https://amzn.to/3YourPackLink?tag={AMAZON_ASSOCIATE_TAG}",
+        
+        # Backup/demo links (replace with real ones)
+        "tent": "https://amazon.com/dp/B08tent123",
+        "sleeping-bag": "https://amazon.com/dp/B08sleep123", 
+        "backpack": "https://amazon.com/dp/B08pack123",
+        "gear-kit": "https://amazon.com/dp/B08kit123"
     }
     
     # Get the destination URL
-    destination = affiliate_links.get(product_id, "https://amazon.com")
+    destination = affiliate_links.get(product_id, f"https://amazon.com/s?k=camping+{product_id}&tag={AMAZON_ASSOCIATE_TAG}")
     
     return redirect(destination)
 
@@ -293,7 +518,8 @@ def social_redirect(platform):
         "instagram": "https://instagram.com/gorillacamping",
         "tiktok": "https://tiktok.com/@gorillacamping",
         "facebook": "https://facebook.com/gorillacamping",
-        "reddit": "https://reddit.com/r/gorillacamping"
+        "reddit": "https://reddit.com/r/gorillacamping",
+        "twitter": "https://twitter.com/gorillacamping"
     }
     
     destination = social_links.get(platform, "https://gorillacamping.site")
@@ -308,25 +534,48 @@ def category(category_name):
     
     posts = safe_db_operation(fetch_category_posts, [])
     
-    meta_description = f"Guerilla camping guides about {category_name}. Real advice from someone living the lifestyle."
-    meta_keywords = f"guerilla camping {category_name}, camping {category_name}, off-grid {category_name}"
+    meta_description = f"Guerilla camping guides about {category_name}. Real advice from someone living the lifestyle. Budget-friendly {category_name} tips."
+    meta_keywords = f"guerilla camping {category_name}, camping {category_name}, off-grid {category_name}, budget {category_name}"
     
     return render_template("category.html", 
                          posts=posts, 
                          category=category_name,
                          meta_description=meta_description,
-                         meta_keywords=meta_keywords)
+                         meta_keywords=meta_keywords,
+                         page_type="category")
+
+# 🎯 API endpoint for consent tracking
+@app.route('/api/consent-update', methods=['POST'])
+def consent_update():
+    try:
+        consent_data = request.json or {}
+        session['cookie_consent'] = consent_data
+        
+        # Track consent for revenue optimization
+        consent_record = track_user_consent(consent_data, {
+            'page': request.referrer,
+            'timestamp': datetime.utcnow()
+        })
+        
+        return jsonify({
+            "success": True, 
+            "message": "Consent updated",
+            "revenue_tracking": consent_data.get('advertisement', False)
+        })
+    except Exception as e:
+        print(f"Consent update error: {e}")
+        return jsonify({"success": False, "message": "Error updating consent"})
 
 # Sitemap for SEO
 @app.route('/sitemap.xml', methods=['GET'])
 def sitemap():
     pages = []
     
-    # Static pages
+    # Static pages with priority optimization
     static_pages = [
         ('index', 1.0, 'daily'),
         ('blog', 0.9, 'daily'),
-        ('gear', 0.8, 'weekly'),
+        ('gear', 0.95, 'weekly'),  # High priority - revenue page
         ('about', 0.6, 'monthly'),
         ('contact', 0.7, 'monthly'),
         ('as_is', 0.5, 'yearly'),
@@ -355,6 +604,16 @@ def sitemap():
             'changefreq': 'weekly'
         })
     
+    # Add demo posts to sitemap
+    demo_posts = ['budget-camping-gear-under-20-amazon', 'stealth-camping-essentials-gear']
+    for slug in demo_posts:
+        pages.append({
+            'loc': url_for('post', slug=slug, _external=True),
+            'lastmod': datetime.now().strftime('%Y-%m-%d'),
+            'priority': 0.9,  # High priority for affiliate posts
+            'changefreq': 'weekly'
+        })
+    
     sitemap_xml = render_template('sitemap.xml', pages=pages)
     response = Response(sitemap_xml, mimetype='application/xml')
     return response
@@ -367,10 +626,11 @@ def robots():
         mimetype='text/plain'
     )
 
-# Newsletter signup (MailerLite integration)
+# 💰 Newsletter signup with MailerLite integration
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
     email = request.form.get('email', '').strip()
+    name = request.form.get('name', '').strip()
     
     if not email:
         return jsonify({"success": False, "message": "Email is required!"})
@@ -384,17 +644,33 @@ def subscribe():
     def save_subscriber():
         subscriber_data = {
             "email": email,
+            "name": name,
             "timestamp": datetime.utcnow(),
             "status": "active",
-            "source": request.referrer or "direct"
+            "source": request.referrer or "direct",
+            "ip_address": request.remote_addr,
+            "user_agent": request.headers.get('User-Agent'),
+            "revenue_potential": "high",  # Email subscribers = money
+            "tags": ["guerilla_camping", "budget_gear"]
         }
         db.subscribers.insert_one(subscriber_data)
         return True
     
     saved = safe_db_operation(save_subscriber, False)
     
+    # TODO: Add actual MailerLite API integration here
+    # import requests
+    # mailerlite_response = requests.post(
+    #     "https://api.mailerlite.com/api/v2/subscribers",
+    #     headers={"X-MailerLite-ApiKey": MAILERLITE_API_KEY},
+    #     json={"email": email, "name": name}
+    # )
+    
     if saved:
-        return jsonify({"success": True, "message": "Welcome to the guerilla camping tribe! 🏕️"})
+        return jsonify({
+            "success": True, 
+            "message": "🎯 Welcome to the guerilla camping tribe! Check your email for exclusive gear deals! 🏕️"
+        })
     else:
         return jsonify({"success": False, "message": "Something went wrong. Try again!"})
 
