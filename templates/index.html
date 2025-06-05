@@ -1,23 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TE4BHZ89TL"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-JPKKPRXX6S');
-</script>
-    <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Gorilla Camping - Explore the best camping gear, tips, and adventures." />
-    <meta name="keywords" content="camping, outdoor gear, blog, adventure" />
-    <title>Gorilla Camping - Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gorilla Camping - Life is short, camp your way through it. Off-grid camping gear, tips, and guerrilla-style adventures.">
+    <meta name="keywords" content="gorilla camping, off-grid living, camping gear, adventure, digital nomad, guerrilla camping">
+    <title>Gorilla Camping - Life is Short, Camp Your Way Through It</title>
     
+    <!-- CookieYes - MUST BE FIRST FOR COMPLIANCE -->
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/f9240018d9682ec755f25926/script.js"></script>
     
+    <!-- MailerLite Universal Script -->
     <script>
         (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
         .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
@@ -25,116 +18,130 @@
         (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
         ml('account', '1500893');
     </script>
-    <!-- End MailerLite Universal -->
-      <script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "rprq55166f");
-</script>
-</head>
-
-<body>
-    <header class="gc-header">
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='img/logo.png') }}"
-                 alt="Gorilla Camping Logo"
-                 class="header-logo-glow">
-        </div>
-        <p class="gc-motto-glow">Life is short, camp your way through it</p>
-        <nav class="gc-nav">
-            <a href="/">Home</a>
-            <a href="/blog">Blog</a>
-            <a href="/gear">Gear</a>
-            <a href="/about">About</a>
-            <a href="/contact">Contact</a>
-        </nav>
-    </header>
-
-    <main>
-        <div class="form-wrapper">
-         
-        </div>
-    </main>
-<form method="POST" action="/" class="subscribe-form" style="max-width:400px; margin:auto;">
-  <input type="email" name="email" required placeholder="Enter your email" style="padding:8px; width:70%;">
-  <button type="submit" style="padding:8px 16px;">Subscribe</button>
-</form>
-    <footer>Built with Flask & Hustle 🔧</footer>
-
-    <!-- JavaScript for MailerLite integration and MongoDB backup -->
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JPKKPRXX6S"></script>
     <script>
-        document.addEventListener('ml_form_success', function (event) {
-            const email = event.detail.data.email;
-            fetch("/", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams({ email })
-            }).then(() => {
-                console.log("✅ Email backed up to MongoDB");
-            }).catch(() => {
-                console.warn("⚠️ Backup to MongoDB failed");
-            });
-        });
-
-        // Accessibility fix for MailerLite form
-        document.addEventListener('ml_form_loaded', function(event) {
-            const inputs = event.detail.form.querySelectorAll('input');
-            inputs.forEach(input => {
-                if (!input.id && !input.name) {
-                    input.name = input.placeholder.toLowerCase().replace(/\s+/g, '_');
-                    input.id = input.name;
-                }
-            });
-        });
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-JPKKPRXX6S');
     </script>
-    <script>
-  document.querySelectorAll('.affiliate-link').forEach(link => {
-    link.addEventListener('click', function() {
-      gtag('event', 'affiliate_click', {
-        'event_category': 'Affiliate',
-        'event_label': this.href
-      });
-    });
-  });
-</script>
-  <script>
-document.addEventListener('ml_form_success', function (event) {
-    const email = event.detail.data.email;
-    // Debug: show email in console
-    console.log("ml_form_success:", email);
-    fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ email })
-    })
-    .then(response => {
-        // Try to parse JSON, but allow for non-JSON responses
-        return response.json().catch(() => ({}));
-    })
-    .then(data => {
-        if (Object.keys(data).length) {
-            console.log("Backend response:", data);
-        } else {
-            console.log("✅ Email backed up to MongoDB");
-        }
-    })
-    .catch(() => {
-        console.warn("⚠️ Backup to MongoDB failed");
-    });
-});
 
-// Accessibility fix for MailerLite form
-document.addEventListener('ml_form_loaded', function(event) {
-    const inputs = event.detail.form.querySelectorAll('input');
-    inputs.forEach(input => {
-        if (!input.id && !input.name) {
-            input.name = input.placeholder.toLowerCase().replace(/\s+/g, '_');
-            input.id = input.name;
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "rprq55166f");
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: #111;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            min-height: 100vh;
         }
-    });
-});
-</script>
-</body>
-</html>
+        
+        .header {
+            padding: 2rem 1rem;
+            background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+        }
+        
+        .animated-logo {
+            max-width: 300px;
+            height: auto;
+            margin: 1rem auto;
+            display: block;
+            border-radius: 50%;
+            border: 3px solid #00ff88;
+            box-shadow: 0 0 20px #00ff88;
+            animation: logo-bounce 2s ease-in-out infinite, logo-glow 3s ease-in-out infinite;
+            transition: transform 0.3s ease;
+        }
+        
+        .animated-logo:hover {
+            transform: rotate(-5deg) scale(1.05);
+        }
+        
+        @keyframes logo-bounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes logo-glow {
+            0%, 100% { box-shadow: 0 0 20px #00ff88; }
+            50% { box-shadow: 0 0 30px #00ff88, 0 0 40px #00ff88; }
+        }
+        
+        .motto {
+            color: #00ff88;
+            font-weight: bold;
+            font-size: 1.8rem;
+            text-shadow: 0 0 15px #00ff88;
+            margin: 1rem 0 2rem 0;
+            animation: pulse 3s ease-in-out infinite;
+            display: inline-block;
+            border-bottom: 3px solid #00ff88;
+            box-shadow: 0 3px 15px rgba(0, 255, 136, 0.6);
+            padding-bottom: 0.5rem;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .navigation {
+            margin: 2rem 0;
+        }
+        
+        .navigation a {
+            color: #00ff88;
+            text-decoration: none;
+            margin: 0 1rem;
+            padding: 0.5rem 1rem;
+            border: 2px solid #00ff88;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .navigation a:hover {
+            background: #00ff88;
+            color: #111;
+            box-shadow: 0 0 15px #00ff88;
+            transform: translateY(-2px);
+        }
+        
+        .form-wrapper {
+            max-width: 500px;
+            margin: 3rem auto;
+            background: linear-gradient(135deg, #1a1a1a 0%, #222 100%);
+            padding: 2.5rem 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3), 0 0 60px rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+        }
+        
+        .form-wrapper h2 {
+            color: #00ff88;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        
+        /* MailerLite Form Styling */
+        .ml-embedded input[type="email"] {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            background: #222;
+            color: #fff;
+
