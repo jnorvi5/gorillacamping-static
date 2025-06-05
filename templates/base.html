@@ -3,17 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- CookieYes - MUST BE FIRST FOR COMPLIANCE -->
-    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/f9240018d9682ec755f25926/script.js"></script>
-    
     <meta name="description" content="{% block meta_description %}Gorilla Camping - Guerilla-style camping guides, gear reviews, and off-grid living tips for budget-conscious adventurers.{% endblock %}">
     <meta name="keywords" content="{% block meta_keywords %}guerilla camping, off-grid living, camping gear reviews, budget camping, DIY camping, veteran camping{% endblock %}">
     <meta name="author" content="Jon - Gorilla Camping">
     <title>{% block title %}Gorilla Camping - Guerilla-Style Camping & Off-Grid Living{% endblock %}</title>
     
+    <!-- CookieYes - MUST BE FIRST FOR COMPLIANCE -->
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/f9240018d9682ec755f25926/script.js"></script>
+    
     <!-- Canonical URL -->
     <link rel="canonical" href="https://gorillacamping.site{{ request.path }}">
+    
+    <!-- Favicon - Complete Set -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
