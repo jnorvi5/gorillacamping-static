@@ -144,4 +144,151 @@
             border-radius: 8px;
             background: #222;
             color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3) inset;
+            transition: all 0.3s ease;
+        }
+        
+        .ml-embedded input[type="email"]:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.6) inset, 0 0 15px #00ff88;
+            transform: scale(1.02);
+        }
+        
+        .ml-embedded button,
+        .ml-embedded input[type="submit"] {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            color: #111;
+            border: none;
+            border-radius: 8px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        .ml-embedded button:hover,
+        .ml-embedded input[type="submit"]:hover {
+            background: linear-gradient(135deg, #00cc6a 0%, #00ff88 100%);
+            box-shadow: 0 6px 25px rgba(0, 255, 136, 0.6);
+            transform: translateY(-3px);
+        }
+        
+        .footer {
+            margin-top: 4rem;
+            padding: 2rem;
+            background: #0a0a0a;
+            color: #888;
+            border-top: 1px solid #333;
+        }
+        
+        .footer p {
+            margin: 0.5rem 0;
+        }
+        
+        .footer a {
+            color: #00ff88;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .animated-logo {
+                max-width: 250px;
+            }
+            
+            .motto {
+                font-size: 1.4rem;
+            }
+            
+            .navigation a {
+                display: block;
+                margin: 0.5rem auto;
+                max-width: 200px;
+            }
+            
+            .form-wrapper {
+                margin: 2rem 1rem;
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" 
+             alt="Gorilla Camping Logo - Life is short, camp your way through it" 
+             class="animated-logo">
+        
+        <p class="motto">Life is short, camp your way through it</p>
+        
+        <nav class="navigation">
+            <a href="/">Home</a>
+            <a href="/blog">Blog</a>
+            <a href="/gear">Gear</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+        </nav>
+    </header>
 
+    <main>
+        <div class="form-wrapper">
+            <h2>🏕️ Join the Gorilla Tribe</h2>
+            <p>Get exclusive camping hacks, gear reviews, and off-grid living tips delivered to your inbox.</p>
+            
+            <!-- MailerLite Form Embed -->
+            <div class="ml-embedded" data-form="7qFupG"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Gorilla Camping. All Rights Reserved.</p>
+        <p>Built with Flask, MongoDB & Pure Guerrilla Hustle 🏕️💪</p>
+        <p>
+            <a href="/privacy">Privacy Policy</a> | 
+            <a href="/terms">Terms</a> | 
+            <a href="/contact">Contact</a>
+        </p>
+    </footer>
+
+    <!-- Enhanced tracking and functionality -->
+    <script>
+        // MailerLite success tracking
+        document.addEventListener('ml:success', function(event) {
+            // Track with Google Analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'email_signup', {
+                    'event_category': 'Lead Generation',
+                    'event_label': 'Homepage Signup'
+                });
+            }
+            
+            // Visual feedback
+            const wrapper = document.querySelector('.form-wrapper');
+            wrapper.style.background = 'linear-gradient(135deg, #00ff88 0%, #00cc6a 100%)';
+            wrapper.innerHTML = '<h2 style="color: #111;">🎉 Welcome to the Tribe!</h2><p style="color: #111;">Check your email for your first guerrilla camping hack!</p>';
+        });
+
+        // Logo click Easter egg
+        document.querySelector('.animated-logo').addEventListener('click', function() {
+            this.style.animation = 'logo-bounce 0.5s ease-in-out 3';
+            
+            // Track Easter egg
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'logo_click', {
+                    'event_category': 'Engagement',
+                    'event_label': 'Logo Animation'
+                });
+            }
+        });
+    </script>
+</body>
+</html>
