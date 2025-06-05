@@ -8,6 +8,9 @@
     <meta name="author" content="Jon - Gorilla Camping">
     <title>{% block title %}Gorilla Camping - Guerilla-Style Camping & Off-Grid Living{% endblock %}</title>
     
+    <!-- CookieYes - MUST BE FIRST FOR COMPLIANCE -->
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/f9240018d9682ec755f25926/script.js"></script>
+    
     <!-- Canonical URL -->
     <link rel="canonical" href="https://gorillacamping.site{{ request.path }}">
     
@@ -185,12 +188,11 @@
                 <p>Built with Flask, MongoDB & Pure Guerilla Hustle 🏕️💪</p>
             </div>
         </div>
-        <!-- You can add this to your footer or create a legal nav -->
-<div class="legal-nav">
-    <a href="/as-is">Terms</a>
-    <a href="/privacy">Privacy</a>
-    <a href="/contact">Contact</a>
-</div>
+        <div class="legal-nav">
+            <a href="/as-is">Terms</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/contact">Contact</a>
+        </div>
     </footer>
 
     <!-- Enhanced tracking scripts -->
@@ -231,8 +233,5 @@
         });
     </script>
 </body>
-
-
-
-
 </html>
+              
