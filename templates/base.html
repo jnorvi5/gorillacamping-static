@@ -56,6 +56,25 @@
 
     {% block extra_head %}{% endblock %}
 
+    <!-- Google Consent Mode V2 -->
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+
+// Set default consent states
+gtag('consent', 'default', {
+  'ad_storage': 'denied',
+  'analytics_storage': 'denied', 
+  'ad_user_data': 'denied',
+  'ad_personalization': 'denied'
+});
+
+// Configure Google Analytics
+gtag('js', new Date());
+gtag('config', 'YOUR-GA4-ID');
+</script>
+
+
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TE4BHZ89TL"></script>
     <script>
