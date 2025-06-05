@@ -249,9 +249,56 @@ gtag('config', 'YOUR-GA4-ID');
             });
         });
     </script>
+    <script>
+// Show banner if no consent stored
+if (!localStorage.getItem('consent-choice')) {
+    document.getElementById('consent-banner').style.display = 'block';
+}
+
+function acceptAll() {
+    // Update consent mode
+    gtag('consent', 'update', {
+        'ad_storage': 'granted',
+        'analytics_storage': 'granted',
+        'ad_user_data': 'granted', 
+        'ad_personalization': 'granted'
+    });
+    
+    localStorage.setItem('consent-choice', 'accepted');
+    hideBanner();
+}
+
+function rejectAll() {
+    // Keep denied state (already set as default)
+    gtag('consent', 'update', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+    });
+    
+    localStorage.setItem('consent-choice', 'rejected');
+    hideBanner();
+}
+
+function hideBanner() {
+    document.getElementById('consent-banner').style.display = 'none';
+}
+
+// Apply stored consent on page load
+const storedConsent = localStorage.getItem('consent-choice');
+if (storedConsent === 'accepted') {
+    acceptAll();
+} else if (storedConsent === 'rejected') {
+    rejectAll();
+}
+</script>
+
 </body>
     <div id="consent-banner" style="position:fixed;bottom:0;width:100%;background:#111;color:#00ff88;padding:1rem;z-index:9999;display:none;text-align:center;">
     <p>We use cookies for analytics. <button onclick="acceptAll()">Accept All</button> <button onclick="rejectAll()">Reject All</button></p>
 </div>
+
+
 
 </html>
