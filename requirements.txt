@@ -3,5 +3,5 @@ pymongo
 gunicorn
 pytest
 requests
-Werkzeug
+werkzeug
 markdown
