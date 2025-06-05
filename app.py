@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
 
 # 🎯 GUERILLA CONFIG - Your affiliate IDs and tracking
-GOOGLE_ANALYTICS_ID = "G-TE4BHZ89TL"
+GOOGLE_ANALYTICS_ID = "G-JPKKPRXX6S"
 COOKIEYES_SITE_ID = os.environ.get('COOKIEYES_SITE_ID', 'YOUR_COOKIEYES_ID')  # Get from CookieYes dashboard
 AMAZON_ASSOCIATE_TAG = os.environ.get('AMAZON_TAG', 'gorillacamping-20')  # Your Amazon Associates tag
 MAILERLITE_API_KEY = os.environ.get('MAILERLITE_API_KEY', '')
