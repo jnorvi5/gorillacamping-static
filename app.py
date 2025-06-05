@@ -18,7 +18,7 @@ MAILERLITE_API_KEY = os.environ.get('MAILERLITE_API_KEY', '')
 
 # MongoDB connection with error handling
 try:
-    mongodb_uri = os.environ.get('MONGODB_URI')
+    mongodb_uri = os.environ.get('MONGODB_URI') or os.environ.get('MONGO_URI')
     if mongodb_uri:
         client = MongoClient(mongodb_uri)
         db = client.get_default_database()
