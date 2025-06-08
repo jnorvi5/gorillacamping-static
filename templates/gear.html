@@ -1,208 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Best Camping Gear for Guerilla Campers | Gorilla Camping.site{% endblock %}
+{% block title %}Best Camping Gear for Guerilla Campers | GorillaCamping.site{% endblock %}
 {% block meta_description %}Hand-picked, field-tested camping gear for budget, utility, and reliability. Perfect for guerilla-style adventurers!{% endblock %}
 {% block meta_keywords %}camping gear, best camping gear, guerilla camping, affordable camping equipment, budget camping gear, outdoor gear reviews, gorilla camping.site{% endblock %}
 
-{% block head_extras %}
-<!-- Open Graph & Twitter Card for social sharing -->
-<meta property="og:title" content="Best Camping Gear for Guerilla Campers | Gorilla Camping.site">
+{% block extra_head %}
+<!-- Open Graph & Twitter Card -->
+<meta property="og:title" content="Best Camping Gear for Guerilla Campers | GorillaCamping.site">
 <meta property="og:description" content="Hand-picked, field-tested camping gear for budget, utility, and reliability.">
-<meta property="og:image" content="{{ url_for('static', filename='images/gear/og-featured.jpg') }}">
+<meta property="og:image" content="{{ url_for('static', filename='images/gear/og-featured.jpg', _external=True) }}">
 <meta property="og:url" content="https://gorillacamping.site/gear">
 <meta name="twitter:card" content="summary_large_image">
-<!-- Affiliate Disclosure -->
 <meta name="robots" content="index, follow">
-{% endblock %}
 
-{% block content %}
-<section class="gear-section">
-    <div class="gear-header">
-        <h1>Gorilla Camping Gear Picks <span class="badge">2025</span></h1>
-        <p class="gear-intro">
-            These are my hand-picked, tested, and <strong>actually used</strong> pieces of gear. Every item is chosen for value, utility, and that guerilla spirit! I only recommend what I use myself—always with a shoestring budget and maximum ROI in mind.
-        </p>
-        <p class="gear-philosophy">
-            <em>"If it can't survive a week in the Virginia woods with zero backup plan, it doesn't make this list."</em> – Jerit
-        </p>
-        <div class="affiliate-disclosure" style="font-size:0.95em; color:#666; margin-top:10px;">
-            This page contains affiliate links. I may earn a small commission if you buy through them—at no extra cost to you. I only recommend gear I personally use and trust.
-        </div>
-    </div>
-
-    <!-- Top 3 Essentials -->
-    <div class="top-essentials" style="background:#F0F7EE; padding:1em; margin:1em 0; border-radius:6px;">
-        <h2>Top 3 Guerilla Essentials (Don’t Leave Home Without These!)</h2>
-        <ol>
-            <li><a href="#jackery-explorer">Solar Generator</a></li>
-            <li><a href="#lifestraw-filter">Water Filter</a></li>
-            <li><a href="#leatherman-wave">Multi-tool</a></li>
-        </ol>
-    </div>
-
-    <!-- Solar Generator -->
-    <div class="gear-item" id="jackery-explorer">
-        <div class="gear-img">
-            <img src="https://m.media-amazon.com/images/I/41XePYWYlAL._AC_US300_.jpg"
-                 alt="Jackery Explorer 240 Solar Generator for Guerilla Camping"
-                 loading="lazy" width="200" height="200">
-        </div>
-        <div class="gear-info">
-            <h2>Jackery Explorer 240 Solar Generator <span class="badge best-value">Best Value</span></h2>
-            <div class="gear-rating" aria-label="5 out of 5 stars">⭐⭐⭐⭐⭐ (Used 8+ months)</div>
-            <p>
-                <strong>Guerilla story:</strong> Powered my camp laptop, phone & lights for months – even ran a blender for camp smoothies! Silent, reliable, and pairs perfectly with solar. 
-            </p>
-            <div class="gear-specs">
-                <span class="spec">240Wh Capacity</span>
-                <span class="spec">Multiple Ports</span>
-                <span class="spec">2.4 lbs</span>
-            </div>
-            <a href="https://amzn.to/YOUR_AFFILIATE_LINK" class="affiliate-link gear-button" data-product="Jackery Explorer 240" target="_blank" rel="noopener sponsored">Get the Best Price on Amazon →</a>
-        </div>
-    </div>
-
-    <!-- Camping Stove -->
-    <div class="gear-item">
-        <div class="gear-img">
-            <img src="{{ url_for('static', filename='images/gear/camping-stove.jpg') }}" 
-                 alt="Coleman Classic Propane Camping Stove – Reliable, Affordable" 
-                 loading="lazy" width="200" height="200">
-        </div>
-        <div class="gear-info">
-            <h2>Coleman Classic Propane Stove <span class="badge budget">Budget Pick</span></h2>
-            <div class="gear-rating" aria-label="4 out of 5 stars">⭐⭐⭐⭐ (Reliable workhorse)</div>
-            <p>
-                <strong>Guerilla story:</strong> Cooked 100+ meals on this stove – it’s ugly, but it works every time, everywhere.
-            </p>
-            <div class="gear-specs">
-                <span class="spec">2 Burners</span>
-                <span class="spec">20,000 BTU</span>
-                <span class="spec">Under $50</span>
-            </div>
-            <a href="https://amzn.to/YOUR_AFFILIATE_LINK2" class="affiliate-link gear-button" data-product="Coleman Classic Stove" target="_blank" rel="noopener sponsored">See Today’s Deal →</a>
-        </div>
-    </div>
-
-    <!-- Water Filter -->
-    <div class="gear-item" id="lifestraw-filter">
-        <div class="gear-img">
-            <img src="{{ url_for('static', filename='images/gear/water-filter.jpg') }}" 
-                 alt="LifeStraw Personal Water Filter for Guerilla Camping" 
-                 loading="lazy" width="200" height="200">
-        </div>
-        <div class="gear-info">
-            <h2>LifeStraw Personal Water Filter</h2>
-            <div class="gear-rating" aria-label="5 out of 5 stars">⭐⭐⭐⭐⭐ (Life saver)</div>
-            <p>
-                <strong>Guerilla story:</strong> Ran out of clean water? Stream looks sketchy? LifeStraw saved me every time. No batteries, no worries.
-            </p>
-            <div class="gear-specs">
-                <span class="spec">Filters 1000L</span>
-                <span class="spec">2oz Weight</span>
-                <span class="spec">No Batteries</span>
-            </div>
-            <a href="https://amzn.to/YOUR_AFFILIATE_LINK3" class="affiliate-link gear-button" data-product="LifeStraw Filter" target="_blank" rel="noopener sponsored">Buy Now on Amazon →</a>
-        </div>
-    </div>
-
-    <!-- Headlamp -->
-    <div class="gear-item">
-        <div class="gear-img">
-            <img src="{{ url_for('static', filename='images/gear/headlamp.jpg') }}" 
-                 alt="Petzl Tikka LED Headlamp for Camping, Rainproof" 
-                 loading="lazy" width="200" height="200">
-        </div>
-        <div class="gear-info">
-            <h2>Petzl Tikka Headlamp</h2>
-            <div class="gear-rating" aria-label="4 out of 5 stars">⭐⭐⭐⭐ (Solid performer)</div>
-            <p>
-                <strong>Guerilla story:</strong> Survived rain, mud, and midnight camp setups. Red mode saves your night vision!
-            </p>
-            <div class="gear-specs">
-                <span class="spec">300 Lumens</span>
-                <span class="spec">Red Light Mode</span>
-                <span class="spec">IPX4 Waterproof</span>
-            </div>
-            <a href="https://amzn.to/YOUR_AFFILIATE_LINK4" class="affiliate-link gear-button" data-product="Petzl Tikka Headlamp" target="_blank" rel="noopener sponsored">Get Yours Today →</a>
-        </div>
-    </div>
-
-    <!-- Multi-tool -->
-    <div class="gear-item" id="leatherman-wave">
-        <div class="gear-img">
-            <img src="{{ url_for('static', filename='images/gear/multitool.jpg') }}" 
-                 alt="Leatherman Wave Plus Multi-tool for Camping" 
-                 loading="lazy" width="200" height="200">
-        </div>
-        <div class="gear-info">
-            <h2>Leatherman Wave Plus Multi-tool</h2>
-            <div class="gear-rating" aria-label="5 out of 5 stars">⭐⭐⭐⭐⭐ (Daily carry)</div>
-            <p>
-                <strong>Guerilla story:</strong> Fixed gear, prepped food, solved problems—this tool’s saved my butt more times than I can count.
-            </p>
-            <div class="gear-specs">
-                <span class="spec">18 Tools</span>
-                <span class="spec">25-Year Warranty</span>
-                <span class="spec">USA Made</span>
-            </div>
-            <a href="https://amzn.to/YOUR_AFFILIATE_LINK5" class="affiliate-link gear-button" data-product="Leatherman Wave Plus" target="_blank" rel="noopener sponsored">Best Price on Amazon →</a>
-        </div>
-    </div>
-
-    <!-- Sleeping Bag -->
-    <div class="gear-item">
-        <div class="gear-img">
-            <img src="{{ url_for('static', filename='images/gear/sleeping-bag.jpg') }}" 
-                 alt="Kelty Cosmic 20 Down Sleeping Bag for Camping" 
-                 loading="lazy" width="200" height="200">
-        </div>
-        <div class="gear-info">
-            <h2>Kelty Cosmic 20 Sleeping Bag</h2>
-            <div class="gear-rating" aria-label="4 out of 5 stars">⭐⭐⭐⭐ (Great value)</div>
-            <p>
-                <strong>Guerilla story:</strong> Slept warm at 25°F, packs small, and weighs less than 3 lbs. Best down bag for the budget!
-            </p>
-            <div class="gear-specs">
-                <span class="spec">20°F Rating</span>
-                <span class="spec">Down Fill</span>
-                <span class="spec">2lbs 14oz</span>
-            </div>
-            <a href="https://amzn.to/YOUR_AFFILIATE_LINK6" class="affiliate-link gear-button" data-product="Kelty Cosmic 20" target="_blank" rel="noopener sponsored">See Amazon Price →</a>
-        </div>
-    </div>
-
-    <!-- Internal Linking to Blog -->
-    <div class="related-links" style="margin-top:2em;">
-        <h3>Related: Read My Guerilla Camping Stories & Gear Tests</h3>
-        <ul>
-            <li><a href="/blog/solar-generator-survival">How My Solar Generator Saved a Rainy Week</a></li>
-            <li><a href="/blog/cheap-camping-stoves">Cheap Camping Stoves Tested in the Field</a></li>
-            <li><a href="/blog/best-budget-sleeping-bags">Best Budget Sleeping Bags for 2025</a></li>
-        </ul>
-    </div>
-
-    <div class="gear-footer">
-        <h3>More Gear Coming Soon!</h3>
-        <p>
-            I'm constantly testing new gear and updating this list. Want me to review something specific? 
-            <a href="/contact" class="inline-link">Drop me a line</a> and I'll add it to my test list.
-        </p>
-
-        <div class="newsletter-prompt">
-            <p>
-                <strong>Get exclusive deals & field-tested tips:</strong> Join my email list for first dibs on new reviews, guerilla camping hacks, and offers that don’t make it to the blog.
-            </p>
-            <a href="/#signup" class="gear-button secondary">Join the Tribe &rarr;</a>
-        </div>
-    </div>
-
-    <div class="user-engagement" style="margin-top:2em;">
-        <h3>Guerilla Gear Stories — Your Turn!</h3>
-        <p>What’s the ONE piece of gear you never camp without? <a href="/contact">Tell me your pick</a> or share your own guerilla hack—I might feature it!</p>
-    </div>
-</section>
-
-<!-- Expanded JSON-LD Schema for All Products -->
+<!-- Schema.org Product List (SEO) -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -232,7 +42,7 @@
       "@type": "Product",
       "name": "Coleman Classic Propane Stove",
       "description": "Reliable and affordable propane camping stove.",
-      "image": "YOUR_IMAGE_URL",
+      "image": "{{ url_for('static', filename='images/gear/camping-stove.jpg', _external=True) }}",
       "brand": "Coleman",
       "offers": {
         "@type": "Offer",
@@ -246,9 +56,153 @@
         "ratingValue": "4",
         "reviewCount": "1"
       }
+    },
+    {
+      "@type": "Product",
+      "name": "LifeStraw Personal Water Filter",
+      "description": "The best portable water filter for camping and emergencies.",
+      "image": "{{ url_for('static', filename='images/gear/water-filter.jpg', _external=True) }}",
+      "brand": "LifeStraw",
+      "offers": {
+        "@type": "Offer",
+        "price": "19.99",
+        "priceCurrency": "USD",
+        "url": "https://amzn.to/YOUR_AFFILIATE_LINK3",
+        "availability": "https://schema.org/InStock"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "reviewCount": "1"
+      }
     }
-    // Add all other products similarly...
+    // Add additional products as needed, making sure to use valid JSON
   ]
 }
 </script>
 {% endblock %}
+
+{% block content %}
+<section class="gear-section">
+  <div class="gear-header">
+    <h1>Gorilla Camping Gear Picks <span class="badge">2025</span></h1>
+    <p class="gear-intro">
+      These are my hand-picked, tested, and <strong>actually used</strong> pieces of gear. Every item is chosen for value, utility, and that guerilla spirit! I only recommend what I use myself—always with a shoestring budget and maximum ROI in mind.
+    </p>
+    <p class="gear-philosophy">
+      <em>"If it can't survive a week in the Virginia woods with zero backup plan, it doesn't make this list."</em> – Jerit
+    </p>
+    <div class="affiliate-disclosure" style="font-size:0.95em; color:#666; margin-top:10px;">
+      This page contains affiliate links. I may earn a small commission if you buy through them—at no extra cost to you. I only recommend gear I personally use and trust.
+    </div>
+  </div>
+
+  <!-- Top 3 Essentials -->
+  <div class="top-essentials" style="background:#F0F7EE; padding:1em; margin:1em 0; border-radius:6px;">
+    <h2>Top 3 Guerilla Essentials (Don’t Leave Home Without These!)</h2>
+    <ol>
+      <li><a href="#jackery-explorer">Solar Generator</a></li>
+      <li><a href="#lifestraw-filter">Water Filter</a></li>
+      <li><a href="#leatherman-wave">Multi-tool</a></li>
+    </ol>
+  </div>
+
+  <!-- Jackery Explorer -->
+  <div class="gear-item" id="jackery-explorer">
+    <div class="gear-img">
+      <img src="https://m.media-amazon.com/images/I/41XePYWYlAL._AC_US300_.jpg"
+           alt="Jackery Explorer 240 Solar Generator for Guerilla Camping"
+           loading="lazy" width="200" height="200">
+    </div>
+    <div class="gear-info">
+      <h2>Jackery Explorer 240 Solar Generator <span class="badge best-value">Best Value</span></h2>
+      <div class="gear-rating" aria-label="5 out of 5 stars">⭐⭐⭐⭐⭐ (Used 8+ months)</div>
+      <p>
+        <strong>Guerilla story:</strong> Powered my camp laptop, phone & lights for months – even ran a blender for camp smoothies! Silent, reliable, and pairs perfectly with solar. 
+      </p>
+      <div class="gear-specs">
+        <span class="spec">240Wh Capacity</span>
+        <span class="spec">Multiple Ports</span>
+        <span class="spec">2.4 lbs</span>
+      </div>
+      <a href="https://amzn.to/YOUR_AFFILIATE_LINK" class="affiliate-link gear-button" data-product="Jackery Explorer 240" target="_blank" rel="noopener sponsored">Get the Best Price on Amazon →</a>
+    </div>
+  </div>
+
+  <!-- Coleman Classic Stove -->
+  <div class="gear-item">
+    <div class="gear-img">
+      <img src="{{ url_for('static', filename='images/gear/camping-stove.jpg') }}" 
+           alt="Coleman Classic Propane Camping Stove – Reliable, Affordable" 
+           loading="lazy" width="200" height="200">
+    </div>
+    <div class="gear-info">
+      <h2>Coleman Classic Propane Stove <span class="badge budget">Budget Pick</span></h2>
+      <div class="gear-rating" aria-label="4 out of 5 stars">⭐⭐⭐⭐ (Reliable workhorse)</div>
+      <p>
+        <strong>Guerilla story:</strong> Cooked 100+ meals on this stove – it’s ugly, but it works every time, everywhere.
+      </p>
+      <div class="gear-specs">
+        <span class="spec">2 Burners</span>
+        <span class="spec">20,000 BTU</span>
+        <span class="spec">Under $50</span>
+      </div>
+      <a href="https://amzn.to/YOUR_AFFILIATE_LINK2" class="affiliate-link gear-button" data-product="Coleman Classic Stove" target="_blank" rel="noopener sponsored">See Today’s Deal →</a>
+    </div>
+  </div>
+
+  <!-- LifeStraw Water Filter -->
+  <div class="gear-item" id="lifestraw-filter">
+    <div class="gear-img">
+      <img src="{{ url_for('static', filename='images/gear/water-filter.jpg') }}" 
+           alt="LifeStraw Personal Water Filter for Guerilla Camping" 
+           loading="lazy" width="200" height="200">
+    </div>
+    <div class="gear-info">
+      <h2>LifeStraw Personal Water Filter</h2>
+      <div class="gear-rating" aria-label="5 out of 5 stars">⭐⭐⭐⭐⭐ (Life saver)</div>
+      <p>
+        <strong>Guerilla story:</strong> Ran out of clean water? Stream looks sketchy? LifeStraw saved me every time. No batteries, no worries.
+      </p>
+      <div class="gear-specs">
+        <span class="spec">Filters 1000L</span>
+        <span class="spec">2oz Weight</span>
+        <span class="spec">No Batteries</span>
+      </div>
+      <a href="https://amzn.to/YOUR_AFFILIATE_LINK3" class="affiliate-link gear-button" data-product="LifeStraw Filter" target="_blank" rel="noopener sponsored">Buy Now on Amazon →</a>
+    </div>
+  </div>
+
+  <!-- Add more gear items below as you wish, following the above format -->
+
+  <!-- Internal Linking to Blog -->
+  <div class="related-links" style="margin-top:2em;">
+    <h3>Related: Read My Guerilla Camping Stories & Gear Tests</h3>
+    <ul>
+      <li><a href="/blog/solar-generator-survival">How My Solar Generator Saved a Rainy Week</a></li>
+      <li><a href="/blog/cheap-camping-stoves">Cheap Camping Stoves Tested in the Field</a></li>
+      <li><a href="/blog/best-budget-sleeping-bags">Best Budget Sleeping Bags for 2025</a></li>
+    </ul>
+  </div>
+
+  <div class="gear-footer">
+    <h3>More Gear Coming Soon!</h3>
+    <p>
+      I'm constantly testing new gear and updating this list. Want me to review something specific? 
+      <a href="/contact" class="inline-link">Drop me a line</a> and I'll add it to my test list.
+    </p>
+    <div class="newsletter-prompt">
+      <p>
+        <strong>Get exclusive deals & field-tested tips:</strong> Join my email list for first dibs on new reviews, guerilla camping hacks, and offers that don’t make it to the blog.
+      </p>
+      <a href="/#signup" class="gear-button secondary">Join the Tribe &rarr;</a>
+    </div>
+  </div>
+
+  <div class="user-engagement" style="margin-top:2em;">
+    <h3>Guerilla Gear Stories — Your Turn!</h3>
+    <p>What’s the ONE piece of gear you never camp without? <a href="/contact">Tell me your pick</a> or share your own guerilla hack—I might feature it!</p>
+  </div>
+</section>
+{% endblock %}
+ 
