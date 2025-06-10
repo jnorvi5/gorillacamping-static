@@ -30,28 +30,30 @@
 </noscript>
 <!-- End Meta Pixel Code -->
 
-    <!-- Facebook Domain Verification -->
-<meta name="facebook-domain-verification" content="5kmm03xtmziy9c334w4c2227jtyll0" />
+    <script>
+// Track purchase events (call on thank-you or confirmation pages)
+function fbTrackPurchase(value, currency) {
+  fbq('track', 'Purchase', {
+    value: value,
+    currency: currency
+  });
+}
 
-<!-- Meta Pixel Code -->
-<script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '2634282970240439'); 
-  fbq('track', 'PageView');
+// Track lead events (call on successful form submissions)
+function fbTrackLead() {
+  fbq('track', 'Lead');
+}
+
+// Track affiliate clicks (call when a user clicks an affiliate link)
+function fbTrackAffiliateClick(product, value) {
+  fbq('trackCustom', 'AffiliateClick', {
+    product: product,
+    value: value
+  });
+}
 </script>
-<noscript>
-  <img height="1" width="1" style="display:none"
-       src="https://www.facebook.com/tr?id=2634282970240439&ev=PageView&noscript=1"/>
-</noscript>
-<!-- End Meta Pixel Code -->
-    
+
+   
     <!-- CookieYes - MUST BE FIRST FOR COMPLIANCE -->
     <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/f9240018d9682ec755f25926/script.js"></script>
     
