@@ -281,6 +281,16 @@ function fbTrackAffiliateClick(product, value) {
             });
         });
     </script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.affiliate-link').forEach(function(link) {
+    link.addEventListener('click', function() {
+      var product = this.getAttribute('data-product') || 'Unknown';
+      fbTrackAffiliateClick(product, 0); // Optional: pass in actual commission value
+    });
+  });
+});
+</script>
 </body>
 </html>
               
