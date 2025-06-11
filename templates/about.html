@@ -1,59 +1,19 @@
 {% extends "base.html" %}
-{% block title %}About Jon - Gorilla Camping{% endblock %}
-{% block meta_description %}{{ meta_description }}{% endblock %}
-{% block meta_keywords %}{{ meta_keywords }}{% endblock %}
+{% block title %}About | Gorilla Camping{% endblock %}
+{% block meta_description %}About Gorilla Camping - Guerilla-style camping guides, gear reviews, and off-grid living tips for budget-conscious adventurers.{% endblock %}
+{% block meta_keywords %}guerilla camping, off-grid living, camping gear reviews, about, blog, budget camping, DIY camping, veteran camping{% endblock %}
 
 {% block content %}
 <section class="about-section">
-    <div class="about-hero">
-        <img src="{{ url_for('static', filename='images/jon-camping.jpg') }}" 
-             alt="Jon camping in Virginia" 
-             class="about-photo">
-        <div class="about-intro">
-            <h1>About Jon</h1>
-            <p class="about-tagline"><strong>Life is short, just camp through it!</strong></p>
-        </div>
-    </div>
-
-    <div class="about-content">
-        <h2>My Story</h2>
+    <div class="about-container">
+        <h1>About Gorilla Camping</h1>
         <p>
-            Hey there! I'm Jerit, an Army veteran turned guerilla camping enthusiast living in 
-            Danville, Virginia. After years of following someone else's rules and living someone 
-            else's dream, I decided to take life into my own hands and live it <em>guerilla style</em>.
+            Gorilla Camping is all about living free, camping smart, and hustling for a better life—on a shoestring budget. 
+            I'm Jon, an Army veteran and off-grid enthusiast here to share guerilla-style camping tips, brutally honest gear reviews, and the real story of building a blog and affiliate income from scratch.
         </p>
-
-        <p>
-            That's where "Gorilla Camping" was born—a play on the word "guerilla" because I believe 
-            in resourcefulness, grit, and making the most out of what you have. Whether you've got 
-            $50 or $500, there's a way to get outdoors and live free.
-        </p>
-
-        <h2>Why Guerilla Camping?</h2>
-        <p>
-            This isn't your typical family-friendly camping blog. It's a little rough around the edges, 
-            real, and honest—like that crazy uncle at the barbecue who has the most interesting stories 
-            because he chose to do things his own way.
-        </p>
-
-        <p>I'm building this for:</p>
-        <ul class="about-list">
-            <li><strong>Army vets like myself</strong> who have a pension or disability and are looking for a place to fall into</li>
-            <li><strong>People who know how to make a little go a long way</strong> and want the freedom of not being tied to a mortgage</li>
-            <li><strong>Anyone tired of the conventional path</strong> and ready to live life on their own terms</li>
-        </ul>
-
-        <h2>What You'll Find Here</h2>
-        <p>
-            This site is more than just gear reviews and camping tips (though I've got plenty of both). 
-            You'll find real talk about:
-        </p>
-        
-        <ul class="about-list">
-            <li>Living off-grid on a budget</li>
-            <li>Gear that actually works (not just expensive stuff)</li>
-            <li>Alternative lifestyle choices</li>
-            <li>Growing your own food (including legal cannabis and mushroom research)</li>
+        <ul>
+            <li>Living and camping off-grid in the wild</li>
+            <li>Finding the best budget gear (and testing it for real)</li>
             <li>Building a sustainable income while living free</li>
         </ul>
 
@@ -85,14 +45,17 @@
             <div class="social-cta">
                 <p><strong>Follow the guerilla movement:</strong></p>
                 <div class="social-mini">
-                    <a href="{{ url_for('social_redirect', platform='reddit') }}" 
+                    <a href="https://www.reddit.com/r/gorillacamping"
                        class="mini-social reddit"
+                       target="_blank" rel="noopener"
                        onclick="trackSocialClick('reddit', 'about_page')">Reddit</a>
-                    <a href="{{ url_for('social_redirect', platform='facebook') }}" 
+                    <a href="https://facebook.com/gorillacamping"
                        class="mini-social facebook"
+                       target="_blank" rel="noopener"
                        onclick="trackSocialClick('facebook', 'about_page')">Facebook</a>
-                    <a href="{{ url_for('social_redirect', platform='tiktok') }}" 
+                    <a href="https://www.tiktok.com/@gorillacamping"
                        class="mini-social tiktok"
+                       target="_blank" rel="noopener"
                        onclick="trackSocialClick('tiktok', 'about_page')">TikTok</a>
                 </div>
             </div>
