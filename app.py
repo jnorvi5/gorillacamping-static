@@ -508,8 +508,10 @@ def affiliate_redirect(product_id):
     
     return redirect(destination)
 
-# Social media redirects with tracking
-@app.route("/social/<platform>")
+
+
+
+st@app.route("/social/<platform>")
 def social_redirect(platform):
     track_click(f"social_{platform}", "external", request.headers.get('User-Agent'), request.referrer)
     
@@ -517,13 +519,14 @@ def social_redirect(platform):
         "youtube": "https://youtube.com/@gorillacamping",
         "instagram": "https://instagram.com/gorillacamping",
         "tiktok": "https://tiktok.com/@gorillacamping",
-        "facebook": "https://facebook.com/gorillacamping",
+        "facebook": "https://www.facebook.com/profile.php?id=61577334442896",  # <-- UPDATED
         "reddit": "https://reddit.com/r/gorillacamping",
         "twitter": "https://twitter.com/gorillacamping"
     }
     
     destination = social_links.get(platform, "https://gorillacamping.site")
-    return redirect(destination)
+    return redirect(destination).headers.get('User-Agent'), request.referrer)
+
 
 # Category pages for better SEO
 @app.route("/category/<category_name>")
