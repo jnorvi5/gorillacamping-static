@@ -527,16 +527,6 @@ def social_redirect(platform):
     destination = social_links.get(platform, "https://gorillacamping.site")
     return redirect(destination)
 
-# ... inside @app.route("/social/<platform>")
-social_links = {
-    "youtube": "https://youtube.com/@gorillacamping",
-    "instagram": "https://instagram.com/gorillacamping",
-    "tiktok": "https://tiktok.com/@gorillacamping",
-    "facebook": "https://www.facebook.com/profile.php?id=61577334442896",  # UPDATED
-    "reddit": "https://reddit.com/r/gorillacamping",
-    "twitter": "https://twitter.com/gorillacamping"
-
-
 # Category pages for better SEO
 @app.route("/category/<category_name>")
 def category(category_name):
