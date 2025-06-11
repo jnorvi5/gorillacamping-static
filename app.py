@@ -537,7 +537,11 @@ social_links = {
     "facebook": "https://www.facebook.com/profile.php?id=61577334442896",  # UPDATED
     "reddit": "https://reddit.com/r/gorillacamping",
     "twitter": "https://twitte
+<<<<<<< HEAD
 >>>>>>> 2071d6f2f949282360c6f3170837fa3ddd3ea50e
+=======
+}
+>>>>>>> e57a367a1d6fcccd34d0e36f3b3931609de226a3
 
 # Category pages for better SEO
 @app.route("/category/<category_name>")
