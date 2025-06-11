@@ -534,7 +534,7 @@ social_links = {
     "tiktok": "https://tiktok.com/@gorillacamping",
     "facebook": "https://www.facebook.com/profile.php?id=61577334442896",  # UPDATED
     "reddit": "https://reddit.com/r/gorillacamping",
-    "twitter": "https://twitte
+    "twitter": "https://twitter.com/gorillacamping"
 
 
 # Category pages for better SEO
