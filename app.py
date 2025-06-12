@@ -520,7 +520,7 @@ def social_redirect(platform):
         "instagram": "https://instagram.com/gorillacamping",
         "tiktok": "https://tiktok.com/@gorillacamping",
         "facebook": "https://www.facebook.com/profile.php?id=61577334442896",
-        "reddit": "https://reddit.com/r/gorillacamping",
+        "reddit": "https://reddit.com/r/gorrilacamping",
         "twitter": "https://twitter.com/gorillacamping"
     }
     
