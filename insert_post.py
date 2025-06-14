@@ -42,7 +42,8 @@ post = {
     "content": content,
     "tags": tags,
     "created_at": datetime.utcnow(),
-    "updated_at": datetime.utcnow()
+    "updated_at": datetime.utcnow(),
+    "status": "published"  # Ensure the post is published!
 }
 
 # Insert post into DB with error handling
