@@ -485,9 +485,20 @@ def affiliate_redirect(product_id):
     user_consent = session.get('cookie_consent', {})
     track_affiliate_click(product_id, request.referrer or 'direct', user_consent)
     
-    # 🎯 Your actual affiliate links - UPDATE THESE!
+# ... (other code unchanged)
+
+@app.route("/go/<product_id>")
+def affiliate_redirect(product_id):
+    # Track the click with enhanced analytics
+    user_consent = session.get('cookie_consent', {})
+    track_affiliate_click(product_id, request.referrer or 'direct', user_consent)
+
+    # 🎯 Your actual affiliate links (UPDATE: now with your real links)
     affiliate_links = {
-        # Amazon Associates links
+        "jackery-explorer-240": "https://amzn.to/43ZFIvfV",
+        "coleman-stove": "https://amzn.to/44eem7c",
+        "lifestraw-filter": "https://amzn.to/4dZjAae",
+        # Optionally, keep old/demo/backup keys for blog fallback/demo
         "poncho": f"https://amzn.to/3YourPonchoLink?tag={AMAZON_ASSOCIATE_TAG}",
         "lifestraw": f"https://amzn.to/3YourLifestrawLink?tag={AMAZON_ASSOCIATE_TAG}",
         "mylar-bag": f"https://amzn.to/3YourMylarLink?tag={AMAZON_ASSOCIATE_TAG}",
@@ -495,19 +506,14 @@ def affiliate_redirect(product_id):
         "red-headlamp": f"https://amzn.to/3YourHeadlampLink?tag={AMAZON_ASSOCIATE_TAG}",
         "soap-sheets": f"https://amzn.to/3YourSoapLink?tag={AMAZON_ASSOCIATE_TAG}",
         "quick-pack": f"https://amzn.to/3YourPackLink?tag={AMAZON_ASSOCIATE_TAG}",
-        
-        # Backup/demo links (replace with real ones)
-        "tent": "https://amazon.com/dp/B08tent123",
-        "sleeping-bag": "https://amazon.com/dp/B08sleep123", 
-        "backpack": "https://amazon.com/dp/B08pack123",
-        "gear-kit": "https://amazon.com/dp/B08kit123"
+        # ...other product_id: url mappings
     }
-    
-    # Get the destination URL
-    destination = affiliate_links.get(product_id, f"https://amazon.com/s?k=camping+{product_id}&tag={AMAZON_ASSOCIATE_TAG}")
-    
-    return redirect(destination)
 
+    destination = affiliate_links.get(
+        product_id, 
+        f"https://amazon.com/s?k=camping+{product_id}&tag={AMAZON_ASSOCIATE_TAG}"
+    )
+    return redirect(destination)
 
 
 
