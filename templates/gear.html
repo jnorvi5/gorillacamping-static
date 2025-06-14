@@ -29,7 +29,7 @@
         "@type": "Offer",
         "price": "199.99",
         "priceCurrency": "USD",
-        "url": "https://amzn.to/YOUR_AFFILIATE_LINK",
+        "url": "https://amzn.to/43ZFIvfV",
         "availability": "https://schema.org/InStock"
       },
       "aggregateRating": {
@@ -48,7 +48,7 @@
         "@type": "Offer",
         "price": "49.99",
         "priceCurrency": "USD",
-        "url": "https://amzn.to/YOUR_AFFILIATE_LINK2",
+        "url": "https://amzn.to/44eem7c",
         "availability": "https://schema.org/InStock"
       },
       "aggregateRating": {
@@ -67,7 +67,7 @@
         "@type": "Offer",
         "price": "19.99",
         "priceCurrency": "USD",
-        "url": "https://amzn.to/YOUR_AFFILIATE_LINK3",
+        "url": "https://amzn.to/4dZjAae",
         "availability": "https://schema.org/InStock"
       },
       "aggregateRating": {
@@ -76,7 +76,6 @@
         "reviewCount": "1"
       }
     }
-    // Add additional products as needed, making sure to use valid JSON
   ]
 }
 </script>
@@ -125,7 +124,10 @@
         <span class="spec">Multiple Ports</span>
         <span class="spec">2.4 lbs</span>
       </div>
-      <a href="https://amzn.to/YOUR_AFFILIATE_LINK" class="affiliate-link gear-button" data-product="Jackery Explorer 240" target="_blank" rel="noopener sponsored">Get the Best Price on Amazon →</a>
+      <a href="{{ url_for('affiliate_redirect', product_id='jackery-explorer-240') }}"
+         class="affiliate-link gear-button"
+         data-product="Jackery Explorer 240"
+         target="_blank" rel="noopener sponsored">Get the Best Price on Amazon →</a>
     </div>
   </div>
 
@@ -147,7 +149,10 @@
         <span class="spec">20,000 BTU</span>
         <span class="spec">Under $50</span>
       </div>
-      <a href="https://amzn.to/YOUR_AFFILIATE_LINK2" class="affiliate-link gear-button" data-product="Coleman Classic Stove" target="_blank" rel="noopener sponsored">See Today’s Deal →</a>
+      <a href="{{ url_for('affiliate_redirect', product_id='coleman-stove') }}"
+         class="affiliate-link gear-button"
+         data-product="Coleman Classic Stove"
+         target="_blank" rel="noopener sponsored">See Today’s Deal →</a>
     </div>
   </div>
 
@@ -169,50 +174,14 @@
         <span class="spec">2oz Weight</span>
         <span class="spec">No Batteries</span>
       </div>
-      <a href="https://amzn.to/YOUR_AFFILIATE_LINK3" class="affiliate-link gear-button" data-product="LifeStraw Filter" target="_blank" rel="noopener sponsored">Buy Now on Amazon →</a>
+      <a href="{{ url_for('affiliate_redirect', product_id='lifestraw-filter') }}"
+         class="affiliate-link gear-button"
+         data-product="LifeStraw Filter"
+         target="_blank" rel="noopener sponsored">Buy Now on Amazon →</a>
     </div>
   </div>
 
-  <!-- Add more gear items below as you wish, following the above format -->
+  <!-- ... rest unchanged ... -->
 
-  <!-- Internal Linking to Blog -->
-  <div class="related-links" style="margin-top:2em;">
-    <h3>Related: Read My Guerilla Camping Stories & Gear Tests</h3>
-    <ul>
-      <li><a href="/blog/solar-generator-survival">How My Solar Generator Saved a Rainy Week</a></li>
-      <li><a href="/blog/cheap-camping-stoves">Cheap Camping Stoves Tested in the Field</a></li>
-      <li><a href="/blog/best-budget-sleeping-bags">Best Budget Sleeping Bags for 2025</a></li>
-    </ul>
-  </div>
-
-  <div class="gear-footer">
-    <h3>More Gear Coming Soon!</h3>
-    <p>
-      I'm constantly testing new gear and updating this list. Want me to review something specific? 
-      <a href="/contact" class="inline-link">Drop me a line</a> and I'll add it to my test list.
-    </p>
-    <div class="newsletter-prompt">
-      <p>
-        <strong>Get exclusive deals & field-tested tips:</strong> Join my email list for first dibs on new reviews, guerilla camping hacks, and offers that don’t make it to the blog.
-      </p>
-      <a href="/#signup" class="gear-button secondary">Join the Tribe &rarr;</a>
-    </div>
-  </div>
-
-  <div class="user-engagement" style="margin-top:2em;">
-    <h3>Guerilla Gear Stories — Your Turn!</h3>
-    <p>What’s the ONE piece of gear you never camp without? <a href="/contact">Tell me your pick</a> or share your own guerilla hack—I might feature it!</p>
-  </div>
-
- <!-- Facebook follow button at the bottom of gear.html -->
-<a href="https://www.facebook.com/profile.php?id=61577334442896"
-   class="mini-social facebook"
-   target="_blank" rel="noopener"
-   style="display:inline-block; margin:0.5em; padding:0.5em 1em; background:#1877f2; color:#fff; border-radius:6px; font-weight:bold; text-decoration:none;">
-  <img src="/static/images/facebook-icon.png" alt="Facebook" style="width:24px; height:24px; vertical-align:middle; margin-right:8px;">
-  Follow Gorilla Camping on Facebook
-</a>
-  </div>
 </section>
 {% endblock %}
- 
