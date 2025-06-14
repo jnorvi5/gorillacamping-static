@@ -485,13 +485,7 @@ def affiliate_redirect(product_id):
     user_consent = session.get('cookie_consent', {})
     track_affiliate_click(product_id, request.referrer or 'direct', user_consent)
     
-# ... (other code unchanged)
 
-@app.route("/go/<product_id>")
-def affiliate_redirect(product_id):
-    # Track the click with enhanced analytics
-    user_consent = session.get('cookie_consent', {})
-    track_affiliate_click(product_id, request.referrer or 'direct', user_consent)
 
     # 🎯 Your actual affiliate links (UPDATE: now with your real links)
     affiliate_links = {
