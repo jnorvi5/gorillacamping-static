@@ -14,22 +14,8 @@
     border-bottom: 3px solid #00ff88;
     box-shadow: 0 2px 10px #00ff88;
 }
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-}
-
-.form-wrapper {
-    max-width: 600px;
-    margin: 3rem auto;
-    background: #1a1a1a;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 0 12px #00ff88;
-}
+...
 </style>
-
 <!-- MailerLite Universal Script -->
 <script>
 (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
@@ -263,7 +249,7 @@ ml('account', '1500893');
 </head>
 <body>
     <header class="header">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" 
+        <img src="{{ url_for('static', filename='images/logo.png') }}" 
              alt="Gorilla Camping Logo - Life is short, camp your way through it" 
              class="animated-logo">
         
