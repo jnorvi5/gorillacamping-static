@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    {% for page, lastmod in pages %}
+    {% for page in pages %}
     <url>
-        <loc>{{ request.url_root[:-1] }}{{ page }}</loc>
-        <lastmod>{{ lastmod }}</lastmod>
+        <loc>{{ page.loc }}</loc>
+        <lastmod>{{ page.lastmod }}</lastmod>
+        {% if page.priority %}
+        <priority>{{ page.priority }}</priority>
+        {% endif %}
+        {% if page.changefreq %}
+        <changefreq>{{ page.changefreq }}</changefreq>
+        {% endif %}
     </url>
     {% endfor %}
 </urlset>
