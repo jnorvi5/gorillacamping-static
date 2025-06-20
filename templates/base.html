@@ -10,6 +10,7 @@
       })(window,document,'script','dataLayer','GTM-MVSVBN7V');
     </script>
     <!-- End Google Tag Manager -->
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{% block meta_description %}Gorilla Camping - Guerilla-style camping guides, gear reviews, and off-grid living tips for budget-conscious adventurers.{% endblock %}">
@@ -21,127 +22,43 @@
     <meta name="facebook-domain-verification" content="5kmm03xtmziy9c334w4c2227jtyll0" />
 
     <!-- Meta Pixel Code -->
-<script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '2634282970240439'); 
-  fbq('track', 'PageView');
-</script>
-<noscript>
-  <img height="1" width="1" style="display:none"
-       src="https://www.facebook.com/tr?id=2634282970240439&ev=PageView&noscript=1"/>
-</noscript>
-<!-- End Meta Pixel Code -->
-
     <script>
-// Track purchase events (call on thank-you or confirmation pages)
-function fbTrackPurchase(value, currency) {
-  fbq('track', 'Purchase', {
-    value: value,
-    currency: currency
-  });
-}
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '2634282970240439'); 
+      fbq('track', 'PageView');
+    </script>
+    <noscript>
+      <img height="1" width="1" style="display:none"
+           src="https://www.facebook.com/tr?id=2634282970240439&ev=PageView&noscript=1"/>
+    </noscript>
+    <!-- End Meta Pixel Code -->
 
-// Track lead events (call on successful form submissions)
-function fbTrackLead() {
-  fbq('track', 'Lead');
-}
-
-// Track affiliate clicks (call when a user clicks an affiliate link)
-function fbTrackAffiliateClick(product, value) {
-  fbq('trackCustom', 'AffiliateClick', {
-    product: product,
-    value: value
-  });
-}
-</script>
-
-   
     <!-- CookieYes - MUST BE FIRST FOR COMPLIANCE -->
     <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/f9240018d9682ec755f25926/script.js"></script>
     
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://gorillacamping.site{{ request.path }}">
-    
-    <!-- Favicon - Complete Set -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
-    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-
-    <!-- Social Meta Tags -->
-    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
-    <meta property="og:image" content="https://gorillacamping.site{{ url_for('static', filename='images/og-gorilla-camping.jpg') }}">
-    <meta property="og:url" content="https://gorillacamping.site{{ request.path }}">
-    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
-    <meta property="og:site_name" content="Gorilla Camping">
-    
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ self.title() }}">
-    <meta name="twitter:description" content="{{ self.meta_description() }}">
-    <meta name="twitter:image" content="https://gorillacamping.site{{ url_for('static', filename='images/og-gorilla-camping.jpg') }}">
-
-    <!-- Schema.org Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Gorilla Camping",
-      "url": "https://gorillacamping.site",
-      "logo": "https://gorillacamping.site{{ url_for('static', filename='images/logo.png') }}",
-      "description": "Guerilla-style camping guides, gear reviews, and off-grid living tips for budget-conscious adventurers.",
-      "founder": {
-        "@type": "Person",
-        "name": "Jon",
-        "description": "Army veteran and off-grid camping enthusiast"
-      },
-      "sameAs": [
-        "https://www.reddit.com/r/gorillacamping",
-        "https://www.facebook.com/profile.php?id=61577334442896",
-        "https://www.tiktok.com/@gorillacamping"
-      ]
-    }
+    <!-- MailerLite Universal Script -->
+    <script>
+        (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
+        .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+        n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+        (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+        ml('account', '1500893');
     </script>
-
-    {% block extra_head %}{% endblock %}
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-JPKKPRXX6S"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-JPKKPRXX6S');
-      
-      // Enhanced affiliate tracking
-      function trackAffiliateClick(affiliateUrl, productName) {
-        gtag('event', 'affiliate_click', {
-          'event_category': 'Affiliate',
-          'event_label': affiliateUrl,
-          'custom_parameter_1': productName
-        });
-      }
-      
-      // Social click tracking
-      function trackSocialClick(platform, action) {
-        gtag('event', 'social_click', {
-          'event_category': 'Social',
-          'event_label': platform,
-          'custom_parameter_1': action
-        });
-      }
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-JPKKPRXX6S');
     </script>
 
     <!-- Microsoft Clarity -->
@@ -153,24 +70,34 @@ function fbTrackAffiliateClick(product, value) {
         })(window, document, "clarity", "script", "rprq55166f");
     </script>
 
-    <!-- MailerLite Universal -->
-    <script>
-        (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
-        .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
-        n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
-        (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
-        ml('account', '1500893');
-    </script>
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ request.url_root.rstrip('/') }}{{ url_for(request.endpoint, **request.view_args) }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
     <!-- Google Tag Manager (noscript) -->
-    <noscript>
-      <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MVSVBN7V"
-      height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MVSVBN7V"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    <header class="gc-header">
-        <div class="logo-container">
-            <a href="/" aria-label="Gorilla Camping Home">
-                <img src="{{ url_for('static', filename='images
-
+
+    <header class="header">
+        <a href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='images/logo.webp') }}" alt="Gorilla Camping Logo" class="animated-logo">
+        </a>
+        <p class="motto">Live Wild. Camp Smart.</p>
+    </header>
+
+    <main class="content-wrapper">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; {{ now.year }} Gorilla Camping. All Rights Reserved.</p>
+        <p><a href="{{ url_for('privacy') }}">Privacy Policy</a> | <a href="{{ url_for('terms') }}">Terms of Service</a></p>
+    </footer>
+
+</body>
+</html>
