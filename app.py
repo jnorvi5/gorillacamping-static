@@ -190,6 +190,11 @@ def inject_globals():
         'site_url': 'https://gorillacamping.site'
     }
 
+# 🎯 Context processor to inject "now" for use in base.html (this is the fix!)
+@app.context_processor
+def inject_now():
+    return {'now': datetime.utcnow()}
+
 # Home page with latest posts
 @app.route("/")
 def index():
