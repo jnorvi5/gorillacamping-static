@@ -5,3 +5,4 @@ pytest
 requests
 werkzeug
 markdown
+flask-compress
