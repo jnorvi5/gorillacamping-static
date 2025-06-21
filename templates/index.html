@@ -1,92 +1,47 @@
 {% extends 'base.html' %}
 
-{% block title %}Gorilla Camping - Guerilla Gear, Tips, & Deals{% endblock %}
+{% block title %}Gorilla Camping - Home{% endblock %}
 
 {% block extra_head %}
-  <!-- Homepage SEO & Social -->
-  <meta name="description" content="Guerilla camping gear, off-grid tips, and the best budget camping deals. Join the tribe, live wild, camp smart!">
-  <meta property="og:title" content="Gorilla Camping - Guerilla Gear & Tips">
-  <meta property="og:description" content="No-nonsense reviews, real deals, and guerilla camping hacks for broke explorers.">
-  <meta property="og:image" content="{{ url_for('static', filename='images/logo.webp', _external=True) }}">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Gorilla Camping - Guerilla Gear & Tips">
-  <meta name="twitter:description" content="Guerilla camping gear, off-grid tips, and the best budget camping deals.">
-  <meta name="twitter:image" content="{{ url_for('static', filename='images/logo.webp', _external=True) }}">
+<!-- Add the special styles for homepage only -->
+<style>
+.motto {
+    color: #00ff88;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-shadow: 0 0 10px #00ff88;
+    animation: pulse 3s ease-in-out infinite;
+    border-bottom: 3px solid #00ff88;
+    box-shadow: 0 2px 10px #00ff88;
+}
 
-  <style>
-    .hero {
-      margin: 2rem auto 1.5rem auto;
-      text-align: center;
-      max-width: 500px;
-    }
-    .affiliate-disclosure {
-      display: block;
-      font-size: 0.9em;
-      color: #aaa;
-      margin-top: 2rem;
-      text-align: center;
-    }
-    .featured-gear {
-      margin: 2rem auto;
-      padding: 1.25rem;
-      border: 2px solid #00ff88;
-      border-radius: 10px;
-      max-width: 400px;
-      background: #181818;
-      text-align: center;
-      box-shadow: 0 0 14px #00ff8844;
-    }
-    .featured-gear img {
-      margin: 0.5rem auto 1rem auto;
-      max-width: 120px;
-      border-radius: 6px;
-      border: 1px solid #222;
-      display: block;
-    }
-    .featured-gear a {
-      color: #111;
-      background: #00ff88;
-      padding: 0.7rem 1.1rem;
-      border-radius: 6px;
-      display: inline-block;
-      text-decoration: none;
-      font-weight: bold;
-      margin-top: 10px;
-      transition: all 0.16s;
-    }
-    .featured-gear a:hover {
-      background: #00cc66;
-      color: #fff;
-      box-shadow: 0 0 10px #00ff88;
-    }
-  </style>
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.form-wrapper {
+    max-width: 600px;
+    margin: 3rem auto;
+    background: #1a1a1a;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 12px #00ff88;
+}
+</style>
+
+<!-- MailerLite Universal Script -->
+<script>
+(function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
+.push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+(window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+ml('account', '1500893');
+</script>
 {% endblock %}
 
 {% block content %}
-  <section class="hero">
-    <h1>Guerilla Camping: Gear & Hacks for Under $20</h1>
-    <p>Get my <strong>off-grid tips</strong> and real Amazon camping deals—straight to your inbox. <strong>Join free!</strong></p>
-  </section>
-
-  <div class="form-wrapper" style="max-width:420px;margin:2rem auto;">
+<div class="form-wrapper">
     <div class="ml-embedded" data-form="7qFupG"></div>
-  </div>
-
-  <section class="featured-gear">
-    <h2>🔥 Best Budget Poncho (Amazon)</h2>
-    <a href="/go/poncho" rel="nofollow sponsored" target="_blank">
-      <img src="{{ url_for('static', filename='images/poncho.jpg') }}" alt="Military Surplus Poncho">
-      <div>My go-to for shelter, rain, and stealth. <strong>See it on Amazon →</strong></div>
-    </a>
-  </section>
-
-  <div style="text-align:center;margin-top:1.3rem;">
-    <a href="/blog/budget-camping-gear-under-20-amazon" style="color:#00ff88;text-decoration:underline;font-weight:bold;">
-      See the complete $50 gear list →
-    </a>
-  </div>
-
-  <small class="affiliate-disclosure">
-    *Links may be affiliate links. As an Amazon Associate, I earn from qualifying purchases—at no extra cost to you.
-  </small>
+</div>
 {% endblock %}
