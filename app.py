@@ -3,12 +3,19 @@ import re
 import random
 from datetime import datetime, timedelta
 from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session, Response
+from flask_compress import Compress
 from pymongo import MongoClient
 from urllib.parse import urlparse, parse_qs
 import traceback
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
+
+# Enable GZIP compression on responses (no visual changes to the site).
+Compress(app)
+
+# Slightly decrease default static file send time to allow refreshing if needed without losing performance gains.
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 3600
 
 # 🎯 GUERILLA CONFIG - Your affiliate IDs and tracking
 GOOGLE_ANALYTICS_ID = "G-JPKKPRXX6S"
@@ -31,6 +38,21 @@ try:
 except Exception as e:
     print(f"❌ MongoDB connection failed: {e}")
     db = None
+
+# Create indexes at startup if the DB is available (no front-end changes)
+@app.before_first_request
+def create_indexes():
+    if db:
+        try:
+            db.posts.create_index([("slug", 1)], unique=True)
+            db.posts.create_index([("status", 1)])
+            db.contacts.create_index([("email", 1)])
+            db.affiliate_clicks.create_index([("product_id", 1)])
+            db.clicks.create_index([("source", 1)])
+            db.subscribers.create_index([("email", 1)], unique=True)
+            print("✅ MongoDB indexes created/verified!")
+        except Exception as ex:
+            print(f"⚠️ Could not create indexes: {ex}")
 
 # Guerilla security headers for maximum SEO/trust
 @app.after_request
@@ -489,8 +511,6 @@ def affiliate_redirect(product_id):
     # Track the click with enhanced analytics
     user_consent = session.get('cookie_consent', {})
     track_affiliate_click(product_id, request.referrer or 'direct', user_consent)
-    
-
 
     # 🎯 Your actual affiliate links (UPDATE: now with your real links)
     affiliate_links = {
@@ -513,8 +533,6 @@ def affiliate_redirect(product_id):
         f"https://amazon.com/s?k=camping+{product_id}&tag={AMAZON_ASSOCIATE_TAG}"
     )
     return redirect(destination)
-
-
 
 @app.route("/social/<platform>")
 def social_redirect(platform):
