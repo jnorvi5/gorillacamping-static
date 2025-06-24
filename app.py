@@ -513,19 +513,22 @@ def affiliate_redirect(product_id):
     track_affiliate_click(product_id, request.referrer or 'direct', user_consent)
 
     # 🎯 Your actual affiliate links (UPDATE: now with your real links)
-    affiliate_links = {
-        "jackery-explorer-240": "https://amzn.to/43ZFIvfV",
-        "coleman-stove": "https://amzn.to/44eem7c",
-        "lifestraw-filter": "https://amzn.to/4dZjAae",
-        # Optionally, keep old/demo/backup keys for blog fallback/demo
-        "poncho": f"https://amzn.to/3YourPonchoLink?tag={AMAZON_ASSOCIATE_TAG}",
-        "lifestraw": f"https://amzn.to/3YourLifestrawLink?tag={AMAZON_ASSOCIATE_TAG}",
-        "mylar-bag": f"https://amzn.to/3YourMylarLink?tag={AMAZON_ASSOCIATE_TAG}",
-        "silent-tarp": f"https://amzn.to/3YourTarpLink?tag={AMAZON_ASSOCIATE_TAG}",
-        "red-headlamp": f"https://amzn.to/3YourHeadlampLink?tag={AMAZON_ASSOCIATE_TAG}",
-        "soap-sheets": f"https://amzn.to/3YourSoapLink?tag={AMAZON_ASSOCIATE_TAG}",
-        "quick-pack": f"https://amzn.to/3YourPackLink?tag={AMAZON_ASSOCIATE_TAG}",
-        # ...other product_id: url mappings
+   # ADD THESE TO YOUR AFFILIATE_LINKS DICTIONARY:
+affiliate_links = {
+    "jackery-explorer-240": "https://amzn.to/43ZFIvfV",
+    "coleman-stove": "https://amzn.to/44eem7c", 
+    "lifestraw-filter": "https://amzn.to/4dZjAae",
+    # NEW MONEY-MAKERS:
+    "leatherman-wave": "https://amzn.to/3YourLeathermanLink",
+    "survival-kit": "https://amzn.to/3YourSurvivalKitLink",
+    "budget-sleeping-bag": "https://amzn.to/3YourSleepingBagLink",
+    "viral-camping-bundle": "https://amzn.to/3YourBundleLink",
+    "phone-tripod": "https://amzn.to/3YourTripodLink",
+    "power-bank": "https://amzn.to/3YourPowerBankLink",
+    "led-light": "https://amzn.to/3YourLEDLink",
+    "popup-tent": "https://amzn.to/3YourTentLink",
+}
+  
     }
 
     destination = affiliate_links.get(
