@@ -513,23 +513,44 @@ def affiliate_redirect(product_id):
     track_affiliate_click(product_id, request.referrer or 'direct', user_consent)
 
     # 🎯 Your actual affiliate links (UPDATE: now with your real links)
-   # ADD THESE TO YOUR AFFILIATE_LINKS DICTIONARY:
-affiliate_links = {
-    "jackery-explorer-240": "https://amzn.to/43ZFIvfV",
-    "coleman-stove": "https://amzn.to/44eem7c", 
-    "lifestraw-filter": "https://amzn.to/4dZjAae",
-    # NEW MONEY-MAKERS:
-    "leatherman-wave": "https://amzn.to/4k3C5ff",
-    "survival-kit": "https://amzn.to/3GfUirZ",
-    "budget-sleeping-bag": https://amzn.to/3HYhjjG"",
-    "viral-camping-bundle": "https://amzn.to/4niYcRo",
-    "phone-tripod": "https://amzn.to/4eg8bCZ",
-    "power-bank": "https://amzn.to/4l8bS04",
-    "led-light":"https://amzn.to/45zljks",
-    "popup-tent": "https://amzn.to/4lg5kfE",
-}
-  
+  # REPLACE LINES 516-532 WITH THIS CORRECTED VERSION:
+
+# 💰 Enhanced affiliate link tracker with conversion optimization
+@app.route("/go/<product_id>")
+def affiliate_redirect(product_id):
+    # Track the click with enhanced analytics
+    user_consent = session.get('cookie_consent', {})
+    track_affiliate_click(product_id, request.referrer or 'direct', user_consent)
+
+    # 🎯 Your actual affiliate links (FIXED SYNTAX!)
+    affiliate_links = {
+        "jackery-explorer-240": "https://amzn.to/43ZFIvfV",
+        "coleman-stove": "https://amzn.to/44eem7c", 
+        "lifestraw-filter": "https://amzn.to/4dZjAae",
+        # NEW MONEY-MAKERS:
+        "leatherman-wave": "https://amzn.to/4k3C5ff",
+        "survival-kit": "https://amzn.to/3GfUirZ",
+        "budget-sleeping-bag": "https://amzn.to/3HYhjjG",  # FIXED - Added quotes, removed extra quote
+        "viral-camping-bundle": "https://amzn.to/4niYcRo",
+        "phone-tripod": "https://amzn.to/4eg8bCZ",
+        "power-bank": "https://amzn.to/4l8bS04",
+        "led-light": "https://amzn.to/45zljks",  # FIXED - Added missing colon
+        "popup-tent": "https://amzn.to/4lg5kfE",
+        # GUERRILLA BONUS LINKS:
+        "poncho": f"https://amzn.to/3YourPonchoLink?tag={AMAZON_ASSOCIATE_TAG}",
+        "lifestraw": f"https://amzn.to/3YourLifestrawLink?tag={AMAZON_ASSOCIATE_TAG}",
+        "mylar-bag": f"https://amzn.to/3YourMylarLink?tag={AMAZON_ASSOCIATE_TAG}",
+        "silent-tarp": f"https://amzn.to/3YourTarpLink?tag={AMAZON_ASSOCIATE_TAG}",
+        "red-headlamp": f"https://amzn.to/3YourHeadlampLink?tag={AMAZON_ASSOCIATE_TAG}",
+        "soap-sheets": f"https://amzn.to/3YourSoapLink?tag={AMAZON_ASSOCIATE_TAG}",
+        "quick-pack": f"https://amzn.to/3YourPackLink?tag={AMAZON_ASSOCIATE_TAG}",
     }
+
+    destination = affiliate_links.get(
+        product_id, 
+        f"https://amazon.com/s?k=camping+{product_id}&tag={AMAZON_ASSOCIATE_TAG}"
+    )
+    return redirect(destination)
 
     destination = affiliate_links.get(
         product_id, 
