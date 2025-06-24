@@ -1,0 +1,16 @@
+<div class="scarcity-timer" style="background: #ff4757; color: white; padding: 10px; text-align: center; position: sticky; top: 0; z-index: 100;">
+    <strong>⏰ GEAR SALE ENDS IN: <span id="countdown">23:59:47</span></strong>
+</div>
+
+<script>
+let timeLeft = 86387; // ~24 hours in seconds
+setInterval(function() {
+    const hours = Math.floor(timeLeft / 3600);
+    const minutes = Math.floor((timeLeft % 3600) / 60);
+    const seconds = timeLeft % 60;
+    document.getElementById('countdown').textContent = 
+        `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    timeLeft--;
+    if (timeLeft < 0) timeLeft = 86400; // Reset to 24 hours
+}, 1000);
+</script>
