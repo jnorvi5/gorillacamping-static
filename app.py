@@ -519,14 +519,14 @@ affiliate_links = {
     "coleman-stove": "https://amzn.to/44eem7c", 
     "lifestraw-filter": "https://amzn.to/4dZjAae",
     # NEW MONEY-MAKERS:
-    "leatherman-wave": "https://amzn.to/3YourLeathermanLink",
-    "survival-kit": "https://amzn.to/3YourSurvivalKitLink",
-    "budget-sleeping-bag": "https://amzn.to/3YourSleepingBagLink",
-    "viral-camping-bundle": "https://amzn.to/3YourBundleLink",
-    "phone-tripod": "https://amzn.to/3YourTripodLink",
-    "power-bank": "https://amzn.to/3YourPowerBankLink",
-    "led-light": "https://amzn.to/3YourLEDLink",
-    "popup-tent": "https://amzn.to/3YourTentLink",
+    "leatherman-wave": "https://amzn.to/4k3C5ff",
+    "survival-kit": "https://amzn.to/3GfUirZ",
+    "budget-sleeping-bag": https://amzn.to/3HYhjjG"",
+    "viral-camping-bundle": "https://amzn.to/4niYcRo",
+    "phone-tripod": "https://amzn.to/4eg8bCZ",
+    "power-bank": "https://amzn.to/4l8bS04",
+    "led-light":"https://amzn.to/45zljks",
+    "popup-tent": "https://amzn.to/4lg5kfE",
 }
   
     }
