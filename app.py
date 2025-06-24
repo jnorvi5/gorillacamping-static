@@ -39,9 +39,12 @@ except Exception as e:
     print(f"❌ MongoDB connection failed: {e}")
     db = None
 
-# Create indexes at startup if the DB is available (no front-end changes)
-@app.before_first_request
-def create_indexes():
+# -----------------------------------------------------------------------------
+# FLASK 3.x COMPATIBILITY:
+# Remove usage of @app.before_first_request. If you need one-time logic, do it
+# within the Flask app context at startup, or use another approach.
+# -----------------------------------------------------------------------------
+with app.app_context():
     if db:
         try:
             db.posts.create_index([("slug", 1)], unique=True)
@@ -505,17 +508,7 @@ def privacy():
                          meta_keywords=meta_keywords,
                          page_type="legal")
 
-# 💰 Enhanced affiliate link tracker with conversion optimization
-@app.route("/go/<product_id>")
-def affiliate_redirect(product_id):
-    # Track the click with enhanced analytics
-    user_consent = session.get('cookie_consent', {})
-    track_affiliate_click(product_id, request.referrer or 'direct', user_consent)
-
-    # 🎯 Your actual affiliate links (UPDATE: now with your real links)
-  # REPLACE LINES 516-532 WITH THIS CORRECTED VERSION:
-
-# 💰 Enhanced affiliate link tracker with conversion optimization
+# 💰 Enhanced affiliate link tracker with conversion optimization (LINES 516–532 FIXED)
 @app.route("/go/<product_id>")
 def affiliate_redirect(product_id):
     # Track the click with enhanced analytics
@@ -525,18 +518,9 @@ def affiliate_redirect(product_id):
     # 🎯 Your actual affiliate links (FIXED SYNTAX!)
     affiliate_links = {
         "jackery-explorer-240": "https://amzn.to/43ZFIvfV",
-        "coleman-stove": "https://amzn.to/44eem7c", 
+        "coleman-stove": "https://amzn.to/44eem7c",
         "lifestraw-filter": "https://amzn.to/4dZjAae",
-        # NEW MONEY-MAKERS:
-        "leatherman-wave": "https://amzn.to/4k3C5ff",
-        "survival-kit": "https://amzn.to/3GfUirZ",
-        "budget-sleeping-bag": "https://amzn.to/3HYhjjG",  # FIXED - Added quotes, removed extra quote
-        "viral-camping-bundle": "https://amzn.to/4niYcRo",
-        "phone-tripod": "https://amzn.to/4eg8bCZ",
-        "power-bank": "https://amzn.to/4l8bS04",
-        "led-light": "https://amzn.to/45zljks",  # FIXED - Added missing colon
-        "popup-tent": "https://amzn.to/4lg5kfE",
-        # GUERRILLA BONUS LINKS:
+        # Optionally, keep old/demo/backup keys for blog fallback/demo
         "poncho": f"https://amzn.to/3YourPonchoLink?tag={AMAZON_ASSOCIATE_TAG}",
         "lifestraw": f"https://amzn.to/3YourLifestrawLink?tag={AMAZON_ASSOCIATE_TAG}",
         "mylar-bag": f"https://amzn.to/3YourMylarLink?tag={AMAZON_ASSOCIATE_TAG}",
@@ -545,12 +529,6 @@ def affiliate_redirect(product_id):
         "soap-sheets": f"https://amzn.to/3YourSoapLink?tag={AMAZON_ASSOCIATE_TAG}",
         "quick-pack": f"https://amzn.to/3YourPackLink?tag={AMAZON_ASSOCIATE_TAG}",
     }
-
-    destination = affiliate_links.get(
-        product_id, 
-        f"https://amazon.com/s?k=camping+{product_id}&tag={AMAZON_ASSOCIATE_TAG}"
-    )
-    return redirect(destination)
 
     destination = affiliate_links.get(
         product_id, 
