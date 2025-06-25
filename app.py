@@ -11,19 +11,16 @@ import traceback
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
 
-# Enable GZIP compression on responses (no visual changes to the site).
+# Enable GZIP compression on responses
 Compress(app)
 
-# Slightly decrease default static file send time to allow refreshing if needed without losing performance gains.
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 3600
 
-# MongoDB connection with error handling
 try:
     mongodb_uri = os.environ.get('MONGODB_URI') or os.environ.get('MONGO_URI')
     if mongodb_uri:
         client = MongoClient(mongodb_uri)
         db = client.get_default_database()
-        # Test connection
         db.command('ping')
         print("✅ MongoDB connected successfully!")
     else:
@@ -33,12 +30,6 @@ except Exception as e:
     print(f"❌ MongoDB connection failed: {e}")
     db = None
 
-
-# -----------------------------------------------------------------------------
-# FLASK 3.x COMPATIBILITY:
-# Remove usage of @app.before_first_request. 
-# If you need one-time logic, do it in the Flask app context at startup.
-# -----------------------------------------------------------------------------
 with app.app_context():
     if db:
         try:
@@ -59,7 +50,6 @@ def security_headers(response):
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    # Cache optimization for speed
     if request.endpoint in ['static', 'sitemap', 'robots']:
         response.headers['Cache-Control'] = 'public, max-age=86400'
     return response
@@ -131,9 +121,8 @@ def index():
     latest_posts = get_recent_posts(6)
     meta_description = "Camping gear reviews, budget outdoor equipment, and off-grid survival tips."
     meta_keywords = "camping, stealth camping, off-grid"
-    
     track_click("homepage", "internal", request.headers.get('User-Agent'), request.referrer)
-    return render_template("index.html", 
+    return render_template("index.html",
                            latest_posts=latest_posts,
                            meta_description=meta_description,
                            meta_keywords=meta_keywords,
@@ -144,10 +133,8 @@ def blog():
     page = int(request.args.get("page", 1))
     per_page = 12
     all_posts, total = get_posts_paginated(page, per_page)
-    
     meta_description = "Guerilla camping guides, gear reviews, and survival tips."
     meta_keywords = "blog, camping tips, gear reviews"
-    
     return render_template("blog.html",
                            posts=all_posts,
                            page=page,
@@ -170,9 +157,7 @@ def post(slug):
             "date": datetime.now(),
             "category": "Misc"
         }
-    
     track_click(f"post_{slug}", "internal", request.headers.get('User-Agent'), request.referrer)
-    
     return render_template("post.html",
                            post=post_data,
                            meta_description=post_data.get('meta_description', ''),
@@ -220,4 +205,3 @@ def contact():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
-     
