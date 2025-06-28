@@ -234,11 +234,10 @@ def generative_ai_assistant():
     data = request.json
     user_query = data.get("query", "I need some camping advice.")
 
-    # 1. Retrieve 5 most relevant chunks (R in RAG)
+    # RAG: retrieve context as before
     results = knowledge_base.query(query_texts=[user_query], n_results=5)
     context = "\n\n---\n\n".join(results['documents'][0])
 
-    # 2. Generate response (G in RAG)
     system_prompt = (
         "You are the GorillaCamping AI assistant. You are an expert in budget, off-grid, and 'guerilla' style camping. "
         "Your tone is direct, knowledgeable, and a bit rugged, like a seasoned veteran camper. "
@@ -246,6 +245,7 @@ def generative_ai_assistant():
         "If the context doesn't contain the answer, say 'I don't have that information in my knowledge base, but here's a general tip...'"
     )
 
+    # Generate LLM response
     try:
         completion = openai.chat.completions.create(
             model="gpt-4o",
@@ -255,10 +255,53 @@ def generative_ai_assistant():
             ]
         )
         ai_response = completion.choices[0].message.content
-        return jsonify({"success": True, "response": ai_response})
+
+        # Affiliate gear matching
+        gear_links = recommend_gear_links(user_query, ai_response)
+
+        # Feedback logging (optional: see below for /api/feedback endpoint)
+        db.ai_logs.insert_one({
+            "question": user_query,
+            "ai_response": ai_response,
+            "timestamp": datetime.utcnow(),
+            "user_agent": request.headers.get('User-Agent'),
+            "ip_hash": hash(request.remote_addr) if request.remote_addr else None,
+        })
+
+        return jsonify({"success": True, "response": ai_response + gear_links})
     except Exception as e:
         print(f"❌ OpenAI API Error: {e}")
         return jsonify({"success": False, "message": "The AI brain is currently offline. Please try again later."})
+
+def recommend_gear_links(user_query, ai_response):
+    if not db:
+        return ""
+    # Simple keyword match, improve as you go!
+    keywords = set(user_query.lower().split())
+    gear_matches = []
+    for gear in db.gear.find({"active": True}):
+        gear_text = (gear["name"] + " " + gear.get("description", "")).lower()
+        if any(word in gear_text for word in keywords):
+            gear_matches.append(gear)
+    links = [
+        f"<br><a href='/go/{g['affiliate_id']}' target='_blank' rel='noopener sponsored'>👉 {g['name']} (My Pick)</a>"
+        for g in gear_matches[:2]
+    ]
+    if links:
+        return "<br><br><b>Recommended for you:</b> " + " ".join(links)
+    return ""
+@app.route("/api/feedback", methods=["POST"])
+def user_feedback():
+    data = request.json
+    db.feedback.insert_one({
+        "question": data.get("question"),
+        "ai_response": data.get("ai_response"),
+        "feedback": data.get("feedback"),
+        "timestamp": datetime.utcnow(),
+        "user_agent": request.headers.get('User-Agent'),
+        "ip_hash": hash(request.remote_addr) if request.remote_addr else None,
+    })
+    return jsonify({"success": True})
 # Home page with latest posts
 @app.route("/")
 def index():
