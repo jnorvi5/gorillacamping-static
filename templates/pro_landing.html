@@ -36,26 +36,6 @@
     </div>
 
     <div style="text-align:center;margin:2rem 0;">
-      <div style="font-size:2rem;font-weight:900;color:#00ff88;">
-        Just $12/month or $99/year
-      </div>
-      <div style="font-size:1.1rem;color:#ccc;">
-        <span style="color:#FF6B35;">Founding 50:</span> Lifetime access for $49 – <b>never pay again</b>!
-      </div>
-      <div style="margin:2rem auto 0 auto;">
-        <!-- STRIPE CHECKOUT BUTTON (replace with your real Stripe link) -->
-        <a href="https://buy.stripe.com/test_a1b2c3d4e5f6g7h8i9"
-           class="cta-button"
-           style="background:#FF6B35;color:#fff;font-size:1.3rem;padding:1.1em 2em;border-radius:14px;box-shadow:0 0 18px #FF6B35;font-weight:900;text-decoration:none;transition:background 0.2s;"
-           target="_blank" rel="noopener">
-          🚀 Join Guerilla Pro Now
-        </a>
-        <div style="font-size:0.9rem;color:#ccc;margin-top:0.5rem;">Secure checkout • Cancel anytime • 30-day money-back guarantee</div>
-      </div>
-      <div style="margin-top:2rem;color:#aaa;font-size:0.95em;">
-        <u>Pro pays for itself:</u> One viral gear review or TikTok tip can cover your entire year. <br>Don’t leave $1,000+ on the table!
-      </div>
-    </div>
 
     <div style="margin-top:2.5rem;">
       <h3 style="color:#00ff88;font-size:1.2rem;">Why Go Pro?</h3>
@@ -66,7 +46,20 @@
         <li>→ <b>100% authenticity</b>: No “influencer” BS. Just real tricks, real savings, and real tribe support.</li>
       </ul>
     </div>
-
+<!-- Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
+<button id="checkout-button" class="cta-button">🚀 Join Guerilla Pro Now</button>
+<script>
+var stripe = Stripe("{{ STRIPE_PUBLISHABLE_KEY }}");
+document.getElementById('checkout-button').addEventListener('click', function () {
+    fetch("/create-checkout-session", {method: "POST"})
+        .then(function (response) { return response.json(); })
+        .then(function (session) {
+            return stripe.redirectToCheckout({ sessionId: session.id });
+        })
+        .catch(function (error) { alert(error.message); });
+});
+</script>
     <div style="margin:2rem auto 0 auto;max-width:600px;">
       <h3 style="color:#FF6B35;">🔥 Founding Member Bonus</h3>
       <p style="color:#fff;background:#222;padding:1.2em 1em;border-radius:12px;box-shadow:0 0 16px #FF6B35;margin-bottom:1rem;">
