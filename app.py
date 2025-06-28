@@ -39,9 +39,8 @@ except Exception as e:
     print(f"❌ MongoDB connection failed: {e}")
     db = None
 
-# Create indexes at startup if the DB is available (no front-end changes)
-@app.before_first_request
-def create_indexes():
+@app.before_serving
+async def create_indexes():
     if db:
         try:
             db.posts.create_index([("slug", 1)], unique=True)
