@@ -39,9 +39,14 @@ except Exception as e:
     print(f"❌ MongoDB connection failed: {e}")
     db = None
 
-@app.before_serving
-async def create_indexes():
-    if db:
+# At the top of app.py, after imports:
+startup_complete = False
+
+# Replace your @app.before_serving or @app.before_first_request
+@app.before_request
+def create_indexes_once():
+    global startup_complete
+    if not startup_complete and db is not None:
         try:
             db.posts.create_index([("slug", 1)], unique=True)
             db.posts.create_index([("status", 1)])
@@ -52,19 +57,7 @@ async def create_indexes():
             print("✅ MongoDB indexes created/verified!")
         except Exception as ex:
             print(f"⚠️ Could not create indexes: {ex}")
-
-# Guerilla security headers for maximum SEO/trust
-@app.after_request
-def security_headers(response):
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    # 🚀 Cache optimization for speed
-    if request.endpoint in ['static', 'sitemap', 'robots']:
-        response.headers['Cache-Control'] = 'public, max-age=86400'
-    return response
+        startup_complete = True
 
 # Safe database operations (guerilla-style error handling)
 def safe_db_operation(operation, default_return=None):
