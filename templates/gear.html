@@ -54,7 +54,40 @@
 {% block content %}
 <!-- Sticky CTA -->
 <a href="#top-essentials" class="sticky-cta" id="stickyGearCta">💰 Get the $1,000/Month Gear List</a>
-
+ 
+<div class="gear-grid">
+  {% for gear in gear_items %}
+    <div class="gear-item" id="{{ gear.affiliate_id }}">
+      <div class="gear-img">
+        {% if gear.badges %}
+          <div class="urgency-badge">{{ gear.badges[0] }}</div>
+        {% endif %}
+        <img src="{{ gear.image }}" alt="{{ gear.name }}" loading="lazy">
+      </div>
+      <div class="gear-info">
+        <h2>{{ gear.name }} {% if gear.badges|length > 1 %}<span class="badge best-value">{{ gear.badges[1] }}</span>{% endif %}</h2>
+        <div class="gear-rating">{% for _ in range(gear.rating or 0) %}⭐{% endfor %}</div>
+        <p>{{ gear.description }}</p>
+        {% if gear.specs %}
+        <div class="gear-specs">
+          {% for spec in gear.specs %}
+            <span class="spec">{{ spec }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <div class="price-box">
+          {% if gear.old_price %}<span class="old-price">{{ gear.old_price }}</span>{% endif %}
+          <span class="new-price">{{ gear.price }}</span>
+          {% if gear.savings %}<span class="savings">{{ gear.savings }}</span>{% endif %}
+        </div>
+        <a href="{{ url_for('affiliate_redirect', product_id=gear.affiliate_id) }}"
+           class="affiliate-link gear-button pulse"
+           data-product="{{ gear.name }}"
+           target="_blank" rel="noopener sponsored">🔥 GET DEAL NOW →</a>
+      </div>
+    </div>
+  {% endfor %}
+</div>
 <section class="gear-section">
   <div class="gear-header">
     <h1>💰 Gorilla Camping Gear That PAYS FOR ITSELF <span class="badge">2025</span></h1>
