@@ -9,9 +9,8 @@ from urllib.parse import urlparse, parse_qs
 import traceback
 import openai
 import chromadb
-from chromadb.utils import embedding_function
+from chromadb.utils import embedding_functions
 from functools import wraps
-from flask import session, redirect, url_for, flash
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
@@ -25,8 +24,6 @@ def pro_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-
-# Enable GZIP compression on responses (no visual changes to the site).
 Compress(app)
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
@@ -36,22 +33,19 @@ chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
 openai_ef = embedding_functions.OpenAIEmbeddingFunction(api_key=openai.api_key, model_name="text-embedding-3-small")
 knowledge_base = chroma_client.get_collection(name=COLLECTION_NAME, embedding_function=openai_ef)
 
-# Slightly decrease default static file send time to allow refreshing if needed without losing performance gains.
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 3600
 
-# 🎯 GUERILLA CONFIG - Your affiliate IDs and tracking
 GOOGLE_ANALYTICS_ID = "G-JPKKPRXX6S"
-COOKIEYES_SITE_ID = os.environ.get('COOKIEYES_SITE_ID', 'YOUR_COOKIEYES_ID')  # Get from CookieYes dashboard
-AMAZON_ASSOCIATE_TAG = os.environ.get('AMAZON_TAG', 'gorillacamping-20')  # Your Amazon Associates tag
+COOKIEYES_SITE_ID = os.environ.get('COOKIEYES_SITE_ID', 'YOUR_COOKIEYES_ID')
+AMAZON_ASSOCIATE_TAG = os.environ.get('AMAZON_TAG', 'gorillacamping-20')
 MAILERLITE_API_KEY = os.environ.get('MAILERLITE_API_KEY', '')
 
-# MongoDB connection with error handling
+# MongoDB connection
 try:
     mongodb_uri = os.environ.get('MONGODB_URI') or os.environ.get('MONGO_URI')
     if mongodb_uri:
         client = MongoClient(mongodb_uri)
         db = client.get_default_database()
-        # Test connection
         db.command('ping')
         print("✅ MongoDB connected successfully!")
     else:
@@ -79,7 +73,6 @@ def create_indexes_once():
             print(f"⚠️ Could not create indexes: {ex}")
         startup_complete = True
 
-# Safe database operations (guerilla-style error handling)
 def safe_db_operation(operation, default_return=None):
     try:
         if db is not None:
@@ -90,9 +83,7 @@ def safe_db_operation(operation, default_return=None):
         print(f"Database operation failed: {e}")
         return default_return
 
-# 💰 Track user consent for affiliate revenue optimization
 def track_user_consent(consent_data, user_info=None):
-    """Track consent for affiliate attribution analysis"""
     def save_consent():
         consent_record = {
             'timestamp': datetime.utcnow(),
@@ -107,17 +98,12 @@ def track_user_consent(consent_data, user_info=None):
         }
         db.consent_analytics.insert_one(consent_record)
         return consent_record
-    
     return safe_db_operation(save_consent, {})
 
-# Get recent posts with error handling
 def get_recent_posts(limit=5):
     def fetch_posts():
         return list(db.posts.find({"status": "published"}).sort("date", -1).limit(limit))
-    
     posts = safe_db_operation(fetch_posts, [])
-    
-    # 🎯 Guerilla fallback posts optimized for affiliate sales
     if not posts:
         posts = [
             {
@@ -148,26 +134,18 @@ def get_recent_posts(limit=5):
                 "revenue_potential": "medium"
             }
         ]
-    
     return posts
 
-# Get paginated posts
 def get_posts_paginated(page=1, per_page=12):
     def fetch_paginated():
         skip = (page - 1) * per_page
-        posts = list(db.posts.find({"status": "published"})
-                    .sort("date", -1)
-                    .skip(skip)
-                    .limit(per_page))
+        posts = list(db.posts.find({"status": "published"}).sort("date", -1).skip(skip).limit(per_page))
         total = db.posts.count_documents({"status": "published"})
         return posts, total
-    
     result = safe_db_operation(fetch_paginated, ([], 0))
     return result
 
-# 💰 Enhanced affiliate click tracking with revenue attribution
 def track_affiliate_click(product_id, source_page, user_consent=None):
-    """Track affiliate clicks with consent-aware revenue attribution"""
     def save_click():
         click_data = {
             "product_id": product_id,
@@ -182,8 +160,6 @@ def track_affiliate_click(product_id, source_page, user_consent=None):
             "click_type": "affiliate_conversion"
         }
         db.affiliate_clicks.insert_one(click_data)
-        
-        # Update product performance metrics
         db.product_performance.update_one(
             {"product_id": product_id},
             {
@@ -193,10 +169,8 @@ def track_affiliate_click(product_id, source_page, user_consent=None):
             upsert=True
         )
         return True
-    
     return safe_db_operation(save_click, False)
 
-# Track affiliate clicks and sources
 def track_click(source, destination, user_agent=None, referrer=None):
     def save_click():
         click_data = {
@@ -209,10 +183,8 @@ def track_click(source, destination, user_agent=None, referrer=None):
         }
         db.clicks.insert_one(click_data)
         return True
-    
     return safe_db_operation(save_click, False)
 
-# 🎯 Context processor for global template variables
 @app.context_processor
 def inject_globals():
     return {
@@ -224,7 +196,6 @@ def inject_globals():
         'site_url': 'https://gorillacamping.site'
     }
 
-# 🎯 Context processor to inject "now" for use in base.html (this is the fix!)
 @app.context_processor
 def inject_now():
     return {'now': datetime.utcnow()}
@@ -233,19 +204,14 @@ def inject_now():
 def generative_ai_assistant():
     data = request.json
     user_query = data.get("query", "I need some camping advice.")
-
-    # RAG: retrieve context as before
     results = knowledge_base.query(query_texts=[user_query], n_results=5)
     context = "\n\n---\n\n".join(results['documents'][0])
-
     system_prompt = (
         "You are the GorillaCamping AI assistant. You are an expert in budget, off-grid, and 'guerilla' style camping. "
         "Your tone is direct, knowledgeable, and a bit rugged, like a seasoned veteran camper. "
         "Use ONLY the provided context below to answer the user's question. Do not make up information. "
         "If the context doesn't contain the answer, say 'I don't have that information in my knowledge base, but here's a general tip...'"
     )
-
-    # Generate LLM response
     try:
         completion = openai.chat.completions.create(
             model="gpt-4o",
@@ -255,11 +221,7 @@ def generative_ai_assistant():
             ]
         )
         ai_response = completion.choices[0].message.content
-
-        # Affiliate gear matching
         gear_links = recommend_gear_links(user_query, ai_response)
-
-        # Feedback logging (optional: see below for /api/feedback endpoint)
         db.ai_logs.insert_one({
             "question": user_query,
             "ai_response": ai_response,
@@ -267,7 +229,6 @@ def generative_ai_assistant():
             "user_agent": request.headers.get('User-Agent'),
             "ip_hash": hash(request.remote_addr) if request.remote_addr else None,
         })
-
         return jsonify({"success": True, "response": ai_response + gear_links})
     except Exception as e:
         print(f"❌ OpenAI API Error: {e}")
@@ -276,7 +237,6 @@ def generative_ai_assistant():
 def recommend_gear_links(user_query, ai_response):
     if not db:
         return ""
-    # Simple keyword match, improve as you go!
     keywords = set(user_query.lower().split())
     gear_matches = []
     for gear in db.gear.find({"active": True}):
@@ -290,6 +250,7 @@ def recommend_gear_links(user_query, ai_response):
     if links:
         return "<br><br><b>Recommended for you:</b> " + " ".join(links)
     return ""
+
 @app.route("/api/feedback", methods=["POST"])
 def user_feedback():
     data = request.json
@@ -302,34 +263,26 @@ def user_feedback():
         "ip_hash": hash(request.remote_addr) if request.remote_addr else None,
     })
     return jsonify({"success": True})
-# Home page with latest posts
+
 @app.route("/")
 def index():
     latest_posts = get_recent_posts(6)
-    
-    # 🎯 SEO meta data optimized for affiliate revenue
     meta_description = "Guerilla camping gear reviews, budget outdoor equipment, and off-grid survival tips. Real advice from someone living the lifestyle. Save money, make adventures happen."
     meta_keywords = "guerilla camping, budget camping gear, stealth camping, off-grid living, camping gear reviews, amazon camping deals, cheap outdoor gear"
-    
-    # Track page view for analytics
     track_click("homepage", "internal", request.headers.get('User-Agent'), request.referrer)
-    
     return render_template("index.html", 
                          latest_posts=latest_posts,
                          meta_description=meta_description,
                          meta_keywords=meta_keywords,
                          page_type="homepage")
 
-# Blog listing with pagination and SEO
 @app.route("/blog")
 def blog():
     page = int(request.args.get("page", 1))
     per_page = 12
     all_posts, total = get_posts_paginated(page, per_page)
-    
     meta_description = "Guerilla camping guides, gear reviews, and outdoor survival tips. Real advice from someone living off-grid. Budget gear that actually works."
     meta_keywords = "guerilla camping blog, off-grid living, camping gear reviews, budget camping, DIY camping gear, outdoor survival tips"
-    
     return render_template("blog.html", 
                          posts=all_posts, 
                          page=page, 
@@ -339,104 +292,38 @@ def blog():
                          meta_keywords=meta_keywords,
                          page_type="blog")
 
-
 @app.route('/pro')
 def pro_landing_page():
     return render_template("pro_landing.html")  # Make this page: features, Stripe Checkout button, testimonials, etc.
-# Individual blog post with affiliate optimization
+
 @app.route("/blog/<slug>")
 def post(slug):
     def fetch_post():
         return db.posts.find_one({"slug": slug, "status": "published"})
-    
     post_data = safe_db_operation(fetch_post)
-    
-    # 🎯 Demo posts optimized for affiliate conversions
     if not post_data:
         demo_posts = {
             "budget-camping-gear-under-20-amazon": {
                 "title": "Best Budget Camping Gear Under $20 (Amazon Finds 2024)",
-                "content": """
-# The Ultimate Guerilla Camping Gear Guide (Under $20 Each!)
-
-Living off-grid for 3+ years, I've learned that **expensive gear doesn't make you a better camper**. Here's my battle-tested list of budget gear that actually works:
-
-## 1. Military Surplus Poncho ($15) - The Swiss Army Knife of Camping
-This thing is INSANE value. Use it as:
-- Rain protection 
-- Tarp/shelter
-- Ground cover
-- Emergency blanket
-
-**[🔥 GET THE EXACT ONE I USE (Amazon)](https://gorillacamping.site/go/poncho)**
-
-## 2. Lifestraw Personal Water Filter ($12-18)
-Never buy bottled water again. I've used this in sketchy streams and it works.
-
-**[💧 GRAB YOUR LIFESTRAW HERE](https://gorillacamping.site/go/lifestraw)**
-
-## 3. Emergency Mylar Sleeping Bag ($8)
-90% as effective as a $200 sleeping bag. Not kidding.
-
-**[🛏️ CHECK CURRENT PRICE](https://gorillacamping.site/go/mylar-bag)**
-
-## The Complete $50 Setup
-- Poncho: $15
-- LifeStraw: $15  
-- Mylar bag: $8
-- Paracord (50ft): $5
-- Emergency fire starter: $7
-
-**Total: $50** vs. $500+ for "premium" gear that does the same thing.
-
-Want the complete list with exact Amazon links? **[Join my email list](https://gorillacamping.site/subscribe)** - I send weekly gear finds and survival tips.
-                """,
+                "content": "...",
                 "date": datetime.now() - timedelta(days=1),
                 "category": "Budget Gear",
                 "slug": slug,
                 "affiliate_ready": True,
-                "meta_description": "Complete guerilla camping setup for under $50. Military surplus secrets + Amazon deals. Real gear I actually use daily.",
+                "meta_description": "...",
                 "featured_products": ["poncho", "lifestraw", "mylar-bag"]
             },
             "stealth-camping-essentials-gear": {
                 "title": "Stealth Camping Essentials: 5 Must-Have Items",
-                "content": """
-# Stealth Camping Essentials: Don't Get Caught!
-
-After 100+ nights of stealth camping (urban and wilderness), these 5 items are NON-NEGOTIABLE:
-
-## 1. Silent Setup Gear
-**Ninja Tarp System** - No metal grommets that clink
-**[🥷 GET THE SILENT TARP](https://gorillacamping.site/go/silent-tarp)**
-
-## 2. Light Discipline 
-Red headlamp only. Blue/white light = busted.
-**[🔴 RED HEADLAMP (Amazon)](https://gorillacamping.site/go/red-headlamp)**
-
-## 3. Scent Control
-Urban camping = don't smell like a camper.
-**[🧼 CAMPING SOAP SHEETS](https://gorillacamping.site/go/soap-sheets)**
-
-## 4. Quick Exit Strategy
-Everything packed in 60 seconds or less.
-**[⚡ QUICK-PACK SYSTEM](https://gorillacamping.site/go/quick-pack)**
-
-## 5. Legal Insurance
-Know your rights, carry proof of income/address.
-
-**Total stealth kit: Under $75**
-
-**Want my complete stealth camping guide?** Join 2,000+ guerilla campers getting weekly tips: **[Subscribe here](https://gorillacamping.site/subscribe)**
-                """,
+                "content": "...",
                 "date": datetime.now() - timedelta(days=3),
                 "category": "Stealth Tactics",
                 "slug": slug,
                 "affiliate_ready": True,
-                "meta_description": "5 essential items for successful stealth camping. Tested in urban environments. Don't get caught - stay invisible.",
+                "meta_description": "...",
                 "featured_products": ["silent-tarp", "red-headlamp", "soap-sheets"]
             }
         }
-        
         post_data = demo_posts.get(slug, {
             "title": "Guerilla Camping Guide Coming Soon!",
             "content": "This post is being crafted with real field experience. Check back soon for authentic gear reviews and money-saving tips!",
@@ -445,10 +332,7 @@ Know your rights, carry proof of income/address.
             "slug": slug,
             "meta_description": "Guerilla camping tips and tricks from someone living the lifestyle."
         })
-    
-    # Track post view
     track_click(f"post_{slug}", "internal", request.headers.get('User-Agent'), request.referrer)
-    
     return render_template("post.html", 
                          post=post_data,
                          meta_description=post_data.get('meta_description', 'Guerilla camping tips and tricks'),
@@ -472,35 +356,26 @@ def gear():
 def about():
     meta_description = "Meet the guerilla camper behind the blog. Real stories, real gear, real advice from someone living off-grid on a shoestring budget."
     meta_keywords = "about guerilla camping, off-grid lifestyle, camping blog author, budget outdoor living"
-    
     return render_template("about.html",
                          meta_description=meta_description,
                          meta_keywords=meta_keywords,
                          page_type="about")
 
-# Contact form - Revenue generating lead capture
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
     if request.method == "POST":
         try:
-            # Get form data with error handling
             name = request.form.get("name", "").strip()
             email = request.form.get("email", "").strip()
             subject = request.form.get("subject", "").strip()
             message = request.form.get("message", "").strip()
-            
-            # Basic validation
             if not all([name, email, subject, message]):
                 flash("All fields are required! Don't leave money on the table.", "error")
                 return redirect(url_for("contact"))
-            
-            # Email validation
             email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
             if not re.match(email_pattern, email):
                 flash("Please enter a valid email address.", "error")
                 return redirect(url_for("contact"))
-            
-            # Save to database with error handling
             def save_contact():
                 contact_data = {
                     "name": name,
@@ -515,15 +390,16 @@ def contact():
                 }
                 db.contacts.insert_one(contact_data)
                 return True
-            
             contact_saved = safe_db_operation(save_contact, False)
-            
-            user = db.users.find_one({"email": session["email"]})
-db.users.update_one({"email": session["email"]}, {
-    "$set": {"is_pro": True, "pro_since": datetime.utcnow()}
-})
-session["pro_user"] = True
-            # Success message with revenue focus
+            # Only try to update pro status if logged in
+            try:
+                if "email" in session:
+                    db.users.update_one({"email": session["email"]}, {
+                        "$set": {"is_pro": True, "pro_since": datetime.utcnow()}
+                    })
+                    session["pro_user"] = True
+            except Exception:
+                pass
             success_messages = [
                 "Message sent! I'll get back to you guerilla-fast! 🚀",
                 "Got it! Expect a response within 24 hours. Let's make money! 💰",
@@ -531,50 +407,39 @@ session["pro_user"] = True
             ]
             flash(random.choice(success_messages), "success")
             return redirect(url_for("contact"))
-            
         except Exception as e:
             print(f"Contact form error: {e}")
             flash("Oops! Something went wrong. Try again - don't let tech stop the money!", "error")
             return redirect(url_for("contact"))
-    
-    # GET request - show the form
     meta_description = "Contact Gorilla Camping for gear reviews, brand collaborations, and guerilla camping advice. Let's make money together!"
     meta_keywords = "contact gorilla camping, brand collaboration, gear review, affiliate partnership, camping blog"
-    
     return render_template("contact.html", 
                          meta_description=meta_description,
                          meta_keywords=meta_keywords,
                          page_type="contact")
 
-# AS-IS terms and affiliate disclaimer page
 @app.route("/as-is")
 def as_is():
     meta_description = "Gorilla Camping affiliate marketing disclaimer, terms of use, and product recommendations policy. Guerilla-style transparency."
     meta_keywords = "affiliate disclaimer, as-is terms, gorilla camping legal, product reviews disclaimer"
-    
     return render_template("as_is.html",
                          meta_description=meta_description,
                          meta_keywords=meta_keywords,
                          page_type="legal")
 
-# Privacy policy
 @app.route("/privacy")
 def privacy():
     meta_description = "Gorilla Camping privacy policy. How we protect your data while helping you master guerilla camping."
     meta_keywords = "privacy policy, data protection, gorilla camping privacy"
-    
     return render_template("privacy.html",
                          meta_description=meta_description,
                          meta_keywords=meta_keywords,
                          page_type="legal")
 
-# 💰 Enhanced affiliate link tracker with conversion optimization
 @app.route("/go/<product_id>")
 def affiliate_redirect(product_id):
-    # Track the click with enhanced analytics
     user_consent = session.get('cookie_consent', {})
     track_affiliate_click(product_id, request.referrer or 'direct', user_consent)
-
     affiliate_links = {
         "jackery-explorer-240": "https://amzn.to/43ZFIvfV",
         "coleman-stove": "https://amzn.to/44eem7c", 
@@ -595,7 +460,6 @@ def affiliate_redirect(product_id):
         "soap-sheets": f"https://amzn.to/3YourSoapLink?tag={AMAZON_ASSOCIATE_TAG}",
         "quick-pack": f"https://amzn.to/3YourPackLink?tag={AMAZON_ASSOCIATE_TAG}",
     }
-
     destination = affiliate_links.get(
         product_id, 
         f"https://amazon.com/s?k=camping+{product_id}&tag={AMAZON_ASSOCIATE_TAG}"
@@ -605,7 +469,6 @@ def affiliate_redirect(product_id):
 @app.route("/social/<platform>")
 def social_redirect(platform):
     track_click(f"social_{platform}", "external", request.headers.get('User-Agent'), request.referrer)
-    
     social_links = {
         "youtube": "https://youtube.com/@gorillacamping",
         "instagram": "https://instagram.com/gorillacamping",
@@ -614,22 +477,16 @@ def social_redirect(platform):
         "reddit": "https://reddit.com/r/gorrilacamping",
         "twitter": "https://twitter.com/gorillacamping"
     }
-    
     destination = social_links.get(platform, "https://gorillacamping.site")
     return redirect(destination)
 
-# Category pages for better SEO
 @app.route("/category/<category_name>")
 def category(category_name):
     def fetch_category_posts():
-        return list(db.posts.find({"category": category_name, "status": "published"})
-                   .sort("date", -1).limit(20))
-    
+        return list(db.posts.find({"category": category_name, "status": "published"}).sort("date", -1).limit(20))
     posts = safe_db_operation(fetch_category_posts, [])
-    
     meta_description = f"Guerilla camping guides about {category_name}. Real advice from someone living the lifestyle. Budget-friendly {category_name} tips."
     meta_keywords = f"guerilla camping {category_name}, camping {category_name}, off-grid {category_name}, budget {category_name}"
-    
     return render_template("category.html", 
                          posts=posts, 
                          category=category_name,
@@ -637,19 +494,15 @@ def category(category_name):
                          meta_keywords=meta_keywords,
                          page_type="category")
 
-# 🎯 API endpoint for consent tracking
 @app.route('/api/consent-update', methods=['POST'])
 def consent_update():
     try:
         consent_data = request.json or {}
         session['cookie_consent'] = consent_data
-        
-        # Track consent for revenue optimization
         consent_record = track_user_consent(consent_data, {
             'page': request.referrer,
             'timestamp': datetime.utcnow()
         })
-        
         return jsonify({
             "success": True, 
             "message": "Consent updated",
@@ -659,22 +512,18 @@ def consent_update():
         print(f"Consent update error: {e}")
         return jsonify({"success": False, "message": "Error updating consent"})
 
-# Sitemap for SEO
 @app.route('/sitemap.xml', methods=['GET'])
 def sitemap():
     pages = []
-    
-    # Static pages with priority optimization
     static_pages = [
         ('index', 1.0, 'daily'),
         ('blog', 0.9, 'daily'),
-        ('gear', 0.95, 'weekly'),  # High priority - revenue page
+        ('gear', 0.95, 'weekly'),
         ('about', 0.6, 'monthly'),
         ('contact', 0.7, 'monthly'),
         ('as_is', 0.5, 'yearly'),
         ('privacy', 0.5, 'yearly')
     ]
-    
     for page, priority, changefreq in static_pages:
         pages.append({
             'loc': url_for(page, _external=True),
@@ -682,13 +531,9 @@ def sitemap():
             'priority': priority,
             'changefreq': changefreq
         })
-    
-    # Dynamic blog posts
     def fetch_published_posts():
         return list(db.posts.find({"status": "published"}, {"slug": 1, "date": 1}))
-    
     posts = safe_db_operation(fetch_published_posts, [])
-    
     for post in posts:
         pages.append({
             'loc': url_for('post', slug=post['slug'], _external=True),
@@ -696,22 +541,18 @@ def sitemap():
             'priority': 0.8,
             'changefreq': 'weekly'
         })
-    
-    # Add demo posts to sitemap
     demo_posts = ['budget-camping-gear-under-20-amazon', 'stealth-camping-essentials-gear']
     for slug in demo_posts:
         pages.append({
             'loc': url_for('post', slug=slug, _external=True),
             'lastmod': datetime.now().strftime('%Y-%m-%d'),
-            'priority': 0.9,  # High priority for affiliate posts
+            'priority': 0.9,
             'changefreq': 'weekly'
         })
-    
     sitemap_xml = render_template('sitemap.xml', pages=pages)
     response = Response(sitemap_xml, mimetype='application/xml')
     return response
 
-# robots.txt for SEO
 @app.route('/robots.txt')
 def robots():
     return Response(
@@ -719,21 +560,15 @@ def robots():
         mimetype='text/plain'
     )
 
-# 💰 Newsletter signup with MailerLite integration
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
     email = request.form.get('email', '').strip()
     name = request.form.get('name', '').strip()
-    
     if not email:
         return jsonify({"success": False, "message": "Email is required!"})
-    
-    # Email validation
     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     if not re.match(email_pattern, email):
         return jsonify({"success": False, "message": "Please enter a valid email address."})
-    
-    # Save to database
     def save_subscriber():
         subscriber_data = {
             "email": email,
@@ -743,22 +578,12 @@ def subscribe():
             "source": request.referrer or "direct",
             "ip_address": request.remote_addr,
             "user_agent": request.headers.get('User-Agent'),
-            "revenue_potential": "high",  # Email subscribers = money
+            "revenue_potential": "high",
             "tags": ["guerilla_camping", "budget_gear"]
         }
         db.subscribers.insert_one(subscriber_data)
         return True
-    
     saved = safe_db_operation(save_subscriber, False)
-    
-    # TODO: Add actual MailerLite API integration here
-    # import requests
-    # mailerlite_response = requests.post(
-    #     "https://api.mailerlite.com/api/v2/subscribers",
-    #     headers={"X-MailerLite-ApiKey": MAILERLITE_API_KEY},
-    #     json={"email": email, "name": name}
-    # )
-    
     if saved:
         return jsonify({
             "success": True, 
@@ -767,7 +592,6 @@ def subscribe():
     else:
         return jsonify({"success": False, "message": "Something went wrong. Try again!"})
 
-# Error handlers
 @app.errorhandler(404)
 def not_found(error):
     return render_template('404.html'), 404
