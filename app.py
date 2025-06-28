@@ -254,18 +254,6 @@ def blog():
                          meta_keywords=meta_keywords,
                          page_type="blog")
 
-@app.route("/gear")
-def gear():
-    def fetch_gear():
-        return list(db.gear.find({"active": True}).sort("order", 1))
-    gear_items = safe_db_operation(fetch_gear, [])
-    meta_description = "Guerilla-tested camping gear that won't break the bank. Real reviews from someone who lives this lifestyle. Budget gear that actually works."
-    meta_keywords = "budget camping gear, guerilla camping equipment, cheap camping gear, military surplus camping, amazon camping deals, outdoor gear reviews"
-    return render_template("gear.html",
-                           gear_items=gear_items,
-                           meta_description=meta_description,
-                           meta_keywords=meta_keywords,
-                           page_type="product")
 # Individual blog post with affiliate optimization
 @app.route("/blog/<slug>")
 def post(slug):
@@ -377,51 +365,18 @@ Know your rights, carry proof of income/address.
                          meta_description=post_data.get('meta_description', 'Guerilla camping tips and tricks'),
                          meta_keywords=f"guerilla camping, {post_data.get('category', 'camping')}, budget outdoor gear",
                          page_type="article")
-
-# 💰 Gear page with affiliate products
 @app.route("/gear")
 def gear():
-    # Track page visit for revenue analytics
-    track_affiliate_click("gear_page_visit", "gear_landing", {})
-    
-    # 🎯 Featured products for maximum conversion
-    featured_gear = [
-        {
-            "name": "Military Surplus Poncho",
-            "price": "$15",
-            "affiliate_id": "poncho",
-            "description": "The ultimate multi-tool. Shelter, rain gear, ground cover.",
-            "commission": "~$3",
-            "why_recommend": "I use this daily. 5+ years, still going strong."
-        },
-        {
-            "name": "LifeStraw Personal",
-            "price": "$15-18", 
-            "affiliate_id": "lifestraw",
-            "description": "Never buy bottled water again. Works in any water source.",
-            "commission": "~$2-3",
-            "why_recommend": "Saved me hundreds in water costs. Essential gear."
-        },
-        {
-            "name": "Emergency Mylar Sleeping Bag", 
-            "price": "$8",
-            "affiliate_id": "mylar-bag",
-            "description": "90% as effective as $200 sleeping bags. Emergency backup.",
-            "commission": "~$1-2",
-            "why_recommend": "Used this in 20°F weather. Surprisingly warm."
-        }
-    ]
-    
+    def fetch_gear():
+        return list(db.gear.find({"active": True}).sort("order", 1))
+    gear_items = safe_db_operation(fetch_gear, [])
     meta_description = "Guerilla-tested camping gear that won't break the bank. Real reviews from someone who lives this lifestyle. Budget gear that actually works."
     meta_keywords = "budget camping gear, guerilla camping equipment, cheap camping gear, military surplus camping, amazon camping deals, outdoor gear reviews"
-    
     return render_template("gear.html",
-                         featured_gear=featured_gear,
-                         meta_description=meta_description,
-                         meta_keywords=meta_keywords,
-                         page_type="product")
-
-# About page
+                           gear_items=gear_items,
+                           meta_description=meta_description,
+                           meta_keywords=meta_keywords,
+                           page_type="product")
 @app.route("/about")
 def about():
     meta_description = "Meet the guerilla camper behind the blog. Real stories, real gear, real advice from someone living off-grid on a shoestring budget."
