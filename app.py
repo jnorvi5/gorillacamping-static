@@ -207,6 +207,29 @@ def inject_globals():
 def inject_now():
     return {'now': datetime.utcnow()}
 
+@app.route("/api/optimize", methods=['POST'])
+def optimize_experience():
+    data = request.json
+    preferences = data.get("preferences", [])
+    gear = data.get("gear", [])
+    page_context = data.get("page_context", "")
+
+    recommendations = []
+    warnings = []
+
+    # Example logic
+    if "budget" in preferences:
+        recommendations.append("Great! Budget camping is our specialty.")
+    if "stealth" in preferences and "silent-tarp" not in gear:
+        warnings.append("Consider adding a silent tarp for true stealth camping!")
+    if page_context == "/gear":
+        recommendations.append("You're on the gear page – fill any gaps in your kit for max efficiency!")
+
+    return jsonify({
+        "success": True,
+        "recommendations": recommendations,
+        "warnings": warnings
+    })
 # Home page with latest posts
 @app.route("/")
 def index():
