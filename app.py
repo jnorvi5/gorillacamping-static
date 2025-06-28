@@ -438,6 +438,37 @@ def privacy():
                          meta_keywords=meta_keywords,
                          page_type="legal")
 
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': 'Gorilla Camping Pro Membership',
+                        'description': 'Unlock Rig Analyzer, Smart Device Integration, and exclusive pro features.'
+                    },
+                    'unit_amount': 1200,  # $12.00
+                },
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=url_for('thank_you', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('pro_landing_page', _external=True)
+        )
+        return jsonify({'id': session.id})
+    except Exception as e:
+        print(f"Stripe error: {e}")
+        return jsonify(error=str(e)), 500
+
+@app.route('/thank-you')
+def thank_you():
+    return render_template("thank_you.html")
+
 @app.route("/go/<product_id>")
 def affiliate_redirect(product_id):
     user_consent = session.get('cookie_consent', {})
