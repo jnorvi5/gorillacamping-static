@@ -10,6 +10,9 @@
         You’ve hustled with the free tools. Ready to go <strong>full guerilla?</strong> Unlock the tribe’s best-kept secrets, real-time rig optimization, and insider deals. 
         <span style="color:#00ff88;">Pro pays for itself</span> in your first weekend!
     </p>
+    @app.route('/pro')
+def pro_landing_page():
+    return render_template("pro_landing.html", STRIPE_PUBLISHABLE_KEY=os.environ.get("STRIPE_PUBLISHABLE_KEY"))
 
     <div style="display:flex;gap:2rem;flex-wrap:wrap;justify-content:center;margin-bottom:2rem;">
       <div style="flex:1;min-width:250px;background:#181f1b;padding:1.5rem;border-radius:14px;box-shadow:0 0 16px #00ff88;">
