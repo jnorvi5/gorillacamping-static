@@ -6,3 +6,4 @@ requests
 werkzeug
 markdown
 flask-compress
+stripe
