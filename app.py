@@ -254,6 +254,18 @@ def blog():
                          meta_keywords=meta_keywords,
                          page_type="blog")
 
+@app.route("/gear")
+def gear():
+    def fetch_gear():
+        return list(db.gear.find({"active": True}).sort("order", 1))
+    gear_items = safe_db_operation(fetch_gear, [])
+    meta_description = "Guerilla-tested camping gear that won't break the bank. Real reviews from someone who lives this lifestyle. Budget gear that actually works."
+    meta_keywords = "budget camping gear, guerilla camping equipment, cheap camping gear, military surplus camping, amazon camping deals, outdoor gear reviews"
+    return render_template("gear.html",
+                           gear_items=gear_items,
+                           meta_description=meta_description,
+                           meta_keywords=meta_keywords,
+                           page_type="product")
 # Individual blog post with affiliate optimization
 @app.route("/blog/<slug>")
 def post(slug):
