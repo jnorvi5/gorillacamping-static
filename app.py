@@ -9,10 +9,22 @@ from urllib.parse import urlparse, parse_qs
 import traceback
 import openai
 import chromadb
-from chromadb.utils import embedding_functions
+from chromadb.utils import embedding_function
+from functools import wraps
+from flask import session, redirect, url_for, flash
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
+
+def pro_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('pro_user'):
+            flash("You need GorillaCamping Pro for that feature!", "error")
+            return redirect(url_for("pro_landing_page"))
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 # Enable GZIP compression on responses (no visual changes to the site).
 Compress(app)
@@ -284,6 +296,10 @@ def blog():
                          meta_keywords=meta_keywords,
                          page_type="blog")
 
+
+@app.route('/pro')
+def pro_landing_page():
+    return render_template("pro_landing.html")  # Make this page: features, Stripe Checkout button, testimonials, etc.
 # Individual blog post with affiliate optimization
 @app.route("/blog/<slug>")
 def post(slug):
