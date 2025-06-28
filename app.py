@@ -518,6 +518,11 @@ def contact():
             
             contact_saved = safe_db_operation(save_contact, False)
             
+            user = db.users.find_one({"email": session["email"]})
+db.users.update_one({"email": session["email"]}, {
+    "$set": {"is_pro": True, "pro_since": datetime.utcnow()}
+})
+session["pro_user"] = True
             # Success message with revenue focus
             success_messages = [
                 "Message sent! I'll get back to you guerilla-fast! 🚀",
