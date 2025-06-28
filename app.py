@@ -211,19 +211,36 @@ def inject_now():
 def optimize_experience():
     data = request.json
     preferences = data.get("preferences", [])
-    gear = data.get("gear", [])
+    user_gear = set(data.get("gear", []))
     page_context = data.get("page_context", "")
 
     recommendations = []
     warnings = []
 
-    # Example logic
+    # 1. Fetch all active gear from DB (lowest 'order' = most recommended)
+    gear_items = list(db.gear.find({"active": True}).sort("order", 1))
+    gear_lookup = {g["affiliate_id"]: g for g in gear_items}
+
+    # 2. Determine missing gear (stuff in DB but not checked by user)
+    missing_gear = [g for g in gear_items if g["affiliate_id"] not in user_gear][:3]  # top 3 suggestions
+
+    # 3. Build personalized recommendations
     if "budget" in preferences:
-        recommendations.append("Great! Budget camping is our specialty.")
-    if "stealth" in preferences and "silent-tarp" not in gear:
-        warnings.append("Consider adding a silent tarp for true stealth camping!")
+        recommendations.append("Great! Budget camping is our specialty. Here's the best bang-for-buck gear you might be missing:")
+
+    if "stealth" in preferences and "silent-tarp" not in user_gear:
+        warnings.append("Consider adding a silent tarp for true stealth camping (see recommendation below).")
+
     if page_context == "/gear":
-        recommendations.append("You're on the gear page – fill any gaps in your kit for max efficiency!")
+        recommendations.append("You're on the gear page – perfect time to fill any gaps in your kit!")
+
+    # 4. Add missing gear to recommendations (direct affiliate links)
+    for gear in missing_gear:
+        link = url_for('affiliate_redirect', product_id=gear["affiliate_id"])
+        recommendations.append(
+            f"<strong>{gear['name']}</strong>: {gear['description']}<br>"
+            f"<a href='{link}' target='_blank' rel='noopener sponsored'>Get this deal →</a>"
+        )
 
     return jsonify({
         "success": True,
