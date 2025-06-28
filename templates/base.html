@@ -187,29 +187,17 @@
         <h5 class="modal-title" id="aiModalLabel">🦍 Guerilla Mission Control</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        <p class="lead">Input your parameters to get an instant, personalized mission brief from the AI.</p>
-        <div class="row">
-            <div class="col-md-6">
-                <form id="optimizer-modal-form">
-                    <h6>Camping Style:</h6>
-                    <div class="form-check"><input class="form-check-input" type="checkbox" value="stealth" id="m-stealth"><label class="form-check-label" for="m-stealth">Stealth</label></div>
-                    <div class="form-check"><input class="form-check-input" type="checkbox" value="fishing" id="m-fishing"><label class="form-check-label" for="m-fishing">Fishing</label></div>
-                    <div class="form-check"><input class="form-check-input" type="checkbox" value="budget" id="m-budget"><label class="form-check-label" for="m-budget">Budget-Focused</label></div>
-                    <h6 class="mt-3">Your Gear:</h6>
-                    <div class="form-check"><input class="form-check-input" type="checkbox" value="coleman-stove" id="m-coleman-stove"><label class="form-check-label" for="m-coleman-stove">Coleman Stove</label></div>
-                    <div class="form-check"><input class="form-check-input" type="checkbox" value="lifestraw-filter" id="m-lifestraw-filter"><label class="form-check-label" for="m-lifestraw-filter">LifeStraw Filter</label></div>
-                    <div class="form-check"><input class="form-check-input" type="checkbox" value="jackery-explorer-240" id="m-jackery"><label class="form-check-label" for="m-jackery">Power Station</label></div>
-                </form>
-            </div>
-            <div class="col-md-6">
-                 <h6>Mission Briefing:</h6>
-                 <div id="modal-results-container" class="p-3 bg-light rounded" style="min-height: 200px;">
-                    <p>Your analysis will appear here.</p>
-                 </div>
-            </div>
+   <div class="modal-body">
+    <div id="chat-log" class="mb-3" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+        <div class="ai-message">Hello! I'm the GorillaCamping AI. Ask me anything about budget camping, gear, or survival.</div>
+    </div>
+    <form id="chat-form">
+        <div class="input-group">
+            <input type="text" id="user-input" class="form-control" placeholder="Ask a question..." required>
+            <button class="btn btn-primary" type="submit">Send</button>
         </div>
-      </div>
+    </form>
+</div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary" id="modal-optimize-btn">🚀 Optimize Now</button>
@@ -233,6 +221,46 @@ document.addEventListener('DOMContentLoaded', function() {
     aiButton.addEventListener('click', function() {
         aiModal.show();
     });
+    const chatForm = document.getElementById('chat-form');
+const userInput = document.getElementById('user-input');
+const chatLog = document.getElementById('chat-log');
+
+chatForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const userQuery = userInput.value.trim();
+    if (!userQuery) return;
+
+    appendMessage(userQuery, 'user');
+    userInput.value = '';
+    appendMessage('Thinking...', 'ai', true);
+
+    try {
+        const response = await fetch('/api/optimize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: userQuery })
+        });
+        const result = await response.json();
+        document.getElementById('thinking-message').remove();
+        if (result.success) {
+            appendMessage(result.response, 'ai');
+        } else {
+            appendMessage('Sorry, I had an error. Please try again.', 'ai');
+        }
+    } catch(error) {
+        document.getElementById('thinking-message').remove();
+        appendMessage('Could not connect to the AI. Check your network.', 'ai');
+    }
+});
+
+function appendMessage(text, sender, isThinking = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add(sender === 'user' ? 'user-message' : 'ai-message');
+    messageDiv.innerHTML = text;
+    if (isThinking) messageDiv.id = 'thinking-message';
+    chatLog.appendChild(messageDiv);
+    chatLog.scrollTop = chatLog.scrollHeight;
+}
 
     optimizeBtn.addEventListener('click', async function() {
         resultsContainer.innerHTML = '<p>The AI is thinking...</p>';
