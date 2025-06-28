@@ -7,12 +7,22 @@ from flask_compress import Compress
 from pymongo import MongoClient
 from urllib.parse import urlparse, parse_qs
 import traceback
+import openai
+import chromadb
+from chromadb.utils import embedding_functions
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
 
 # Enable GZIP compression on responses (no visual changes to the site).
 Compress(app)
+
+openai.api_key = os.environ.get("OPENAI_API_KEY")
+CHROMA_PATH = "./chroma_db"
+COLLECTION_NAME = "gorillacamping_kb"
+chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
+openai_ef = embedding_functions.OpenAIEmbeddingFunction(api_key=openai.api_key, model_name="text-embedding-3-small")
+knowledge_base = chroma_client.get_collection(name=COLLECTION_NAME, embedding_function=openai_ef)
 
 # Slightly decrease default static file send time to allow refreshing if needed without losing performance gains.
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 3600
@@ -208,45 +218,35 @@ def inject_now():
     return {'now': datetime.utcnow()}
 
 @app.route("/api/optimize", methods=['POST'])
-def optimize_experience():
+def generative_ai_assistant():
     data = request.json
-    preferences = data.get("preferences", [])
-    user_gear = set(data.get("gear", []))
-    page_context = data.get("page_context", "")
+    user_query = data.get("query", "I need some camping advice.")
 
-    recommendations = []
-    warnings = []
+    # 1. Retrieve 5 most relevant chunks (R in RAG)
+    results = knowledge_base.query(query_texts=[user_query], n_results=5)
+    context = "\n\n---\n\n".join(results['documents'][0])
 
-    # 1. Fetch all active gear from DB (lowest 'order' = most recommended)
-    gear_items = list(db.gear.find({"active": True}).sort("order", 1))
-    gear_lookup = {g["affiliate_id"]: g for g in gear_items}
+    # 2. Generate response (G in RAG)
+    system_prompt = (
+        "You are the GorillaCamping AI assistant. You are an expert in budget, off-grid, and 'guerilla' style camping. "
+        "Your tone is direct, knowledgeable, and a bit rugged, like a seasoned veteran camper. "
+        "Use ONLY the provided context below to answer the user's question. Do not make up information. "
+        "If the context doesn't contain the answer, say 'I don't have that information in my knowledge base, but here's a general tip...'"
+    )
 
-    # 2. Determine missing gear (stuff in DB but not checked by user)
-    missing_gear = [g for g in gear_items if g["affiliate_id"] not in user_gear][:3]  # top 3 suggestions
-
-    # 3. Build personalized recommendations
-    if "budget" in preferences:
-        recommendations.append("Great! Budget camping is our specialty. Here's the best bang-for-buck gear you might be missing:")
-
-    if "stealth" in preferences and "silent-tarp" not in user_gear:
-        warnings.append("Consider adding a silent tarp for true stealth camping (see recommendation below).")
-
-    if page_context == "/gear":
-        recommendations.append("You're on the gear page – perfect time to fill any gaps in your kit!")
-
-    # 4. Add missing gear to recommendations (direct affiliate links)
-    for gear in missing_gear:
-        link = url_for('affiliate_redirect', product_id=gear["affiliate_id"])
-        recommendations.append(
-            f"<strong>{gear['name']}</strong>: {gear['description']}<br>"
-            f"<a href='{link}' target='_blank' rel='noopener sponsored'>Get this deal →</a>"
+    try:
+        completion = openai.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"Here is my question: {user_query}\n\nHere is the relevant context from the GorillaCamping knowledge base:\n\n{context}"}
+            ]
         )
-
-    return jsonify({
-        "success": True,
-        "recommendations": recommendations,
-        "warnings": warnings
-    })
+        ai_response = completion.choices[0].message.content
+        return jsonify({"success": True, "response": ai_response})
+    except Exception as e:
+        print(f"❌ OpenAI API Error: {e}")
+        return jsonify({"success": False, "message": "The AI brain is currently offline. Please try again later."})
 # Home page with latest posts
 @app.route("/")
 def index():
