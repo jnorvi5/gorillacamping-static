@@ -15,6 +15,8 @@ from functools import wraps
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
 
+stripe_secret_key = os.environ.get("STRIPE_SECRET_KEY")
+
 def pro_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
