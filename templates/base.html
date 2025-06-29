@@ -254,6 +254,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+            <!-- Add this to your footer (above copyright/disclaimer) -->
+<div id="guerilla-tips" style="font-size:1.1em;color:#00ff88;margin-bottom:1em;">
+    <img src="{{ url_for('static', filename='images/guerilla-mascot.png') }}" alt="Guerilla tip" style="width:32px;vertical-align:middle;margin-right:10px;border-radius:50%;box-shadow:0 0 4px #00ff88;">
+    <span id="guerilla-tip-text">Guerilla says: “If it ain’t broke, you can still fix it.”</span>
+</div>
+<script>
+const tips = [
+    "If it ain’t broke, you can still fix it.",
+    "Affiliate links keep my bananas fresh.",
+    "No plan survives contact with the wild—but we improvise.",
+    "Stealth, hustle, survive. That’s the Guerilla way.",
+    "If you can camp here, you can camp anywhere.",
+    "A hot meal and a cold mindset solve 90% of problems.",
+    "Ask for forgiveness, never for permission.",
+    "Never trust a man with a clean multi-tool.",
+    "Leave no trace, but leave a story.",
+    "The wild rewards the clever.",
+];
+let idx = 0;
+setInterval(()=>{
+    idx = (idx + 1) % tips.length;
+    document.getElementById('guerilla-tip-text').textContent = "Guerilla says: “" + tips[idx] + "”";
+}, 6000);
+</script>
             <p>&copy; 2025 Gorilla Camping. All Rights Reserved.</p>
             <p class="disclaimer">
                 Guerilla-style affiliate marketing. Some links may earn us a small commission at no extra cost to you. 
