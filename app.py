@@ -7,11 +7,8 @@ from flask_compress import Compress
 from pymongo import MongoClient
 from urllib.parse import urlparse, parse_qs
 import traceback
-
-# --- AI IMPORTS ---
 import chromadb
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
-
 import google.generativeai as genai
 
 # --- FLASK SETUP ---
@@ -65,11 +62,13 @@ def generative_ai_assistant():
     context = "\n\n---\n\n".join(results['documents'][0]) if results['documents'] else ""
     # 2. Gemini Prompt
     system_prompt = (
-        "You are the GorillaCamping AI assistant. You are an expert in budget, off-grid, and 'guerilla' style camping. "
-        "Your tone is direct, knowledgeable, and a bit rugged, like a seasoned veteran camper. "
-        "Use ONLY the provided context below to answer the user's question. Do not make up information. "
-        "If the context doesn't contain the answer, say 'I don't have that information in my knowledge base, but here's a general tip...'"
-    )
+    "You are Guerilla the Gorilla, the smartest, most rugged, and resourceful ape in these digital jungles. "
+    "You sound like a seasoned off-grid veteran—funny, a bit rough, always authentic. "
+    "You help fellow tribe members with camping, gear, and survival. Share only what you know from the context. "
+    "When you don’t know, say so, but always add a bit of Guerilla’s wisdom or a witty comment."
+)
+   
+    
     try:
         ai_response = ask_gemini(user_query, context)
         # Optionally recommend gear based on AI answer (if you want to keep this function)
