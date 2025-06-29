@@ -8,3 +8,4 @@ markdown
 flask-compress
 stripe
 openai
+chromadb
