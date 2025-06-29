@@ -12,6 +12,8 @@ import chromadb
 from chromadb.utils import embedding_functions
 from functools import wraps
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
+import google.generativeai as genai
+
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
@@ -134,6 +136,12 @@ def get_recent_posts(limit=5):
             }
         ]
     return posts
+
+
+def ask_gemini(user_query, context=""):
+    model = genai.GenerativeModel("gemini-pro")
+    response = model.generate_content([{"role":"user", "parts":[context + "\n\n" + user_query]}])
+    return response.text
 
 def get_posts_paginated(page=1, per_page=12):
     def fetch_paginated():
