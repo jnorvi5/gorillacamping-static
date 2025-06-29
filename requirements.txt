@@ -9,3 +9,4 @@ flask-compress
 stripe
 openai
 chromadb
+google-generativeai
