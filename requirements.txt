@@ -10,3 +10,4 @@ stripe
 openai
 chromadb
 google-generativeai
+sentence-transformers
