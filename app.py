@@ -11,6 +11,7 @@ import openai
 import chromadb
 from chromadb.utils import embedding_functions
 from functools import wraps
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
@@ -28,14 +29,10 @@ def pro_required(f):
 
 Compress(app)
 
-openai.api_key = os.environ.get("OPENAI_API_KEY")
-CHROMA_PATH = "./chroma_db"
-COLLECTION_NAME = "gorillacamping_kb"
+# Instead of OpenAIEmbeddingFunction, use HuggingFace SentenceTransformer
+hf_ef = SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
 chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
-openai_ef = embedding_functions.OpenAIEmbeddingFunction(api_key=openai.api_key, model_name="text-embedding-3-small")
-knowledge_base = chroma_client.get_collection(name=COLLECTION_NAME, embedding_function=openai_ef)
-
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 3600
+knowledge_base = chroma_client.get_collection(name=COLLECTION_NAME, embedding_function=hf_ef)
 
 GOOGLE_ANALYTICS_ID = "G-JPKKPRXX6S"
 COOKIEYES_SITE_ID = os.environ.get('COOKIEYES_SITE_ID', 'YOUR_COOKIEYES_ID')
