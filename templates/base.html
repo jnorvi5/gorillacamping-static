@@ -188,15 +188,11 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
    <div class="modal-body">
-    <div id="chat-log" class="mb-3" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
-        <div class="ai-message">Hello! I'm the GorillaCamping AI. Ask me anything about budget camping, gear, or survival.</div>
+<div id="chat-log" class="mb-3" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+    <div class="ai-message">
+        <img src="{{ url_for('static', filename='images/guerilla-mascot.png') }}" alt="Guerilla the Gorilla" style="width:42px;vertical-align:middle;margin-right:12px;border-radius:50%;box-shadow:0 0 8px #00ff88;">
+        <span>Yo! I'm Guerilla the Gorilla—the baddest, smartest ape in these woods. Ask me anything about camping, gear, or surviving like a legend.</span>
     </div>
-    <form id="chat-form">
-        <div class="input-group">
-            <input type="text" id="user-input" class="form-control" placeholder="Ask a question..." required>
-            <button class="btn btn-primary" type="submit">Send</button>
-        </div>
-    </form>
 </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
