@@ -86,6 +86,16 @@ def generative_ai_assistant():
         print(f"❌ Gemini API Error: {e}")
         return jsonify({"success": False, "message": "The AI brain is currently offline. Please try again later."})
 
+from flask import session
+
+@app.route("/api/optimize", methods=['POST'])
+def generative_ai_assistant():
+    # Limit: 3 free queries per session unless Pro
+    if not session.get("pro_user"):
+        session['queries'] = session.get('queries', 0) + 1
+        if session['queries'] > 3:
+            return jsonify({"success": False, "message": "Upgrade to Pro for unlimited AI!"})
+    # ... rest of your existing code ...
 # -- The rest of your Flask app (routes, Stripe, blog, etc) remains unchanged --
 if __name__ == '__main__':
     app.run(debug=True)
