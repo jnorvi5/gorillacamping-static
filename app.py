@@ -99,3 +99,25 @@ def generative_ai_assistant():
 # -- The rest of your Flask app (routes, Stripe, blog, etc) remains unchanged --
 if __name__ == '__main__':
     app.run(debug=True)
+    // In app.py - Add these revenue boosters using Student Pack tools
+
+// 1. DigitalOcean $100 credit - Use for a secondary site
+app.route('/tools')
+def tools():
+    # Create a tools comparison site using DO credit
+    # Each tool has affiliate links
+    return render_template('tools.html')
+
+// 2. Namecheap domains - Register gorillacampinggear.com
+// Create microsites for each top product
+
+// 3. Canva Pro - Create viral infographics
+app.route('/infographic/<name>')
+def infographic(name):
+    # Track downloads
+    if db:
+        db.downloads.insert_one({
+            "infographic": name,
+            "timestamp": datetime.now()
+        })
+    return send_file(f'static/infographics/{name}.pdf')
