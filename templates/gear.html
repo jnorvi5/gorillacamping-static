@@ -213,4 +213,22 @@ document.getElementById('stickySignup').onsubmit = async function(e) {
   setTimeout(()=>{btn.textContent='JOIN FREE'; btn.disabled=false;}, 2000);
 };
 </script>
+// Add this to your gear.html template
+document.querySelectorAll('.affiliate-link').forEach(link => {
+  // Add urgency
+  const badge = document.createElement('span');
+  badge.className = 'hot-deal';
+  badge.innerHTML = '🔥 HOT DEAL';
+  link.parentNode.insertBefore(badge, link);
+  
+  // Add countdown timer
+  const countdown = document.createElement('div');
+  countdown.className = 'countdown';
+  countdown.id = 'countdown-' + Math.random().toString(36).substr(2, 9);
+  countdown.innerHTML = '<span>Deal ends in: </span><span class="timer">23:59:59</span>';
+  link.parentNode.insertBefore(countdown, link.nextSibling);
+  
+  // Pulse animation on buttons
+  link.classList.add('pulse-animation');
+});
 {% endblock %}
