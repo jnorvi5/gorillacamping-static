@@ -3,7 +3,6 @@ import re
 import random
 from datetime import datetime, timedelta
 from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session, Response
-from flask_compress import Compress
 from pymongo import MongoClient
 from urllib.parse import urlparse, parse_qs
 import traceback
@@ -15,7 +14,7 @@ import google.generativeai as genai
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
 
-Compress(app)
+
 
 # --- CHROMADB + HUGGINGFACE EMBEDDINGS ---
 CHROMA_PATH = "./chroma_db"
