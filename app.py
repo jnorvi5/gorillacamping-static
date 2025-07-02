@@ -52,6 +52,19 @@ except Exception as e:
     db = None
 
 # --- BASIC ROUTES AND UTILITIES OMITTED FOR BREVITY ---
+# In app.py - Add SMS marketing using Twilio (Student Pack)
+@app.route('/sms-signup', methods=['POST'])
+def sms_signup():
+    phone = request.form.get('phone')
+    if not phone:
+        return jsonify({"success": False})
+        
+    # Use pre-paid Twilio credits from Student Pack
+    # No need for pip installation - use webhook integration
+    requests.post('https://hooks.zapier.com/hooks/catch/YOUR_ZAPHOOK_ID/', 
+                  json={"phone": phone})
+    
+    return jsonify({"success": True})
 
 @app.route("/api/optimize", methods=['POST'])
 def generative_ai_assistant():
