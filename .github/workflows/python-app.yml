@@ -32,10 +32,9 @@ jobs:
       run: |
         pytest
 
-    # ====== THIS IS THE CRITICAL DEPLOY STEP ======
-    - name: 'Deploy to Azure Web App'
+       - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v3
       with:
-        app-name: 'gorillacamping' # <-- Your Azure App Service name
+        app-name: 'gorillacamping'
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-        package: .
+        package: ./gorillacamping-
