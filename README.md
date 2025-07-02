@@ -1,5 +1,5 @@
 # Gorilla Camping
-A Flask site for off-grid nomads.
+A Flask site for off-grid nomads
 
 ## Running with Docker
 
