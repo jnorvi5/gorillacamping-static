@@ -50,6 +50,14 @@ except Exception as e:
     print(f"❌ MongoDB connection failed: {e}")
     db = None
 
+# Add near the top of app.py
+try:
+    from flask_compress import Compress
+    compress = Compress()
+    compress.init_app(app)
+except ImportError:
+    print("flask_compress not installed, continuing without compression")
+
 # --- BASIC ROUTES AND UTILITIES OMITTED FOR BREVITY ---
 # In app.py - Add SMS marketing using Twilio (Student Pack)
 @app.route('/sms-signup', methods=['POST'])
