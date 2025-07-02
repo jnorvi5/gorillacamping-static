@@ -32,9 +32,9 @@ jobs:
       run: |
         pytest
 
-       - name: 'Deploy to Azure Web App'
+    - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v3
       with:
         app-name: 'gorillacamping'
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-        package: ./gorillacamping-
+        package: .
