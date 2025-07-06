@@ -11,3 +11,8 @@ openai
 chromadb
 google-generativeai
 sentence-transformers
+azure-cosmos
+azure-storage-blob
+azure-keyvault-secrets
+azure-identity
+azure-monitor-opentelemetry-exporter
