@@ -254,6 +254,51 @@ def update_document(collection_name, query, update_data, upsert=False):
         return None
 
 # --- ROUTES ---
+@app.route('/free-map')
+def free_map_landing():
+    # Track source for attribution
+    source = request.args.get('source', 'direct')
+    
+    # Store visit in DB
+    if db:
+        insert_document('landing_visits', {
+            'page': 'free_map',
+            'source': source,
+            'timestamp': datetime.utcnow(),
+            'user_agent': request.headers.get('User-Agent')
+        })
+    
+    # Dynamic social proof count
+    base_count = 2847
+    # Add random variance of ±50
+    display_count = base_count + random.randint(-50, 50)
+    
+    # Dynamic testimonials
+    testimonials = [
+        {
+            'name': 'Mike T.',
+            'location': 'Colorado',
+            'quote': 'This map led me to a spot where I filmed 4 viral camping videos. Made $486 last month from affiliate sales!',
+            'image': 'https://randomuser.me/api/portraits/men/32.jpg'
+        },
+        {
+            'name': 'Sarah K.',
+            'location': 'Oregon',
+            'quote': 'Found an amazing off-grid spot with perfect cell signal. Been making $50-100/day while camping!',
+            'image': 'https://randomuser.me/api/portraits/women/44.jpg'
+        },
+        {
+            'name': 'John R.',
+            'location': 'Montana',
+            'quote': 'This secret map paid for my entire camping setup in just 2 weeks of content creation.',
+            'image': 'https://randomuser.me/api/portraits/men/62.jpg'
+        }
+    ]
+    
+    return render_template('landing_map.html', 
+                          count=display_count, 
+                          testimonials=testimonials,
+                          source=source)
 
 @app.route('/')
 def home():
