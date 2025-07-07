@@ -16,3 +16,5 @@ azure-storage-blob
 azure-keyvault-secrets
 azure-identity
 azure-monitor-opentelemetry-exporter
+web: gunicorn app:app
+worker: python revenue_agent.py
