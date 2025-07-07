@@ -1,4 +1,4 @@
-import os
+3q2import os
 import re
 import random
 import requests
@@ -310,7 +310,7 @@ def get_default_gear_items():
 @app.route('/gear')
 def gear():
     gear_items = []
-<<<<<<< HEAD
+
     # Add some hardcoded gear items if we don't have a DB or the gear collection is empty
     if not db:
         gear_items = get_default_gear_items()
@@ -326,8 +326,40 @@ def gear():
             print(f"Error fetching gear items: {e}")
             gear_items = get_default_gear_items()
     
-=======
-    # Add some hardcoded gear items if we don't have a DB
+
+ # Add to app.py - Dynamic urgency system
+
+@app.route('/gear/<product_id>')
+def product_detail(product_id):
+    # Pull product from MongoDB or fallback to hardcoded
+    product = find_one_document('gear', {'affiliate_id': product_id}) or {
+        'name': 'Jackery Explorer 240',
+        'image': 'https://m.media-amazon.com/images/I/41XePYWYlAL._AC_US300_.jpg',
+        'description': 'This exact power station helped me film 43 TikTok videos that generated $873 in affiliate revenue last month.',
+        'affiliate_id': 'jackery-explorer-240',
+        'price': '$199.99',
+        'old_price': '$299.99',
+        'rating': 5,
+        'inventory': random.randint(1, 7)  # Create scarcity with random low inventory
+    }
+    
+    # Generate personalized visitor count (stored in cookie)
+    if not request.cookies.get('visitor_id'):
+        visitor_id = str(uuid.uuid4())
+        session['visitor_id'] = visitor_id
+    
+    # Always create product-specific countdown
+    product['countdown_hours'] = 24 + random.randint(0, 47)  # 1-3 day countdown
+    
+    # Track view in DB
+    if db:
+        insert_document('product_views', {
+            'product_id': product_id,
+            'timestamp': datetime.utcnow(),
+            'visitor_id': session.get('visitor_id', 'unknown')
+        }
+    
+    return render_template('product_detail.html', product=product)   # Add some hardcoded gear items if we don't have a DB
     gear_from_db = find_documents('gear') if db else []
     if not db or not gear_from_db:
         gear_items = [
@@ -358,7 +390,7 @@ def gear():
         ]
     else:
         gear_items = gear_from_db
->>>>>>> f4bc9ee9c0b319dc482c475b757b9e32f886d8a5
+        f4bc9ee9c0b319dc482c475b757b9e32f886d8a5
     return render_template('gear.html', gear_items=gear_items)
 
 @app.route('/about')
@@ -404,7 +436,7 @@ def affiliate_redirect(product_id):
             'timestamp': datetime.utcnow(),
             'user_agent': request.headers.get('User-Agent'),
             'referrer': request.referrer
-        })
+        }
     
     log_to_azure(f"Affiliate click: {product_id}")
     return redirect(url)
@@ -425,7 +457,7 @@ def social_redirect(platform):
             'platform': platform,
             'timestamp': datetime.utcnow(),
             'user_agent': request.headers.get('User-Agent')
-        })
+        }
     
     log_to_azure(f"Social click: {platform}")
     return redirect(url)
@@ -508,7 +540,7 @@ def generative_ai_assistant():
                 "timestamp": datetime.utcnow(),
                 "user_agent": request.headers.get('User-Agent'),
                 "ip_hash": hash(request.remote_addr) if request.remote_addr else None,
-            })
+            }
         
         log_to_azure(f"AI query processed: {user_query[:50]}...")
         return jsonify({"success": True, "response": ai_response + gear_links})
@@ -529,7 +561,7 @@ def infographic(name):
         insert_document('downloads', {
             "infographic": name,
             "timestamp": datetime.utcnow()
-        })
+        }
     
     log_to_azure(f"Infographic downloaded: {name}")
     try:
