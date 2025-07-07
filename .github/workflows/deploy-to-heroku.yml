@@ -1,1 +1,19 @@
+# Add this file to .github/workflows/deploy-to-heroku.yml
+name: Deploy to Heroku
 
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: akhileshns/heroku-deploy@v3.12.14
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: "gorillacamping"
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          procfile: "web: gunicorn app:app"
