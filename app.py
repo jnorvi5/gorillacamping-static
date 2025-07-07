@@ -8,9 +8,15 @@ from pymongo import MongoClient
 from urllib.parse import urlparse, parse_qs
 import traceback
 
+# Import Azure services
+from azure_config import (
+    azure_cosmos, azure_blob, azure_keyvault, azure_insights,
+    get_secret, get_database_client, log_to_azure
+)
+
 # --- FLASK SETUP ---
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'guerilla-camping-secret-2024')
+app.secret_key = get_secret('SECRET_KEY', 'SECRET_KEY') or 'guerilla-camping-secret-2024'
 
 # --- HANDLE OPTIONAL DEPENDENCIES ---
 try:
@@ -40,7 +46,7 @@ try:
     import google.generativeai as genai
     
     # --- GEMINI AI SETUP ---
-    gemini_api_key = os.environ.get("GEMINI_API_KEY")
+    gemini_api_key = get_secret('GEMINI_API_KEY', 'GEMINI_API_KEY')
     if gemini_api_key:
         genai.configure(api_key=gemini_api_key)
         print("✅ Google Generative AI initialized")
@@ -63,19 +69,189 @@ def ask_gemini(user_query, context=""):
         return "Sorry, I'm having trouble processing your request right now. Please try again later."
 
 # --- DB SETUP ---
-try:
-    mongodb_uri = os.environ.get('MONGODB_URI') or os.environ.get('MONGO_URI')
-    if mongodb_uri:
-        client = MongoClient(mongodb_uri)
-        db = client.get_default_database()
-        db.command('ping')
-        print("✅ MongoDB connected successfully!")
-    else:
-        print("⚠️ No MongoDB URI found - running in demo mode")
+# Try Azure Cosmos DB first, fallback to MongoDB
+azure_db = get_database_client()
+db = None
+db_type = "none"
+
+if azure_db and azure_db.is_available():
+    # Use Azure Cosmos DB
+    db = azure_db
+    db_type = "azure_cosmos"
+    print("✅ Using Azure Cosmos DB")
+else:
+    # Fallback to MongoDB
+    try:
+        mongodb_uri = get_secret('MONGODB_URI', 'MONGODB_URI') or get_secret('MONGO_URI', 'MONGO_URI')
+        if mongodb_uri:
+            client = MongoClient(mongodb_uri)
+            db = client.get_default_database()
+            db.command('ping')
+            db_type = "mongodb"
+            print("✅ MongoDB connected successfully!")
+        else:
+            print("⚠️ No database URI found - running in demo mode")
+            db = None
+    except Exception as e:
+        print(f"❌ MongoDB connection failed: {e}")
         db = None
-except Exception as e:
-    print(f"❌ MongoDB connection failed: {e}")
-    db = None
+
+# --- DATABASE ADAPTER FUNCTIONS ---
+def get_collection(collection_name):
+    """Get database collection/container with abstraction for both MongoDB and Cosmos DB"""
+    if not db:
+        return None
+    
+    if db_type == "azure_cosmos":
+        return db.get_container(collection_name)
+    elif db_type == "mongodb":
+        return getattr(db, collection_name)
+    return None
+
+def find_documents(collection_name, query=None, sort=None, limit=None):
+    """Find documents with abstraction for both MongoDB and Cosmos DB"""
+    collection = get_collection(collection_name)
+    if not collection:
+        return []
+    
+    try:
+        if db_type == "azure_cosmos":
+            # Cosmos DB SQL query
+            if query is None:
+                sql_query = "SELECT * FROM c"
+            else:
+                # Convert MongoDB-style query to Cosmos DB SQL (simplified)
+                sql_query = "SELECT * FROM c"
+                if query:
+                    conditions = []
+                    for key, value in query.items():
+                        if key == '_id':
+                            conditions.append(f"c.id = '{value}'")
+                        elif isinstance(value, dict) and '$ne' in value:
+                            conditions.append(f"c.{key} != '{value['$ne']}'")
+                        else:
+                            conditions.append(f"c.{key} = '{value}'")
+                    if conditions:
+                        sql_query += " WHERE " + " AND ".join(conditions)
+            
+            if sort:
+                # Add ORDER BY for sort (simplified)
+                sort_field, sort_order = next(iter(sort))
+                direction = "DESC" if sort_order == -1 else "ASC"
+                sql_query += f" ORDER BY c.{sort_field} {direction}"
+            
+            items = list(collection.query_items(query=sql_query, enable_cross_partition_query=True))
+            
+            if limit:
+                items = items[:limit]
+            
+            # Convert Cosmos DB format to MongoDB-like format
+            for item in items:
+                if 'id' in item:
+                    item['_id'] = item['id']
+            
+            return items
+            
+        elif db_type == "mongodb":
+            # MongoDB query
+            cursor = collection.find(query or {})
+            if sort:
+                cursor = cursor.sort(sort)
+            if limit:
+                cursor = cursor.limit(limit)
+            return list(cursor)
+    except Exception as e:
+        print(f"❌ Error querying {collection_name}: {e}")
+        return []
+    
+    return []
+
+def find_one_document(collection_name, query):
+    """Find single document with abstraction for both MongoDB and Cosmos DB"""
+    collection = get_collection(collection_name)
+    if not collection:
+        return None
+    
+    try:
+        if db_type == "azure_cosmos":
+            # Convert query for Cosmos DB
+            if '_id' in query:
+                # Use point read for better performance
+                try:
+                    return collection.read_item(item=query['_id'], partition_key=query['_id'])
+                except:
+                    # Fallback to query
+                    items = find_documents(collection_name, query, limit=1)
+                    return items[0] if items else None
+            else:
+                items = find_documents(collection_name, query, limit=1)
+                return items[0] if items else None
+                
+        elif db_type == "mongodb":
+            return collection.find_one(query)
+    except Exception as e:
+        print(f"❌ Error finding document in {collection_name}: {e}")
+        return None
+    
+    return None
+
+def insert_document(collection_name, document):
+    """Insert document with abstraction for both MongoDB and Cosmos DB"""
+    collection = get_collection(collection_name)
+    if not collection:
+        return None
+    
+    try:
+        if db_type == "azure_cosmos":
+            # Ensure document has an id field for Cosmos DB
+            if '_id' not in document and 'id' not in document:
+                import uuid
+                document['id'] = str(uuid.uuid4())
+            elif '_id' in document:
+                document['id'] = str(document['_id'])
+            
+            return collection.create_item(body=document)
+            
+        elif db_type == "mongodb":
+            result = collection.insert_one(document)
+            return result.inserted_id
+    except Exception as e:
+        print(f"❌ Error inserting document into {collection_name}: {e}")
+        return None
+
+def update_document(collection_name, query, update_data, upsert=False):
+    """Update document with abstraction for both MongoDB and Cosmos DB"""
+    collection = get_collection(collection_name)
+    if not collection:
+        return None
+    
+    try:
+        if db_type == "azure_cosmos":
+            # For Cosmos DB, we need to read, modify, then replace
+            existing = find_one_document(collection_name, query)
+            if existing:
+                # Apply updates
+                if '$set' in update_data:
+                    existing.update(update_data['$set'])
+                if '$setOnInsert' in update_data and not existing:
+                    existing.update(update_data['$setOnInsert'])
+                
+                return collection.replace_item(item=existing['id'], body=existing)
+            elif upsert:
+                # Create new document
+                new_doc = {}
+                if '$set' in update_data:
+                    new_doc.update(update_data['$set'])
+                if '$setOnInsert' in update_data:
+                    new_doc.update(update_data['$setOnInsert'])
+                new_doc.update(query)
+                return insert_document(collection_name, new_doc)
+                
+        elif db_type == "mongodb":
+            return collection.update_one(query, update_data, upsert=upsert)
+    except Exception as e:
+        print(f"❌ Error updating document in {collection_name}: {e}")
+        return None
 
 # --- ROUTES ---
 
@@ -88,17 +264,18 @@ def blog():
     posts = []
     if db:
         try:
-            posts = list(db.posts.find().sort('created_at', -1))
+            posts = find_documents('posts', sort=[('created_at', -1)])
         except Exception as e:
             print(f"Error fetching posts: {e}")
+            log_to_azure(f"Error fetching posts: {e}", "ERROR")
     return render_template('blog.html', posts=posts)
 
 @app.route('/post/<slug>')
 def post(slug):
     if db:
-        post = db.posts.find_one({'slug': slug})
+        post = find_one_document('posts', {'slug': slug})
         if post:
-            related_posts = list(db.posts.find({'_id': {'$ne': post['_id']}}).limit(3))
+            related_posts = find_documents('posts', {'_id': {'$ne': post['_id']}}, limit=3)
             return render_template('post.html', post=post, related_posts=related_posts)
     return redirect(url_for('blog'))
 
@@ -133,6 +310,7 @@ def get_default_gear_items():
 @app.route('/gear')
 def gear():
     gear_items = []
+<<<<<<< HEAD
     # Add some hardcoded gear items if we don't have a DB or the gear collection is empty
     if not db:
         gear_items = get_default_gear_items()
@@ -148,6 +326,39 @@ def gear():
             print(f"Error fetching gear items: {e}")
             gear_items = get_default_gear_items()
     
+=======
+    # Add some hardcoded gear items if we don't have a DB
+    gear_from_db = find_documents('gear') if db else []
+    if not db or not gear_from_db:
+        gear_items = [
+            {
+                'name': 'Jackery Explorer 240',
+                'image': 'https://m.media-amazon.com/images/I/41XePYWYlAL._AC_US300_.jpg',
+                'description': 'Perfect for keeping devices charged off-grid',
+                'affiliate_id': 'jackery-explorer-240',
+                'price': '$199.99',
+                'old_price': '$299.99',
+                'savings': 'Save $100',
+                'rating': 5,
+                'badges': ['HOT DEAL', 'BEST VALUE'],
+                'specs': ['240Wh', '250W output', 'Multiple ports']
+            },
+            {
+                'name': 'LifeStraw Personal Water Filter',
+                'image': 'https://m.media-amazon.com/images/I/71SYsNwj7hL._AC_UL320_.jpg',
+                'description': 'Essential survival gear that filters 99.9999% of waterborne bacteria',
+                'affiliate_id': 'lifestraw-filter',
+                'price': '$14.96',
+                'old_price': '$19.95',
+                'savings': 'Save 25%',
+                'rating': 5,
+                'badges': ['BESTSELLER'],
+                'specs': ['1000L capacity', 'No chemicals', 'Compact']
+            }
+        ]
+    else:
+        gear_items = gear_from_db
+>>>>>>> f4bc9ee9c0b319dc482c475b757b9e32f886d8a5
     return render_template('gear.html', gear_items=gear_items)
 
 @app.route('/about')
@@ -163,7 +374,7 @@ def contact():
         message = request.form.get('message')
         
         if db:
-            db.contacts.insert_one({
+            insert_document('contacts', {
                 'name': name,
                 'email': email,
                 'subject': subject,
@@ -172,6 +383,7 @@ def contact():
             })
         
         flash('Message received! We will get back to you soon.', 'success')
+        log_to_azure(f"Contact form submitted by {email}")
         return redirect(url_for('contact'))
     
     return render_template('contact.html')
@@ -187,13 +399,14 @@ def affiliate_redirect(product_id):
     
     # Track click in database
     if db:
-        db.affiliate_clicks.insert_one({
+        insert_document('affiliate_clicks', {
             'product_id': product_id,
             'timestamp': datetime.utcnow(),
             'user_agent': request.headers.get('User-Agent'),
             'referrer': request.referrer
         })
     
+    log_to_azure(f"Affiliate click: {product_id}")
     return redirect(url)
 
 @app.route('/social/<platform>')
@@ -208,12 +421,13 @@ def social_redirect(platform):
     
     # Track social click
     if db:
-        db.social_clicks.insert_one({
+        insert_document('social_clicks', {
             'platform': platform,
             'timestamp': datetime.utcnow(),
             'user_agent': request.headers.get('User-Agent')
         })
     
+    log_to_azure(f"Social click: {platform}")
     return redirect(url)
 
 @app.route('/subscribe', methods=['POST'])
@@ -224,13 +438,14 @@ def subscribe():
     
     # Store in our own DB
     if db:
-        db.subscribers.update_one(
+        update_document('subscribers',
             {'email': email},
             {'$set': {'email': email, 'updated_at': datetime.utcnow()}, 
              '$setOnInsert': {'created_at': datetime.utcnow()}},
             upsert=True
         )
     
+    log_to_azure(f"New subscriber: {email}")
     return jsonify({'success': True, 'message': 'Subscribed successfully'})
 
 @app.route('/guerilla-camping-bible')
@@ -287,13 +502,15 @@ def generative_ai_assistant():
         gear_links = ""
         
         if db:
-            db.ai_logs.insert_one({
+            insert_document('ai_logs', {
                 "question": user_query,
                 "ai_response": ai_response,
                 "timestamp": datetime.utcnow(),
                 "user_agent": request.headers.get('User-Agent'),
                 "ip_hash": hash(request.remote_addr) if request.remote_addr else None,
             })
+        
+        log_to_azure(f"AI query processed: {user_query[:50]}...")
         return jsonify({"success": True, "response": ai_response + gear_links})
     except Exception as e:
         print(f"❌ AI Error: {e}")
@@ -309,10 +526,12 @@ def tools():
 def infographic(name):
     # Track downloads
     if db:
-        db.downloads.insert_one({
+        insert_document('downloads', {
             "infographic": name,
             "timestamp": datetime.utcnow()
         })
+    
+    log_to_azure(f"Infographic downloaded: {name}")
     try:
         return send_file(f'static/infographics/{name}.pdf')
     except Exception as e:
