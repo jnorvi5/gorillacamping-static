@@ -260,6 +260,27 @@ def guerilla_chat():
                 'recommendations': product_recs
             })
 
+@app.route('/guerilla-bible')
+def guerilla_bible():
+    """Digital product sales page"""
+    # Track this page view
+    if db is not None:
+        db.page_views.insert_one({
+            'page': 'guerilla_bible',
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
+    
+    # Testimonials to display (randomly selected)
+    testimonials = [
+        {"name": "Mike T.", "location": "Colorado", "text": "I was dead broke when I started. Following just Chapter 2, I made $438 in my first month with the high-commission affiliate strategy."},
+        {"name": "Sarah K.", "location": "Oregon", "text": "The free camping locations in Chapter 1 saved me $600/month in rent while I built my affiliate business."},
+        {"name": "John D.", "location": "Montana", "text": "Now earning $50-100/day with minimal effort from camp."},
+        {"name": "Lisa M.", "location": "Washington", "text": "The Student Pack secrets alone are worth 10X the price of this guide!"}
+    ]
+    
+    return render_template('guerilla_bible.html', 
+                         testimonials=random.sample(testimonials, 2))
 @app.route('/guerilla-stats')
 def guerilla_stats():
     """Admin dashboard for Guerilla AI revenue stats"""
