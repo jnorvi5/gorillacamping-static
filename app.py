@@ -408,7 +408,7 @@ Sitemap: https://gorillacamping.site/sitemap.xml
 @app.errorhandler(404)
 def page_not_found(e):
     """Custom 404 page with recommendations"""
-    top_gear = get_default_gear_items()[:2] if not db else list(db.gear.find().limit(2))
+    top_gear = get_default_gear_items()[:2] if db is None else list(db.gear.find().limit(2))
     return render_template('404.html', recommended_gear=top_gear), 404
 
 # --- REVENUE TRACKING ENDPOINTS ---
