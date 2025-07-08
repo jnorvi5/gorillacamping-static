@@ -1,0 +1,18 @@
+<div class="guerilla-email-capture">
+  <!-- Add right after header on key pages -->
+  <div style="background:#111; border:3px solid #00ff88; padding:25px; margin:20px auto; max-width:600px; border-radius:15px; text-align:center; box-shadow: 0 0 30px rgba(0,255,136,0.3);">
+    <h3 style="color:#00ff88; font-size:1.8em; margin-top:0;">FREE: 10 SECRET CAMPING SPOTS THAT PAY YOU $50-100/DAY</h3>
+    <p style="font-size:1.1em;">Join <span id="subscriber-count">2,847</span> guerilla campers making money while living free</p>
+    <div class="ml-embedded" data-form="7qFupG"></div>
+    <small style="color:#999; margin-top:10px; display:block;">These GPS coordinates have perfect cell signal + free camping</small>
+  </div>
+</div>
+
+<script>
+// Random subscriber count between base±50 for social proof
+document.addEventListener('DOMContentLoaded', () => {
+  const baseCount = 2847;
+  document.getElementById('subscriber-count').textContent = 
+    baseCount + Math.floor(Math.random() * 100) - 50;
+});
+</script>
