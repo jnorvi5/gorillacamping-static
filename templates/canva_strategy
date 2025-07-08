@@ -1,0 +1,27 @@
+<!-- Student Pack gives you free Canva Pro! -->
+<div class="conversion-templates">
+  <h2>High-Converting Canva Templates</h2>
+  
+  <div class="template-grid">
+    <div class="template">
+      <img src="/static/images/product-card.jpg" alt="Product Card Template">
+      <h3>Product Comparison Card</h3>
+      <p>Boosted conversions by 34% when added to gear reviews</p>
+      <a href="https://www.canva.com/design/DAFxyz/edit" class="edit-button">Edit in Canva</a>
+    </div>
+    
+    <div class="template">
+      <img src="/static/images/testimonial-card.jpg" alt="Testimonial Card">
+      <h3>Social Proof Testimonial</h3>
+      <p>Increased CTR by 27% when added before affiliate links</p>
+      <a href="https://www.canva.com/design/DAFxyz2/edit" class="edit-button">Edit in Canva</a>
+    </div>
+    
+    <div class="template">
+      <img src="/static/images/facebook-ad.jpg" alt="Facebook Ad">
+      <h3>Facebook Ad Template</h3>
+      <p>Generated $117 in affiliate revenue from just $20 ad spend</p>
+      <a href="https://www.canva.com/design/DAFxyz3/edit" class="edit-button">Edit in Canva</a>
+    </div>
+  </div>
+</div>
