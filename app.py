@@ -210,16 +210,9 @@ def home():
     else:
         track_page_view('home')
     
-    # A/B test home page variants
-    variant = request.args.get('variant', random.choice(['a', 'b']))
-    template = 'index.html'  # Default template
+   
     
-    if variant == 'b':
-        template = 'index_b.html'  # Alternative template
-    
-    response = make_response(render_template(template))
-    response.set_cookie('visitor_id', visitor_id, max_age=60*60*24*365)
-    return response
+template = 'index.html'
 
 @app.route('/blog')
 def blog():
