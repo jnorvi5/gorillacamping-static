@@ -3,19 +3,15 @@ import re
 import random
 import requests
 from datetime import datetime, timedelta
-from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session, Response, send_file
+from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session, Response, send_file, send_from_directory
 from pymongo import MongoClient
 from urllib.parse import urlparse, parse_qs
 import traceback
 
-# Import Azure services
-from azure_config import (
-    azure_cosmos, azure_blob, azure_keyvault, azure_insights,
-    get_secret, get_database_client, log_to_azure
-)
+
 
 # --- FLASK SETUP ---
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.secret_key = get_secret('SECRET_KEY', 'SECRET_KEY') or 'guerilla-camping-secret-2024'
 
 # --- HANDLE OPTIONAL DEPENDENCIES ---
