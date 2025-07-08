@@ -229,6 +229,65 @@ def blog():
     track_page_view('blog')
     return render_template('blog.html', posts=posts)
 
+@app.route('/api/gorilla-ai', methods=['POST'])
+def gorilla_ai():
+    """Gorilla AI assistant that recommends affiliate products"""
+    data = request.json
+    user_query = data.get('query', '')
+    
+    # Track analytics
+    if db is not None:
+        db.ai_interactions.insert_one({
+            'query': user_query,
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
+    
+    # Check for product recommendation opportunities
+    product_matches = []
+    
+    if any(word in user_query.lower() for word in ['power', 'battery', 'charging', 'electricity']):
+        product_matches.append({
+            'name': 'Jackery Explorer 240',
+            'link': '/affiliate/jackery-explorer-240',
+            'reason': 'perfect for keeping devices charged at camp'
+        })
+    
+    if any(word in user_query.lower() for word in ['water', 'drink', 'thirsty', 'hydration']):
+        product_matches.append({
+            'name': 'LifeStraw Filter',
+            'link': '/affiliate/lifestraw-filter',
+            'reason': 'ensures safe drinking water from any source'
+        })
+        
+    if any(word in user_query.lower() for word in ['food', 'eat', 'hungry', 'meal', 'cook']):
+        product_matches.append({
+            'name': '4Patriots Food Kit',
+            'link': '/affiliate/4patriots-food',
+            'reason': '25-year shelf life emergency food'
+        })
+    
+    # Generate AI response
+    try:
+        ai_response = ask_gemini(user_query)
+        
+        # Add subtle product recommendations
+        if product_matches:
+            ai_response += "\n\n🦍 GORILLA RECOMMENDS:\n"
+            for product in product_matches:
+                ai_response += f"• [{product['name']}]({product['link']}) - {product['reason']}\n"
+        
+        return jsonify({
+            'success': True,
+            'response': ai_response,
+            'recommendations': product_matches
+        })
+    except Exception as e:
+        print(f"AI Error: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
 @app.route('/blog/<slug>')
 def post(slug):
     """Individual blog post page"""
