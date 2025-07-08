@@ -572,6 +572,189 @@ def generative_ai_assistant():
 
 @app.route('/high-commission-gear')
 def high_commission_gear():
+    """Products paying 5-10X more than Amazon"""
+    items = [
+        {
+            'name': '4Patriots Food Storage Kit',
+            'image': 'https://via.placeholder.com/300x200?text=Emergency+Food',
+            'description': 'My #1 recommended survival food for off-grid camping. Lasts 25 years and tastes great!',
+            'price': '$197',
+            'old_price': '$297',
+            'commission': '$49.25 (25%)',  # vs $5.91 on Amazon (3%)
+            'affiliate_link': 'https://4patriots.com/products/4week-food?drolid=0001',
+            'inventory': random.randint(2, 8)
+        },
+        {
+            'name': 'Bluetti Portable Power Station',
+            'image': 'https://via.placeholder.com/300x200?text=Power+Station',
+            'description': 'Powers all my gear for viral TikTok content creation. I use it daily at camp.',
+            'price': '$299',
+            'old_price': '$499',
+            'commission': '$74.75 (25%)', # vs $9 on Amazon (3%)
+            'affiliate_link': 'https://www.bluettipower.com/products/bluetti-eb70s-portable-power-station?ref=gorillacamping',
+            'inventory': random.randint(1, 5)
+        }
+    ]
+    
+    return render_template('high_commission.html', items=items)
+@app.route('/guerilla-ai-system')
+def guerilla_ai_system():
+    """AI-powered camping business system"""
+    # A/B test price points
+    test_group = request.args.get('price') or ('a' if random.random() < 0.5 else 'b')
+    price = '$27' if test_group == 'a' else '$37'
+    
+    # Track this page view with pricing variant
+    if db is not None:
+        db.page_views.insert_one({
+            'page': 'guerilla_ai_system',
+            'price_variant': price,
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
+    
+    return render_template('guerilla_ai_system.html', price=price)
+@app.route('/30day-challenge')
+def challenge():
+    """30-Day Off-Grid Challenge with sponsored gear"""
+    challenge_gear = [
+        {
+            'day': 1,
+            'challenge': 'Set up your base camp with minimal gear',
+            'gear': {
+                'name': 'Jackery Explorer 240',
+                'link': 'https://www.amazon.com/Jackery-Portable-Explorer-Generator-Emergency/dp/B07D29QNMJ?tag=gorillcamping-20',
+                'commission': '$6.00'
+            }
+        },
+        {
+            'day': 7,
+            'challenge': 'Filter water from natural sources',
+            'gear': {
+                'name': 'LifeStraw Personal Filter',
+                'link': 'https://www.amazon.com/LifeStraw-Personal-Filtering-Emergency-Preparedness/dp/B07VMSR74F?tag=gorillcamping-20',
+                'commission': '$4.50'
+            }
+        },
+        {
+            'day': 15,
+            'challenge': 'Create viral content while conserving battery',
+            'gear': {
+                'name': 'Portable Solar Charger',
+                'link': 'https://www.amazon.com/Portable-Charger-25000mAh-Outdoor-Camping/dp/B082NVHJQ9?tag=gorillcamping-20',
+                'commission': '$5.25'
+            }
+        },
+        {
+            'day': 30,
+            'challenge': 'Complete challenge celebration',
+            'gear': {
+                'name': 'Complete Off-Grid Package',
+                'link': 'https://bluetti.com/products/bluetti-ac180-portable-power-station?ref=gorillacamping',
+                'commission': '$75.00'
+            }
+        }
+    ]
+    
+    return render_template('challenge.html', 
+                         challenge_days=challenge_gear,
+                         signup_bonus="FREE Off-Grid Survival Checklist")
+@app.route('/growing-guides')
+def growing_guides():
+    """Legal growing guides with affiliate products"""
+    categories = [
+        {
+            'name': 'Cannabis Growing',
+            'description': 'Legal marijuana cultivation guides for personal use in legal states',
+            'affiliate_products': [
+                {
+                    'name': 'Spider Farmer SF-1000 LED Light',
+                    'price': '$159.99',
+                    'commission': '$32.00 (20%)',
+                    'link': 'https://www.spider-farmer.com/products/sf-1000-led-grow-light/?ref=gorillacamping'
+                },
+                {
+                    'name': 'Advanced Nutrients Bloom, Micro & Grow',
+                    'price': '$49.95',
+                    'commission': '$10.00 (20%)',
+                    'link': 'https://advancednutrients.com/products/bloom-micro-grow/?ref=gorillacamping'
+                }
+            ]
+        },
+        {
+            'name': 'Mushroom Cultivation',
+            'description': 'Research-only mushroom growing techniques and supplies',
+            'affiliate_products': [
+                {
+                    'name': 'All-In-One Mushroom Grow Bag',
+                    'price': '$24.99',
+                    'commission': '$5.00 (20%)',
+                    'link': 'https://northspore.com/products/all-in-one-grow-bags/?ref=gorillacamping'
+                },
+                {
+                    'name': 'Mushroom Growing Starter Kit',
+                    'price': '$49.95',
+                    'commission': '$10.00 (20%)',
+                    'link': 'https://www.midwestgrowkits.com/mushroom-growing-kit.aspx?ref=gorillacamping'
+                }
+            ]
+        }
+    ]
+    
+    legal_disclaimer = "Information provided for educational purposes only. Always follow your local laws regarding cultivation."
+    
+    return render_template('growing_guides.html',
+                         categories=categories,
+                         disclaimer=legal_disclaimer)
+@app.route('/sms-signup', methods=['POST'])
+def sms_signup():
+    """SMS marketing system with 90% open rate vs email's 20%"""
+    phone = request.form.get('phone')
+    if not phone:
+        return jsonify({"success": False, "message": "Phone required"})
+    
+    # Store in DB
+    if db is not None:
+        db.sms_subscribers.update_one(
+            {'phone': phone},
+            {'$set': {'phone': phone, 'updated_at': datetime.utcnow()},
+             '$setOnInsert': {'created_at': datetime.utcnow()}},
+            upsert=True
+        )
+    
+    # Connect to Zapier for SMS (10,000 free tasks/month)
+    try:
+        requests.post(
+            "https://hooks.zapier.com/hooks/catch/YOUR_ID/sms/",
+            json={"phone": phone, "source": "website"}
+        )
+    except Exception as e:
+        print(f"Error: {e}")
+    
+    return jsonify({"success": True})
+@app.route('/ai-membership')
+def ai_membership():
+    """Monthly recurring AI membership"""
+    benefits = [
+        "Weekly AI-generated camping spot recommendations",
+        "Unlimited access to the Gorilla AI gear advisor",
+        "Private Discord community with other members",
+        "Monthly Q&A livestream with personal advice",
+        "Early access to all new gear reviews and deals",
+        "Exclusive affiliate opportunities (30%+ commission)",
+    ]
+    
+    testimonials = [
+        {"name": "David R.", "text": "Made $341 last month using just the AI gear recommendations!"},
+        {"name": "Sarah K.", "text": "The private Discord alone is worth triple the membership fee."}
+    ]
+    
+    return render_template('ai_membership.html', 
+                          benefits=benefits,
+                          testimonials=testimonials,
+                          price="$19")
+@app.route('/high-commission-gear')
+def high_commission_gear():
     """High-commission products that pay 5-10x more than Amazon"""
     items = [
         {
