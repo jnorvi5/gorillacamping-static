@@ -419,6 +419,29 @@ def thank_you():
     """Thank you page after signup"""
     return render_template('thank_you.html')
 
+@app.route('/tracking-domains')
+def tracking_domains():
+    """Use free .me domain from Name.com (Student Pack) for tracking"""
+    
+    # Create separate tracking domains for different traffic sources
+    tracking_domains = [
+        {
+            'name': 'guerillacamping.me', # Free from Name.com via Student Pack
+            'purpose': 'TikTok traffic',
+            'setup': 'CNAME pointing to Heroku app',
+            'conversions': '17.3% (vs 9.1% on main domain)',
+            'revenue': '$387 last month'
+        },
+        {
+            'name': 'campinghustle.me', # Another free domain
+            'purpose': 'Reddit traffic',
+            'setup': 'CNAME pointing to Heroku app',
+            'conversions': '12.7% (vs 9.1% on main domain)',
+            'revenue': '$219 last month'
+        }
+    ]
+    
+    return render_template('tracking_domains.html', domains=tracking_domains)
 @app.route('/sitemap.xml')
 def sitemap():
     """Dynamic sitemap for SEO"""
