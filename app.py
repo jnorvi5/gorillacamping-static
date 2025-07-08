@@ -2,7 +2,6 @@ import os
 import re
 import uuid
 import random
-import json
 import requests
 from datetime import datetime, timedelta
 from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session, Response, send_file, send_from_directory, make_response
@@ -449,6 +448,8 @@ def subscribe():
     
     return jsonify({'success': True, 'message': 'Subscribed successfully'})
 
+# --- MONEY-MAKING ROUTES ---
+
 @app.route('/guerilla-guide')
 def guerilla_guide():
     """Digital product sales page with A/B price testing"""
@@ -459,12 +460,212 @@ def guerilla_guide():
     # Track visit with test group
     source = request.args.get('source', 'direct')
     
-    track_page_view('guerilla_guide', source=source, metadata={
-        'test_group': test_group,
-        'price': price
-    })
+    if db is not None:
+        db.page_views.insert_one({
+            'page': 'guerilla_guide',
+            'source': source,
+            'test_group': test_group,
+            'price': price,
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
     
     # Dynamic testimonials
     testimonials = [
-        {"name": "Mike T.", "location": "Colorado", "text": "Made $486 in my first month using these camping spots](#)
-
+        {"name": "Mike T.", "location": "Colorado", "text": "Made $486 in my first month using these camping spots."},
+        {"name": "Sarah K.", "location": "Oregon", "text": "This paid for my entire camping setup in 2 weeks!"},
+        {"name": "John D.", "location": "Montana", "text": "Now earning $50-100/day with minimal effort from camp."}
+    ]
+    
+    return render_template('guerilla_guide.html', 
+                         price=price, 
+                         testimonials=random.sample(testimonials, 2),
+                         test_group=test_group)
+
+@app.route('/digital-busking')
+def digital_busking():
+    """Create a digital tip jar - like busking for online content"""
+    
+    # Generate unique "camping tip" each time
+    camping_tips = [
+        "Use dryer lint as a perfect fire starter - free and ultra-lightweight!",
+        "Put a headlamp around a water jug for an instant lantern.",
+        "Freeze water bottles instead of using ice in your cooler.",
+        "Crack eggs into a water bottle before your trip for mess-free camping.",
+        "Doritos make excellent emergency fire starters in a pinch!"
+    ]
+    
+    # Support payment options - Buy Me A Coffee, Ko-fi, PayPal, etc.
+    payment_options = [
+        {
+            "name": "Buy Me A Coffee",
+            "url": "https://www.buymeacoffee.com/gorillacamping",
+            "suggestion": "Buy me a coffee ($5)",
+            "image": "/static/images/coffee-icon.png"
+        },
+        {
+            "name": "Ko-fi",
+            "url": "https://ko-fi.com/gorillacamping",
+            "suggestion": "Buy me a beer ($4)",
+            "image": "/static/images/kofi-icon.png"
+        },
+        {
+            "name": "PayPal",
+            "url": "https://paypal.me/gorillacamping",
+            "suggestion": "Support my next camping trip ($10)",
+            "image": "/static/images/paypal-icon.png"
+        }
+    ]
+    
+    if db is not None:
+        db.page_views.insert_one({
+            'page': 'digital_busking',
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
+    
+    return render_template('digital_busking.html',
+                           camping_tip=random.choice(camping_tips),
+                           payment_options=payment_options)
+
+@app.route('/thank-you')
+def thank_you():
+    """Thank you page after signup"""
+    return render_template('thank_you.html')
+
+@app.route('/api/optimize', methods=['POST'])
+def generative_ai_assistant():
+    """AI assistant with affiliate recommendations"""
+    # Limit: 3 free queries per session unless Pro
+    if not session.get("pro_user"):
+        session['queries'] = session.get('queries', 0) + 1
+        if session['queries'] > 3:
+            return jsonify({"success": False, "message": "Upgrade to Pro for unlimited AI!"})
+    
+    data = request.json
+    user_query = data.get("query", "I need some camping advice.")
+    
+    # Generate response
+    try:
+        ai_response = ask_gemini(user_query)
+        
+        # Recommend gear based on query content
+        gear_links = ""
+        keywords = ["power", "charging", "battery", "electricity", "devices"]
+        if any(word in user_query.lower() for word in keywords):
+            gear_links = "\n\n*Recommendation: [Jackery Explorer 240](https://gorillacamping.site/affiliate/jackery-explorer-240) - Perfect for keeping devices charged while camping.*"
+        
+        keywords = ["water", "drink", "filter", "stream", "river"]
+        if any(word in user_query.lower() for word in keywords):
+            gear_links += "\n\n*Recommendation: [LifeStraw Filter](https://gorillacamping.site/affiliate/lifestraw-filter) - Essential for safe drinking water in the wilderness.*"
+        
+        # Log AI interaction
+        if db is not None:
+            db.ai_logs.insert_one({
+                "question": user_query,
+                "ai_response": ai_response,
+                "timestamp": datetime.utcnow(),
+                "visitor_id": request.cookies.get('visitor_id', 'unknown'),
+                "recommendations": gear_links != ""
+            })
+        
+        log_event("ai_query", f"AI query processed: {user_query[:50]}...")
+        return jsonify({"success": True, "response": ai_response + gear_links})
+    except Exception as e:
+        print(f"❌ AI Error: {e}")
+        return jsonify({"success": False, "message": "The AI brain is currently offline. Please try again later."})
+
+@app.route('/high-commission-gear')
+def high_commission_gear():
+    """High-commission products that pay 5-10x more than Amazon"""
+    items = [
+        {
+            'name': '4Patriots Food Storage Kit',
+            'image': 'https://via.placeholder.com/300x200?text=Emergency+Food',
+            'description': 'Long-term emergency food with 25-year shelf life. Perfect for off-grid camping and prepping.',
+            'price': '$197',
+            'old_price': '$297',
+            'commission': '$49.25 (25%)',  # vs $5.91 on Amazon (3%)
+            'affiliate_link': 'https://4patriots.com/products/4week-food?drolid=0001',
+            'inventory': random.randint(2, 8)
+        },
+        {
+            'name': 'Solar Generator System',
+            'image': 'https://via.placeholder.com/300x200?text=Solar+Gen',
+            'description': 'Complete off-grid power solution I use for my TikTok content creation. Powers my devices for 7+ days.',
+            'price': '$349',
+            'old_price': '$499',
+            'commission': '$87.25 (25%)', # vs $10.47 on Amazon (3%)
+            'affiliate_link': 'https://www.backwoodsolar.com/products/portable-power?ref=gorilla',
+            'inventory': random.randint(1, 6)
+        }
+    ]
+    
+    # Track the visit
+    if db is not None:
+        db.page_views.insert_one({
+            'page': 'high_commission',
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
+    
+    return render_template('high_commission.html', items=items)
+
+@app.route('/sms-signup', methods=['POST'])
+def sms_signup():
+    """SMS marketing signup (90% open rate vs. email's 20%)"""
+    phone = request.form.get('phone')
+    if not phone:
+        return jsonify({"success": False, "message": "Phone number is required"})
+        
+    # Store in database
+    if db is not None:
+        db.sms_subscribers.update_one(
+            {'phone': phone},
+            {'$set': {'phone': phone, 'updated_at': datetime.utcnow()},
+             '$setOnInsert': {'created_at': datetime.utcnow(), 'source': request.referrer}},
+            upsert=True
+        )
+    
+    # Connect to Zapier for SMS sending (10,000 free tasks/month)
+    try:
+        zapier_webhook_url = os.environ.get('ZAPIER_WEBHOOK_URL')
+        if zapier_webhook_url:
+            requests.post(
+                zapier_webhook_url,
+                json={"phone": phone, "source": "website"},
+                timeout=5
+            )
+    except Exception as e:
+        print(f"Error connecting to Zapier: {e}")
+    
+    return jsonify({"success": True, "message": "Successfully signed up for SMS alerts!"})
+
+@app.route('/robots.txt')
+def robots():
+    """SEO: Robots.txt file for better search rankings"""
+    r = Response("""
+User-agent: *
+Allow: /
+Sitemap: https://gorillacamping.site/sitemap.xml
+    """, mimetype='text/plain')
+    return r
+
+@app.route('/favicon.ico')
+def favicon():
+    """Serve favicon"""
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                              'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """Custom 404 page with recommendations"""
+    top_gear = get_default_gear_items()[:2] if db is None else list(db.gear.find().limit(2))
+    return render_template('404.html', recommended_gear=top_gear), 404
+
+# --- SERVER CONFIG ---
+if __name__ == '__main__':
+    # Use PORT environment variable for Heroku compatibility
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    app.run(host='0.0.0.0', port=port, debug=debug)
