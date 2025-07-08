@@ -12,7 +12,7 @@ import traceback
 
 # --- FLASK SETUP ---
 app = Flask(__name__, static_folder='static')
-app.secret_key = os.environ.get('SECRET_KEY') or 'guerilla-camping-secret-2024'
+app.secret_key = os.environ.get('SECRET_KEY') or 'guerilla-camping-secret-2025'
 app.config['SESSION_COOKIE_SECURE'] = True  # For HTTPS
 
 # --- HANDLE OPTIONAL DEPENDENCIES ---
@@ -34,6 +34,7 @@ try:
         print("✅ Google Generative AI initialized")
     else:
         print("⚠️ GEMINI_API_KEY not set, AI features disabled")
+        genai = None
 except ImportError:
     print("⚠️ google.generativeai not installed, continuing without AI features")
     genai = None
@@ -58,7 +59,7 @@ except Exception as e:
 def log_event(event_type, message, level="INFO"):
     """Simple logging function"""
     print(f"{level}: {event_type} - {message}")
-    if db:
+    if db is not None:
         try:
             db.logs.insert_one({
                 "type": event_type,
@@ -95,7 +96,8 @@ def get_default_gear_items():
             'savings': 'Save $100',
             'rating': 5,
             'badges': ['HOT DEAL', 'BEST VALUE'],
-            'specs': ['240Wh', '250W output', 'Multiple ports']
+            'specs': ['240Wh', '250W output', 'Multiple ports'],
+            'commission': '$6.00 (3%)'
         },
         {
             'name': 'LifeStraw Personal Water Filter',
@@ -107,49 +109,70 @@ def get_default_gear_items():
             'savings': 'Save 25%',
             'rating': 5,
             'badges': ['BESTSELLER'],
-            'specs': ['1000L capacity', 'No chemicals', 'Compact']
+            'specs': ['1000L capacity', 'No chemicals', 'Compact'],
+            'commission': '$0.45 (3%)'
         }
     ]
 
-# --- ROUTES ---
-@app.route('/digital-busking')
-def digital_busking():
-    """Create a digital tip jar - like busking for online content"""
-    
-    # Generate unique "camping tip" each time
-    camping_tips = [
-        "Use dryer lint as a perfect fire starter - free and ultra-lightweight!",
-        "Put a headlamp around a water jug for an instant lantern.",
-        "Freeze water bottles instead of using ice in your cooler.",
-        "Crack eggs into a water bottle before your trip for mess-free camping.",
-        "Doritos make excellent emergency fire starters in a pinch!"
-    ]
-    
-    # Support payment options - Buy Me A Coffee, Ko-fi, PayPal, etc.
-    payment_options = [
+def get_high_commission_gear():
+    """Return high-commission gear (20-30% instead of Amazon's 3-4%)"""
+    return [
         {
-            "name": "Buy Me A Coffee",
-            "url": "https://www.buymeacoffee.com/gorillacamping",
-            "suggestion": "Buy me a coffee ($5)",
-            "image": "/static/images/coffee-icon.png"
+            'name': '4Patriots Emergency Food Kit',
+            'image': 'https://via.placeholder.com/300x200?text=Emergency+Food',
+            'description': 'My #1 recommended survival food - lasts 25 years and tastes great!',
+            'affiliate_id': '4patriots-food',
+            'price': '$197',
+            'old_price': '$297',
+            'commission': '$49.25 (25%)',  # vs $5.91 on Amazon (3%)
+            'inventory': random.randint(2, 7),
+            'affiliate_link': 'https://4patriots.com/products/4week-food?drolid=0001'
         },
         {
-            "name": "Ko-fi",
-            "url": "https://ko-fi.com/gorillacamping",
-            "suggestion": "Buy me a beer ($4)",
-            "image": "/static/images/kofi-icon.png"
-        },
-        {
-            "name": "PayPal",
-            "url": "https://paypal.me/gorillacamping",
-            "suggestion": "Support my next camping trip ($10)",
-            "image": "/static/images/paypal-icon.png"
+            'name': 'Alexapure Pro Water Filter',
+            'image': 'https://via.placeholder.com/300x200?text=Water+Filter',
+            'description': 'The ultimate off-grid water solution - I use this daily at camp.',
+            'affiliate_id': 'alexapure-pro',
+            'price': '$249',
+            'old_price': '$349',
+            'commission': '$74.70 (30%)',  # vs $7.47 on Amazon (3%)
+            'inventory': random.randint(1, 5),
+            'affiliate_link': 'https://4patriots.com/products/alexapure-pro?drolid=0001'
         }
     ]
+
+def generate_visitor_id():
+    """Generate a unique visitor ID for tracking"""
+    return str(uuid.uuid4())
+
+def track_page_view(page_name, source=None, metadata=None):
+    """Track page view with metadata"""
+    if db is None:
+        return
+        
+    visitor_id = request.cookies.get('visitor_id', generate_visitor_id())
     
-    return render_template('digital_busking.html',
-                           camping_tip=random.choice(camping_tips),
-                           payment_options=payment_options)
+    view_data = {
+        'page': page_name,
+        'timestamp': datetime.utcnow(),
+        'visitor_id': visitor_id,
+        'user_agent': request.headers.get('User-Agent', ''),
+        'ip_hash': hash(request.remote_addr) if request.remote_addr else None,
+        'referrer': request.referrer
+    }
+    
+    if source:
+        view_data['source'] = source
+        
+    if metadata and isinstance(metadata, dict):
+        view_data.update(metadata)
+    
+    try:
+        db.page_views.insert_one(view_data)
+    except Exception as e:
+        print(f"❌ Error tracking page view: {e}")
+
+# --- ROUTES ---
 @app.before_request
 def redirect_www():
     """SEO Improvement: Redirect www to non-www for better SEO and analytics"""
@@ -163,10 +186,10 @@ def home():
     # Track visitor for analytics and user count
     visitor_id = request.cookies.get('visitor_id')
     if not visitor_id:
-        visitor_id = str(uuid.uuid4())
+        visitor_id = generate_visitor_id()
     
     # Track visit in MongoDB
-    if db:
+    if db is not None:
         db.visits.update_one(
             {"visitor_id": visitor_id},
             {"$set": {"last_visit": datetime.utcnow()},
@@ -174,7 +197,28 @@ def home():
             upsert=True
         )
     
-    response = make_response(render_template('index.html'))
+    # Track page view with UTM parameters
+    utm_source = request.args.get('utm_source')
+    utm_medium = request.args.get('utm_medium')
+    utm_campaign = request.args.get('utm_campaign')
+    
+    if utm_source or utm_medium or utm_campaign:
+        track_page_view('home', source='utm', metadata={
+            'utm_source': utm_source,
+            'utm_medium': utm_medium,
+            'utm_campaign': utm_campaign
+        })
+    else:
+        track_page_view('home')
+    
+    # A/B test home page variants
+    variant = request.args.get('variant', random.choice(['a', 'b']))
+    template = 'index.html'  # Default template
+    
+    if variant == 'b':
+        template = 'index_b.html'  # Alternative template
+    
+    response = make_response(render_template(template))
     response.set_cookie('visitor_id', visitor_id, max_age=60*60*24*365)
     return response
 
@@ -182,113 +226,19 @@ def home():
 def blog():
     """Blog listing page"""
     posts = []
-    if db:
+    if db is not None:
         try:
             posts = list(db.posts.find().sort("created_at", -1))
         except Exception as e:
             print(f"Error fetching posts: {e}")
+    
+    track_page_view('blog')
     return render_template('blog.html', posts=posts)
-@app.route('/ai-product-description', methods=['POST'])
-def ai_product_description():
-    """Generate high-converting product descriptions with GitHub Student Pack Replicate credits"""
-    import replicate
-    
-    product_name = request.form.get('product_name', '')
-    key_features = request.form.get('key_features', '')
-    
-    prompt = f"""Write a high-converting product description for "{product_name}" with these features: {key_features}.
-    Focus on benefits, not features. Include an emotional hook and a strong call to action.
-    Use a conversational, authentic style that feels like it's written by a real camper who uses this daily.
-    Include a sentence about how this product helps make money while camping through content creation.
-    Maximum 120 words."""
-    
-    try:
-        # Uses free Replicate credits from Student Pack
-        output = replicate.run(
-            "meta/llama-2-70b-chat:02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3",
-            input={"prompt": prompt, "max_length": 2000}
-        )
-        
-        # Combine response chunks
-        ai_text = ''.join(output)
-        
-        # Add money-making angle if not present
-        if "content" not in ai_text.lower() and "money" not in ai_text.lower():
-            ai_text += "\n\nBonus: This gear is perfect for creating viral camping content that can earn $50-100/day in affiliate commissions."
-        
-        return jsonify({"success": True, "text": ai_text})
-    except Exception as e:
-        print(f"AI Error: {e}")
-        return jsonify({"success": False, "error": str(e)})
-@app.route('/survival-gear')
-def survival_gear():
-    """High-commission survival gear (25-30% instead of Amazon's 3-4%)"""
-    survival_items = [
-        {
-            'name': '4Patriots Emergency Food Kit',
-            'image': 'https://via.placeholder.com/300x200?text=Emergency+Food',
-            'description': 'My #1 recommended survival food - lasts 25 years and tastes great!',
-            'affiliate_id': '4patriots-food',
-            'price': '$197',
-            'old_price': '$297',
-            'commission': '$49.25 (25%)',  # vs $5.91 on Amazon (3%)
-            'inventory': random.randint(2, 7)
-        },
-        {
-            'name': 'Alexapure Pro Water Filter',
-            'image': 'https://via.placeholder.com/300x200?text=Water+Filter',
-            'description': 'The ultimate off-grid water solution - I use this daily at camp.',
-            'affiliate_id': 'alexapure-pro',
-            'price': '$249',
-            'old_price': '$349',
-            'commission': '$74.70 (30%)',  # vs $7.47 on Amazon (3%)
-            'inventory': random.randint(1, 5)
-        }
-    ]
-    
-    # Track visit in MongoDB
-    if db is not None:
-        db.page_views.insert_one({
-            'page': 'survival_gear',
-            'timestamp': datetime.utcnow(),
-            'visitor_id': request.cookies.get('visitor_id', 'unknown')
-        })
-    
-    return render_template('survival_gear.html', items=survival_items)
-@app.route('/guerilla-guide')
-def guerilla_guide():
-    """Instant digital product sales page"""
-    # Track traffic source
-    source = request.args.get('source', 'direct')
-    
-    # A/B test price points (27 vs 37)
-    test_group = 'a' if random.random() < 0.5 else 'b'
-    price = '$27' if test_group == 'a' else '$37'
-    
-    if db is not None:
-        db.page_views.insert_one({
-            'page': 'guerilla_guide',
-            'source': source,
-            'test_group': test_group,
-            'timestamp': datetime.utcnow(),
-            'visitor_id': request.cookies.get('visitor_id', str(uuid.uuid4()))
-        })
-    
-    # Dynamic testimonial rotation
-    testimonials = [
-        {"name": "Mike T.", "location": "Colorado", "text": "Made $486 in my first month using these camping spots."},
-        {"name": "Sarah K.", "location": "Oregon", "text": "This paid for my entire camping setup in 2 weeks!"},
-        {"name": "John D.", "location": "Montana", "text": "Now earning $50-100/day with minimal effort from camp."}
-    ]
-    
-    return render_template('guerilla_guide.html', 
-                          price=price, 
-                          testimonials=random.sample(testimonials, 2),
-                          test_group=test_group)
+
 @app.route('/blog/<slug>')
 def post(slug):
     """Individual blog post page"""
-    if db:
+    if db is not None:
         post = db.posts.find_one({'slug': slug})
         if post:
             # Increment view counter
@@ -298,8 +248,15 @@ def post(slug):
             )
             
             # Find related posts
-            related_posts = list(db.posts.find({'_id': {'$ne': post['_id']}}).limit(3))
+            related_posts = list(db.posts.find({
+                '_id': {'$ne': post['_id']}
+            }).limit(3))
+            
+            # Track view with metadata
+            track_page_view('blog_post', metadata={'post_slug': slug, 'post_title': post.get('title', '')})
+            
             return render_template('post.html', post=post, related_posts=related_posts)
+    
     return redirect(url_for('blog'))
 
 @app.route('/gear')
@@ -312,7 +269,7 @@ def gear():
     utm_campaign = request.args.get('utm_campaign', '')
     
     # Get gear items from DB or use default
-    if not db:
+    if db is None:
         gear_items = get_default_gear_items()
     else:
         try:
@@ -327,21 +284,33 @@ def gear():
             print(f"Error fetching gear items: {e}")
             gear_items = get_default_gear_items()
             
-    # Track visit
-    if db:
-        db.page_views.insert_one({
-            'page': 'gear',
-            'source': source,
-            'utm_campaign': utm_campaign,
-            'timestamp': datetime.utcnow(),
-            'visitor_id': request.cookies.get('visitor_id', 'unknown')
-        })
+    # Track visit with metadata
+    track_page_view('gear', source=source, metadata={
+        'utm_campaign': utm_campaign
+    })
 
     return render_template('gear.html', gear_items=gear_items)
+
+@app.route('/premium-gear')
+def premium_gear():
+    """High-commission products page (20-30% commission vs Amazon's 3-4%)"""
+    # Get high-commission gear
+    gear_items = get_high_commission_gear()
+    
+    # Add dynamic elements for each product
+    for item in gear_items:
+        item['viewers'] = random.randint(3, 12)  # People currently viewing
+        item['time_left'] = f"{random.randint(10, 48)}:{random.randint(0, 59):02d}:{random.randint(0, 59):02d}"  # Time left in deal
+    
+    # Track visit
+    track_page_view('premium_gear')
+    
+    return render_template('premium_gear.html', items=gear_items)
 
 @app.route('/about')
 def about():
     """About page"""
+    track_page_view('about')
     return render_template('about.html')
 
 @app.route('/contact', methods=['GET', 'POST'])
@@ -353,7 +322,7 @@ def contact():
         subject = request.form.get('subject')
         message = request.form.get('message')
         
-        if db:
+        if db is not None:
             db.contacts.insert_one({
                 'name': name,
                 'email': email,
@@ -363,7 +332,7 @@ def contact():
             })
         
         # Also add to email list for marketing
-        if db and email:
+        if db is not None and email:
             db.subscribers.update_one(
                 {'email': email},
                 {'$set': {'email': email, 'source': 'contact_form', 'updated_at': datetime.utcnow()}, 
@@ -375,6 +344,7 @@ def contact():
         log_event("contact_form", f"Contact form submitted by {email}")
         return redirect(url_for('contact'))
     
+    track_page_view('contact')
     return render_template('contact.html')
 
 @app.route('/affiliate/<product_id>')
@@ -382,13 +352,16 @@ def affiliate_redirect(product_id):
     """Affiliate link redirect with tracking"""
     affiliate_urls = {
         'jackery-explorer-240': 'https://www.amazon.com/Jackery-Portable-Explorer-Generator-Emergency/dp/B07D29QNMJ?&linkCode=ll1&tag=gorillcamping-20',
-        'lifestraw-filter': 'https://www.amazon.com/LifeStraw-Personal-Filtering-Emergency-Preparedness/dp/B07VMSR74F?&linkCode=ll1&tag=gorillcamping-20'
+        'lifestraw-filter': 'https://www.amazon.com/LifeStraw-Personal-Filtering-Emergency-Preparedness/dp/B07VMSR74F?&linkCode=ll1&tag=gorillcamping-20',
+        # High-commission affiliate products (20-30% vs Amazon's 3-4%)
+        '4patriots-food': 'https://4patriots.com/products/4week-food?drolid=0001',
+        'alexapure-pro': 'https://4patriots.com/products/alexapure-pro?drolid=0001'
     }
     
     url = affiliate_urls.get(product_id, 'https://www.amazon.com/?&linkCode=ll2&tag=gorillcamping-20')
     
     # Track click in database
-    if db:
+    if db is not None:
         db.affiliate_clicks.insert_one({
             'product_id': product_id,
             'timestamp': datetime.utcnow(),
@@ -412,7 +385,7 @@ def social_redirect(platform):
     url = social_urls.get(platform, 'https://www.reddit.com/r/gorillacamping')
     
     # Track social click
-    if db:
+    if db is not None:
         db.social_clicks.insert_one({
             'platform': platform,
             'timestamp': datetime.utcnow(),
@@ -433,7 +406,7 @@ def subscribe():
         return jsonify({'success': False, 'message': 'Email is required'})
     
     # Store in our own DB
-    if db:
+    if db is not None:
         db.subscribers.update_one(
             {'email': email},
             {'$set': {'email': email, 'source': source, 'updated_at': datetime.utcnow()}, 
@@ -441,165 +414,57 @@ def subscribe():
             upsert=True
         )
     
-    log_event("new_subscriber", f"New subscriber: {email}")
+    log_event("new_subscriber", f"New subscriber: {email} from {source}")
     
-    # Create a MailerLite webhook or other email service integration here
+    # MailerLite Integration - replace with your own API key and group ID
+    try:
+        headers = {
+            'Content-Type': 'application/json',
+            'X-MailerLite-ApiKey': os.environ.get('MAILERLITE_API_KEY', '')
+        }
+        
+        data = {
+            'email': email,
+            'name': '',  # Can be blank
+            'fields': {
+                'source': source
+            },
+            'resubscribe': True,
+            'type': 'active'
+        }
+        
+        # Send to MailerLite
+        if os.environ.get('MAILERLITE_API_KEY'):
+            group_id = os.environ.get('MAILERLITE_GROUP_ID', '123456')
+            response = requests.post(
+                f'https://api.mailerlite.com/api/v2/groups/{group_id}/subscribers',
+                headers=headers,
+                json=data
+            )
+            
+            if response.status_code not in (200, 201):
+                print(f"MailerLite API error: {response.text}")
+    except Exception as e:
+        print(f"Error adding subscriber to MailerLite: {e}")
     
     return jsonify({'success': True, 'message': 'Subscribed successfully'})
 
-@app.route('/guerilla-camping-bible')
-def ebook():
-    """Ebook sales page"""
-    return render_template('ebook.html')
-
-@app.route('/thank-you')
-def thank_you():
-    """Thank you page after signup"""
-    return render_template('thank_you.html')
-
-@app.route('/tracking-domains')
-def tracking_domains():
-    """Use free .me domain from Name.com (Student Pack) for tracking"""
+@app.route('/guerilla-guide')
+def guerilla_guide():
+    """Digital product sales page with A/B price testing"""
+    # A/B test price points (27 vs 37)
+    test_group = 'a' if random.random() < 0.5 else 'b'
+    price = '$27' if test_group == 'a' else '$37'
     
-    # Create separate tracking domains for different traffic sources
-    tracking_domains = [
-        {
-            'name': 'guerillacamping.me', # Free from Name.com via Student Pack
-            'purpose': 'TikTok traffic',
-            'setup': 'CNAME pointing to Heroku app',
-            'conversions': '17.3% (vs 9.1% on main domain)',
-            'revenue': '$387 last month'
-        },
-        {
-            'name': 'campinghustle.me', # Another free domain
-            'purpose': 'Reddit traffic',
-            'setup': 'CNAME pointing to Heroku app',
-            'conversions': '12.7% (vs 9.1% on main domain)',
-            'revenue': '$219 last month'
-        }
-    ]
+    # Track visit with test group
+    source = request.args.get('source', 'direct')
     
-    return render_template('tracking_domains.html', domains=tracking_domains)
-@app.route('/sitemap.xml')
-def sitemap():
-    """Dynamic sitemap for SEO"""
-    pages = []
-    # Add static pages
-    base_url = request.host_url.rstrip('/')
-    today = datetime.now().strftime('%Y-%m-%d')
+    track_page_view('guerilla_guide', source=source, metadata={
+        'test_group': test_group,
+        'price': price
+    })
     
-    # Core pages
-    pages.append({"loc": f"{base_url}/", "lastmod": today, "priority": "1.0"})
-    pages.append({"loc": f"{base_url}/gear", "lastmod": today, "priority": "0.9"})
-    pages.append({"loc": f"{base_url}/about", "lastmod": today, "priority": "0.8"})
-    pages.append({"loc": f"{base_url}/blog", "lastmod": today, "priority": "0.7"})
-    
-    # Add dynamic blog pages
-    if db:
-        posts = db.posts.find({}, {"slug": 1, "updated_at": 1})
-        for post in posts:
-            last_mod = post.get('updated_at', datetime.now()).strftime('%Y-%m-%d')
-            pages.append({
-                "loc": f"{base_url}/blog/{post['slug']}",
-                "lastmod": last_mod,
-                "priority": "0.6"
-            })
-    
-    xml = render_template('sitemap.xml', pages=pages)
-    response = make_response(xml)
-    response.headers["Content-Type"] = "application/xml"
-    return response
-
-@app.route("/api/optimize", methods=['POST'])
-def generative_ai_assistant():
-    """AI assistant with affiliate recommendations"""
-    # Limit: 3 free queries per session unless Pro
-    if not session.get("pro_user"):
-        session['queries'] = session.get('queries', 0) + 1
-        if session['queries'] > 3:
-            return jsonify({"success": False, "message": "Upgrade to Pro for unlimited AI!"})
-    
-    data = request.json
-    user_query = data.get("query", "I need some camping advice.")
-    
-    # Generate response
-    try:
-        ai_response = ask_gemini(user_query)
-        
-        # Recommend gear based on query content
-        gear_links = ""
-        keywords = ["power", "charging", "battery", "electricity", "devices"]
-        if any(word in user_query.lower() for word in keywords):
-            gear_links = "\n\n*Recommendation: [Jackery Explorer 240](https://gorillacamping.site/affiliate/jackery-explorer-240) - Perfect for keeping devices charged while camping.*"
-        
-        keywords = ["water", "drink", "filter", "stream", "river"]
-        if any(word in user_query.lower() for word in keywords):
-            gear_links += "\n\n*Recommendation: [LifeStraw Filter](https://gorillacamping.site/affiliate/lifestraw-filter) - Essential for safe drinking water in the wilderness.*"
-        
-        # Log AI interaction
-        if db:
-            db.ai_logs.insert_one({
-                "question": user_query,
-                "ai_response": ai_response,
-                "timestamp": datetime.utcnow(),
-                "visitor_id": request.cookies.get('visitor_id', 'unknown'),
-                "recommendations": gear_links != ""
-            })
-        
-        log_event("ai_query", f"AI query processed: {user_query[:50]}...")
-        return jsonify({"success": True, "response": ai_response + gear_links})
-    except Exception as e:
-        print(f"❌ AI Error: {e}")
-        return jsonify({"success": False, "message": "The AI brain is currently offline. Please try again later."})
-
-@app.route('/robots.txt')
-def robots():
-    """SEO: Robots.txt file"""
-    r = Response("""
-User-agent: *
-Allow: /
-Sitemap: https://gorillacamping.site/sitemap.xml
-    """, mimetype='text/plain')
-    return r
-
-@app.errorhandler(404)
-def page_not_found(e):
-    """Custom 404 page with recommendations"""
-    top_gear = get_default_gear_items()[:2] if db is None else list(db.gear.find().limit(2))
-    return render_template('404.html', recommended_gear=top_gear), 404
-
-# --- REVENUE TRACKING ENDPOINTS ---
-
-@app.route('/track/view', methods=['POST'])
-def track_view():
-    """Track page views and product impressions"""
-    data = request.json
-    if db:
-        db.view_tracking.insert_one({
-            'page': data.get('page'),
-            'products': data.get('products', []),
-            'timestamp': datetime.utcnow(),
-            'visitor_id': request.cookies.get('visitor_id', 'unknown')
-        })
-    return jsonify({'success': True})
-
-@app.route('/track/conversion', methods=['POST'])
-def track_conversion():
-    """Track successful conversions for analytics"""
-    data = request.json
-    if db:
-        db.conversions.insert_one({
-            'type': data.get('type'),
-            'value': data.get('value'),
-            'source': data.get('source'),
-            'timestamp': datetime.utcnow(),
-            'visitor_id': request.cookies.get('visitor_id', 'unknown')
-        })
-    return jsonify({'success': True})
-
-# --- SERVER CONFIG ---
-if __name__ == '__main__':
-    # Use PORT environment variable for Heroku compatibility
-    port = int(os.environ.get('PORT', 5000))
-    debug = os.environ.get('FLASK_ENV') == 'development'
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    # Dynamic testimonials
+    testimonials = [
+        {"name": "Mike T.", "location": "Colorado", "text": "Made $486 in my first month using these camping spots](#)
+
