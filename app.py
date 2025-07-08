@@ -260,6 +260,27 @@ def guerilla_chat():
                 'recommendations': product_recs
             })
 
+@app.route('/guerilla-bible')
+def guerilla_bible():
+    """Digital product sales page"""
+    # Track this page view
+    if db is not None:
+        db.page_views.insert_one({
+            'page': 'guerilla_bible',
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
+    
+    # Testimonials to display (randomly selected)
+    testimonials = [
+        {"name": "Mike T.", "location": "Colorado", "text": "I was dead broke when I started. Following just Chapter 2, I made $438 in my first month with the high-commission affiliate strategy."},
+        {"name": "Sarah K.", "location": "Oregon", "text": "The free camping locations in Chapter 1 saved me $600/month in rent while I built my affiliate business."},
+        {"name": "John D.", "location": "Montana", "text": "Now earning $50-100/day with minimal effort from camp."},
+        {"name": "Lisa M.", "location": "Washington", "text": "The Student Pack secrets alone are worth 10X the price of this guide!"}
+    ]
+    
+    return render_template('guerilla_bible.html', 
+                         testimonials=random.sample(testimonials, 2))
 @app.route('/guerilla-stats')
 def guerilla_stats():
     """Admin dashboard for Guerilla AI revenue stats"""
@@ -530,22 +551,38 @@ def gear():
     })
 
     return render_template('gear.html', gear_items=gear_items)
-
 @app.route('/premium-gear')
 def premium_gear():
     """High-commission products page (20-30% commission vs Amazon's 3-4%)"""
-    # Get high-commission gear
-    gear_items = get_high_commission_gear()
+    # Get high-commission gear with inventory urgency
+    items = [
+        {
+            'name': '4Patriots Food Storage Kit',
+            'image': 'https://via.placeholder.com/600x400?text=4Patriots+Food+Kit',
+            'description': 'Long-term emergency food with 25-year shelf life. Perfect for off-grid camping and prepping.',
+            'price': '$197.00',
+            'old_price': '$297.00',
+            'commission': '$49.25 (25%)',  # vs $5.91 on Amazon (3%)
+            'affiliate_link': 'https://4patriots.com/products/4week-food?rfsn=YOUR_ID_HERE',
+            'inventory': 7
+        },
+        {
+            'name': 'Bluetti Portable Power Station',
+            'image': 'https://via.placeholder.com/600x400?text=Bluetti+Power+Station',
+            'description': 'Complete off-grid power solution I personally use for my viral TikTok content creation.',
+            'price': '$249.00',
+            'old_price': '$349.00',
+            'commission': '$74.70 (30%)', # vs $7.47 on Amazon (3%)
+            'affiliate_link': 'https://www.bluettipower.com/products/bluetti-eb70s-portable-power-station?ref=YOUR_ID_HERE',
+            'inventory': 4
+        }
+    ]
     
-    # Add dynamic elements for each product
-    for item in gear_items:
-        item['viewers'] = random.randint(3, 12)  # People currently viewing
-        item['time_left'] = f"{random.randint(10, 48)}:{random.randint(0, 59):02d}:{random.randint(0, 59):02d}"  # Time left in deal
+    # Track page view with UTM parameters
+    source = request.args.get('source', 'direct')
+    track_page_view('premium_gear', source=source)
     
-    # Track visit
-    track_page_view('premium_gear')
-    
-    return render_template('premium_gear.html', items=gear_items)
+    return render_template('premium_gear.html', items=items)
 
 @app.route('/about')
 def about():
