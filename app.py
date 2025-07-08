@@ -1068,7 +1068,7 @@ def ai_membership():
                           testimonials=testimonials,
                           price="$19")
 @app.route('/premium-gear')
-def premium_gear():
+def premium_gear_1():
     """High-commission products that pay 5-10x more than Amazon"""
     items = [
         {
@@ -1104,7 +1104,7 @@ def premium_gear():
     return render_template('high_commission.html', items=items)
 
 @app.route('/sms-signup', methods=['POST'])
-def sms_signup():
+def sms_signup_1():
     """SMS marketing signup (90% open rate vs. email's 20%)"""
     phone = request.form.get('phone')
     if not phone:
