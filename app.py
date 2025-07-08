@@ -1067,8 +1067,8 @@ def ai_membership():
                           benefits=benefits,
                           testimonials=testimonials,
                           price="$19")
-@app.route('/high-commission-gear')
-def high_commission_gear():
+@app.route('/premium-gear')
+def premium_gear():
     """High-commission products that pay 5-10x more than Amazon"""
     items = [
         {
