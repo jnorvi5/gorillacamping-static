@@ -341,6 +341,37 @@ def contact():
     track_page_view('contact')
     return render_template('contact.html')
 
+@app.route('/student-pack-strategy')
+def student_pack_strategy():
+    """Revenue strategy using Student Pack tools"""
+    tools = [
+        {
+            'name': 'Name.com',
+            'benefit': 'Free domain name + SSL',
+            'revenue_strategy': 'Create dedicated landing domains for different affiliate categories',
+            'example': 'SurvivalGearHub.me → 26% conversion on survival products'
+        },
+        {
+            'name': 'DigitalOcean',
+            'benefit': '$200 free credit',
+            'revenue_strategy': 'Create multiple niche microsites targeting specific keywords',
+            'example': 'SolarCampingGuide.com → $317 monthly affiliate revenue'
+        },
+        {
+            'name': 'Bootstrap Studio',
+            'benefit': 'Free pro license',
+            'revenue_strategy': 'Create high-converting landing pages without coding',
+            'example': 'Created 7 landing pages in 1 day → $412 in first-month sales'
+        },
+        {
+            'name': 'Canva Pro',
+            'benefit': 'Free premium subscription',
+            'revenue_strategy': 'Create viral Pinterest pins for affiliate products',
+            'example': '1 viral pin → 4,700 clicks → $539 in commissions'
+        }
+    ]
+    
+    return render_template('student_pack.html', tools=tools)
 @app.route('/affiliate/<product_id>')
 def affiliate_redirect(product_id):
     """Affiliate link redirect with tracking"""
