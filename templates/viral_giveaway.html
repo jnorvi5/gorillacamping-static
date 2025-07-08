@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Win a $997 Camping Setup - Gorilla Camping Giveaway{% endblock %}
+
+{% block content %}
+<div style="max-width:900px; margin:0 auto; padding:20px;">
+  <div style="text-align:center; margin-bottom:30px;">
+    <h1 style="color:#00ff88; font-size:2.5em;">🔥 WIN A COMPLETE CAMPING SETUP</h1>
+    <h2 style="margin-top:0; color:#fff;">($997 VALUE)</h2>
+  </div>
+  
+  <div style="display:flex; flex-wrap:wrap; gap:30px; margin:30px 0;">
+    <div style="flex:1; min-width:300px;">
+      <img src="https://placehold.co/600x400/333/00ff88?text=Prize+Package" alt="Prize Package" style="width:100%; border-radius:10px;">
+    </div>
+    
+    <div style="flex:1; min-width:300px;">
+      <h3 style="color:#00ff88;">PRIZE PACKAGE INCLUDES:</h3>
+      <ul style="padding-left:20px;">
+        <li style="margin-bottom:10px;"><strong>Jackery Explorer 240</strong> ($299 value)</li>
+        <li style="margin-bottom:10px;"><strong>2-Person Tent</strong> ($199 value)</li>
+        <li style="margin-bottom:10px;"><strong>Survival Kit</strong> ($99 value)</li>
+        <li style="margin-bottom:10px;"><strong>Water Filter System</strong> ($89 value)</li>
+        <li style="margin-bottom:10px;"><strong>Campfire Cooking Set</strong> ($129 value)</li>
+        <li style="margin-bottom:10px;"><strong>Gorilla Camping Bible</strong> ($97 value)</li>
+        <li><strong>Camping Income Course</strong> ($97 value)</li>
+      </ul>
+    </div>
+  </div>
+  
+  <div style="background:#222; padding:30px; border-radius:10px; margin:40px 0;">
+    <h3 style="color:#00ff88; text-align:center;">HOW TO ENTER:</h3>
+    <ol style="margin:20px 0; padding-left:20px;">
+      <li style="margin-bottom:15px;"><strong>Enter your email below</strong> to get 1 entry</li>
+      <li style="margin-bottom:15px;"><strong>Share your unique link</strong> with friends</li>
+      <li><strong>Get 3 BONUS ENTRIES</strong> for each friend who enters!</li>
+    </ol>
+    
+    <div id="entry-form" style="max-width:500px; margin:30px auto 0;">
+      <input type="email" id="giveaway-email" placeholder="Your email address..." style="width:100%; padding:12px; border-radius:8px; border:none; margin-bottom:15px;">
+      <button id="enter-button" style="width:100%; background:#00ff88; color:#111; padding:12px; font-weight:bold; border:none; border-radius:8px; cursor:pointer;">ENTER GIVEAWAY NOW!</button>
+    </div>
+    
+    <div id="share-section" style="display:none; max-width:500px; margin:20px auto 0; text-align:center;">
+      <h4 style="color:#00ff88;">Your Unique Share Link:</h4>
+      <div id="share-link" style="background:#333; padding:10px; border-radius:8px; margin:10px 0; word-break:break-all;"></div>
+      <p><strong>Current entries: <span id="entry-count">1</span></strong></p>
+      <p>Share this link to get 3 BONUS entries for each friend!</p>
+    </div>
+  </div>
+  
+  <div style="background:#222; padding:20px; border-radius:10px; margin:30px 0; text-align:center;">
+    <h3 style="color:#00ff88;">WINNER ANNOUNCED:</h3>
+    <div style="font-size:1.2em; margin:10px 0;">August 15th, 2025</div>
+    <p>Winner will be contacted via email. No purchase necessary.</p>
+  </div>
+</div>
+
+<script>
+document.getElementById('enter-button').addEventListener('click', function() {
+  const email = document.getElementById('giveaway-email').value;
+  if (!email) return;
+  
+  // Generate random ID for tracking
+  const uniqueId = Math.random().toString(36).substring(2, 10);
+  const shareUrl = `${window.location.origin}/giveaway?ref=${uniqueId}`;
+  
+  // Display share section
+  document.getElementById('entry-form').style.display = 'none';
+  document.getElementById('share-section').style.display = 'block';
+  document.getElementById('share-link').textContent = shareUrl;
+  
+  // Submit entry to backend
+  fetch('/giveaway-entry', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      email: email,
+      uniqueId: uniqueId,
+      referrer: new URLSearchParams(window.location.search).get('ref')
+    })
+  }).catch(() => {});
+  
+  // Store in localStorage to persist entry count
+  localStorage.setItem('giveawayEmail', email);
+  localStorage.setItem('giveawayId', uniqueId);
+});
+
+// Check if already entered
+const storedEmail = localStorage.getItem('giveawayEmail');
+const storedId = localStorage.getItem('giveawayId');
+
+if (storedEmail && storedId) {
+  document.getElementById('entry-form').style.display = 'none';
+  document.getElementById('share-section').style.display = 'block';
+  document.getElementById('share-link').textContent = `${window.location.origin}/giveaway?ref=${storedId}`;
+  
+  // Simulate growing entries for psychological effect
+  let entries = parseInt(localStorage.getItem('entryCount') || '1');
+  document.getElementById('entry-count').textContent = entries;
+  
+  // Randomly increase entries
+  setInterval(() => {
+    if (Math.random() < 0.3) { // 30% chance
+      entries++;
+      document.getElementById('entry-count').textContent = entries;
+      localStorage.setItem('entryCount', entries.toString());
+    }
+  }, 10000); // Every 10 seconds
+}
+</script>
+{% endblock %}
