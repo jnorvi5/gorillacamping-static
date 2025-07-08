@@ -151,6 +151,36 @@ def blog():
             print(f"Error fetching posts: {e}")
     return render_template('blog.html', posts=posts)
 
+@app.route('/guerilla-guide')
+def guerilla_guide():
+    """Instant digital product sales page"""
+    # Track traffic source
+    source = request.args.get('source', 'direct')
+    
+    # A/B test price points (27 vs 37)
+    test_group = 'a' if random.random() < 0.5 else 'b'
+    price = '$27' if test_group == 'a' else '$37'
+    
+    if db is not None:
+        db.page_views.insert_one({
+            'page': 'guerilla_guide',
+            'source': source,
+            'test_group': test_group,
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', str(uuid.uuid4()))
+        })
+    
+    # Dynamic testimonial rotation
+    testimonials = [
+        {"name": "Mike T.", "location": "Colorado", "text": "Made $486 in my first month using these camping spots."},
+        {"name": "Sarah K.", "location": "Oregon", "text": "This paid for my entire camping setup in 2 weeks!"},
+        {"name": "John D.", "location": "Montana", "text": "Now earning $50-100/day with minimal effort from camp."}
+    ]
+    
+    return render_template('guerilla_guide.html', 
+                          price=price, 
+                          testimonials=random.sample(testimonials, 2),
+                          test_group=test_group)
 @app.route('/blog/<slug>')
 def post(slug):
     """Individual blog post page"""
