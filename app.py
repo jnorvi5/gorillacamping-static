@@ -1,18 +1,19 @@
-3q2import os
+import os
 import re
+import uuid
 import random
+import json
 import requests
 from datetime import datetime, timedelta
-from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session, Response, send_file, send_from_directory
+from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session, Response, send_file, send_from_directory, make_response
 from pymongo import MongoClient
 from urllib.parse import urlparse, parse_qs
 import traceback
 
-
-
 # --- FLASK SETUP ---
 app = Flask(__name__, static_folder='static')
-app.secret_key = get_secret('SECRET_KEY', 'SECRET_KEY') or 'guerilla-camping-secret-2024'
+app.secret_key = os.environ.get('SECRET_KEY') or 'guerilla-camping-secret-2024'
+app.config['SESSION_COOKIE_SECURE'] = True  # For HTTPS
 
 # --- HANDLE OPTIONAL DEPENDENCIES ---
 try:
@@ -24,25 +25,10 @@ except ImportError:
     print("⚠️ flask_compress not installed, continuing without compression")
 
 try:
-    import chromadb
-    from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
-    
-    # --- CHROMADB + HUGGINGFACE EMBEDDINGS ---
-    CHROMA_PATH = "./chroma_db"
-    COLLECTION_NAME = "gorillacamping_kb"
-    hf_ef = SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
-    chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
-    knowledge_base = chroma_client.get_collection(name=COLLECTION_NAME, embedding_function=hf_ef)
-    print("✅ ChromaDB initialized")
-except ImportError:
-    print("⚠️ ChromaDB not installed, continuing without knowledge base")
-    knowledge_base = None
-
-try:
     import google.generativeai as genai
     
     # --- GEMINI AI SETUP ---
-    gemini_api_key = get_secret('GEMINI_API_KEY', 'GEMINI_API_KEY')
+    gemini_api_key = os.environ.get('GEMINI_API_KEY')
     if gemini_api_key:
         genai.configure(api_key=gemini_api_key)
         print("✅ Google Generative AI initialized")
@@ -52,7 +38,39 @@ except ImportError:
     print("⚠️ google.generativeai not installed, continuing without AI features")
     genai = None
 
+# --- MONGODB SETUP ---
+try:
+    mongodb_uri = os.environ.get('MONGODB_URI')
+    if mongodb_uri:
+        client = MongoClient(mongodb_uri)
+        db = client.get_default_database()
+        # Test connection
+        db.command('ping')
+        print("✅ MongoDB connected successfully!")
+    else:
+        print("⚠️ No MongoDB URI found - running in demo mode")
+        db = None
+except Exception as e:
+    print(f"❌ MongoDB connection error: {e}")
+    db = None
+
+# --- HELPER FUNCTIONS ---
+def log_event(event_type, message, level="INFO"):
+    """Simple logging function"""
+    print(f"{level}: {event_type} - {message}")
+    if db:
+        try:
+            db.logs.insert_one({
+                "type": event_type,
+                "message": message,
+                "level": level,
+                "timestamp": datetime.utcnow()
+            })
+        except Exception as e:
+            print(f"❌ Error logging to MongoDB: {e}")
+
 def ask_gemini(user_query, context=""):
+    """Generate AI response with Google Gemini"""
     if not genai:
         return "AI services are currently unavailable."
     
@@ -64,268 +82,13 @@ def ask_gemini(user_query, context=""):
         print(f"❌ Gemini API Error: {e}")
         return "Sorry, I'm having trouble processing your request right now. Please try again later."
 
-# --- DB SETUP ---
-# Try Azure Cosmos DB first, fallback to MongoDB
-azure_db = get_database_client()
-db = None
-db_type = "none"
-
-if azure_db and azure_db.is_available():
-    # Use Azure Cosmos DB
-    db = azure_db
-    db_type = "azure_cosmos"
-    print("✅ Using Azure Cosmos DB")
-else:
-    # Fallback to MongoDB
-    try:
-        mongodb_uri = get_secret('MONGODB_URI', 'MONGODB_URI') or get_secret('MONGO_URI', 'MONGO_URI')
-        if mongodb_uri:
-            client = MongoClient(mongodb_uri)
-            db = client.get_default_database()
-            db.command('ping')
-            db_type = "mongodb"
-            print("✅ MongoDB connected successfully!")
-        else:
-            print("⚠️ No database URI found - running in demo mode")
-            db = None
-    except Exception as e:
-        print(f"❌ MongoDB connection failed: {e}")
-        db = None
-
-# --- DATABASE ADAPTER FUNCTIONS ---
-def get_collection(collection_name):
-    """Get database collection/container with abstraction for both MongoDB and Cosmos DB"""
-    if not db:
-        return None
-    
-    if db_type == "azure_cosmos":
-        return db.get_container(collection_name)
-    elif db_type == "mongodb":
-        return getattr(db, collection_name)
-    return None
-
-def find_documents(collection_name, query=None, sort=None, limit=None):
-    """Find documents with abstraction for both MongoDB and Cosmos DB"""
-    collection = get_collection(collection_name)
-    if not collection:
-        return []
-    
-    try:
-        if db_type == "azure_cosmos":
-            # Cosmos DB SQL query
-            if query is None:
-                sql_query = "SELECT * FROM c"
-            else:
-                # Convert MongoDB-style query to Cosmos DB SQL (simplified)
-                sql_query = "SELECT * FROM c"
-                if query:
-                    conditions = []
-                    for key, value in query.items():
-                        if key == '_id':
-                            conditions.append(f"c.id = '{value}'")
-                        elif isinstance(value, dict) and '$ne' in value:
-                            conditions.append(f"c.{key} != '{value['$ne']}'")
-                        else:
-                            conditions.append(f"c.{key} = '{value}'")
-                    if conditions:
-                        sql_query += " WHERE " + " AND ".join(conditions)
-            
-            if sort:
-                # Add ORDER BY for sort (simplified)
-                sort_field, sort_order = next(iter(sort))
-                direction = "DESC" if sort_order == -1 else "ASC"
-                sql_query += f" ORDER BY c.{sort_field} {direction}"
-            
-            items = list(collection.query_items(query=sql_query, enable_cross_partition_query=True))
-            
-            if limit:
-                items = items[:limit]
-            
-            # Convert Cosmos DB format to MongoDB-like format
-            for item in items:
-                if 'id' in item:
-                    item['_id'] = item['id']
-            
-            return items
-            
-        elif db_type == "mongodb":
-            # MongoDB query
-            cursor = collection.find(query or {})
-            if sort:
-                cursor = cursor.sort(sort)
-            if limit:
-                cursor = cursor.limit(limit)
-            return list(cursor)
-    except Exception as e:
-        print(f"❌ Error querying {collection_name}: {e}")
-        return []
-    
-    return []
-
-def find_one_document(collection_name, query):
-    """Find single document with abstraction for both MongoDB and Cosmos DB"""
-    collection = get_collection(collection_name)
-    if not collection:
-        return None
-    
-    try:
-        if db_type == "azure_cosmos":
-            # Convert query for Cosmos DB
-            if '_id' in query:
-                # Use point read for better performance
-                try:
-                    return collection.read_item(item=query['_id'], partition_key=query['_id'])
-                except:
-                    # Fallback to query
-                    items = find_documents(collection_name, query, limit=1)
-                    return items[0] if items else None
-            else:
-                items = find_documents(collection_name, query, limit=1)
-                return items[0] if items else None
-                
-        elif db_type == "mongodb":
-            return collection.find_one(query)
-    except Exception as e:
-        print(f"❌ Error finding document in {collection_name}: {e}")
-        return None
-    
-    return None
-
-def insert_document(collection_name, document):
-    """Insert document with abstraction for both MongoDB and Cosmos DB"""
-    collection = get_collection(collection_name)
-    if not collection:
-        return None
-    
-    try:
-        if db_type == "azure_cosmos":
-            # Ensure document has an id field for Cosmos DB
-            if '_id' not in document and 'id' not in document:
-                import uuid
-                document['id'] = str(uuid.uuid4())
-            elif '_id' in document:
-                document['id'] = str(document['_id'])
-            
-            return collection.create_item(body=document)
-            
-        elif db_type == "mongodb":
-            result = collection.insert_one(document)
-            return result.inserted_id
-    except Exception as e:
-        print(f"❌ Error inserting document into {collection_name}: {e}")
-        return None
-
-def update_document(collection_name, query, update_data, upsert=False):
-    """Update document with abstraction for both MongoDB and Cosmos DB"""
-    collection = get_collection(collection_name)
-    if not collection:
-        return None
-    
-    try:
-        if db_type == "azure_cosmos":
-            # For Cosmos DB, we need to read, modify, then replace
-            existing = find_one_document(collection_name, query)
-            if existing:
-                # Apply updates
-                if '$set' in update_data:
-                    existing.update(update_data['$set'])
-                if '$setOnInsert' in update_data and not existing:
-                    existing.update(update_data['$setOnInsert'])
-                
-                return collection.replace_item(item=existing['id'], body=existing)
-            elif upsert:
-                # Create new document
-                new_doc = {}
-                if '$set' in update_data:
-                    new_doc.update(update_data['$set'])
-                if '$setOnInsert' in update_data:
-                    new_doc.update(update_data['$setOnInsert'])
-                new_doc.update(query)
-                return insert_document(collection_name, new_doc)
-                
-        elif db_type == "mongodb":
-            return collection.update_one(query, update_data, upsert=upsert)
-    except Exception as e:
-        print(f"❌ Error updating document in {collection_name}: {e}")
-        return None
-
-# --- ROUTES ---
-@app.route('/free-map')
-def free_map_landing():
-    # Track source for attribution
-    source = request.args.get('source', 'direct')
-    
-    # Store visit in DB
-    if db:
-        insert_document('landing_visits', {
-            'page': 'free_map',
-            'source': source,
-            'timestamp': datetime.utcnow(),
-            'user_agent': request.headers.get('User-Agent')
-        })
-    
-    # Dynamic social proof count
-    base_count = 2847
-    # Add random variance of ±50
-    display_count = base_count + random.randint(-50, 50)
-    
-    # Dynamic testimonials
-    testimonials = [
-        {
-            'name': 'Mike T.',
-            'location': 'Colorado',
-            'quote': 'This map led me to a spot where I filmed 4 viral camping videos. Made $486 last month from affiliate sales!',
-            'image': 'https://randomuser.me/api/portraits/men/32.jpg'
-        },
-        {
-            'name': 'Sarah K.',
-            'location': 'Oregon',
-            'quote': 'Found an amazing off-grid spot with perfect cell signal. Been making $50-100/day while camping!',
-            'image': 'https://randomuser.me/api/portraits/women/44.jpg'
-        },
-        {
-            'name': 'John R.',
-            'location': 'Montana',
-            'quote': 'This secret map paid for my entire camping setup in just 2 weeks of content creation.',
-            'image': 'https://randomuser.me/api/portraits/men/62.jpg'
-        }
-    ]
-    
-    return render_template('landing_map.html', 
-                          count=display_count, 
-                          testimonials=testimonials,
-                          source=source)
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-@app.route('/blog')
-def blog():
-    posts = []
-    if db:
-        try:
-            posts = find_documents('posts', sort=[('created_at', -1)])
-        except Exception as e:
-            print(f"Error fetching posts: {e}")
-            log_to_azure(f"Error fetching posts: {e}", "ERROR")
-    return render_template('blog.html', posts=posts)
-
-@app.route('/post/<slug>')
-def post(slug):
-    if db:
-        post = find_one_document('posts', {'slug': slug})
-        if post:
-            related_posts = find_documents('posts', {'_id': {'$ne': post['_id']}}, limit=3)
-            return render_template('post.html', post=post, related_posts=related_posts)
-    return redirect(url_for('blog'))
-
 def get_default_gear_items():
+    """Return default gear items with highest affiliate payouts"""
     return [
         {
             'name': 'Jackery Explorer 240',
             'image': 'https://m.media-amazon.com/images/I/41XePYWYlAL._AC_US300_.jpg',
-            'description': 'Perfect for keeping devices charged off-grid',
+            'description': 'Perfect for keeping devices charged off-grid. This paid for itself with just 2 viral videos I made from camp.',
             'affiliate_id': 'jackery-explorer-240',
             'price': '$199.99',
             'old_price': '$299.99',
@@ -337,7 +100,7 @@ def get_default_gear_items():
         {
             'name': 'LifeStraw Personal Water Filter',
             'image': 'https://m.media-amazon.com/images/I/71SYsNwj7hL._AC_UL320_.jpg',
-            'description': 'Essential survival gear that filters 99.9999% of waterborne bacteria',
+            'description': 'Essential survival gear that filters 99.9999% of waterborne bacteria. My #1 affiliate earner!',
             'affiliate_id': 'lifestraw-filter',
             'price': '$14.96',
             'old_price': '$19.95',
@@ -348,98 +111,108 @@ def get_default_gear_items():
         }
     ]
 
+# --- ROUTES ---
+@app.before_request
+def redirect_www():
+    """SEO Improvement: Redirect www to non-www for better SEO and analytics"""
+    if request.host.startswith('www.'):
+        url = request.url.replace('www.', '', 1)
+        return redirect(url, code=301)
+
+@app.route('/')
+def home():
+    """Homepage with high-conversion email capture"""
+    # Track visitor for analytics and user count
+    visitor_id = request.cookies.get('visitor_id')
+    if not visitor_id:
+        visitor_id = str(uuid.uuid4())
+    
+    # Track visit in MongoDB
+    if db:
+        db.visits.update_one(
+            {"visitor_id": visitor_id},
+            {"$set": {"last_visit": datetime.utcnow()},
+             "$setOnInsert": {"first_visit": datetime.utcnow()}},
+            upsert=True
+        )
+    
+    response = make_response(render_template('index.html'))
+    response.set_cookie('visitor_id', visitor_id, max_age=60*60*24*365)
+    return response
+
+@app.route('/blog')
+def blog():
+    """Blog listing page"""
+    posts = []
+    if db:
+        try:
+            posts = list(db.posts.find().sort("created_at", -1))
+        except Exception as e:
+            print(f"Error fetching posts: {e}")
+    return render_template('blog.html', posts=posts)
+
+@app.route('/blog/<slug>')
+def post(slug):
+    """Individual blog post page"""
+    if db:
+        post = db.posts.find_one({'slug': slug})
+        if post:
+            # Increment view counter
+            db.posts.update_one(
+                {'_id': post['_id']},
+                {'$inc': {'views': 1}}
+            )
+            
+            # Find related posts
+            related_posts = list(db.posts.find({'_id': {'$ne': post['_id']}}).limit(3))
+            return render_template('post.html', post=post, related_posts=related_posts)
+    return redirect(url_for('blog'))
+
 @app.route('/gear')
 def gear():
+    """Gear page - highest revenue generator"""
     gear_items = []
 
-    # Add some hardcoded gear items if we don't have a DB or the gear collection is empty
+    # Tracking for analytics
+    source = request.args.get('source', 'direct')
+    utm_campaign = request.args.get('utm_campaign', '')
+    
+    # Get gear items from DB or use default
     if not db:
         gear_items = get_default_gear_items()
     else:
         try:
-            # Check if gear collection has any items
-            gear_count = db.gear.count_documents({})
-            if gear_count == 0:
+            gear_items = list(db.gear.find())
+            if not gear_items:  # If empty collection
                 gear_items = get_default_gear_items()
-            else:
-                gear_items = list(db.gear.find())
+                
+                # Store default items in DB
+                for item in gear_items:
+                    db.gear.insert_one(item)
         except Exception as e:
             print(f"Error fetching gear items: {e}")
             gear_items = get_default_gear_items()
-    
-
- # Add to app.py - Dynamic urgency system
-
-@app.route('/gear/<product_id>')
-def product_detail(product_id):
-    # Pull product from MongoDB or fallback to hardcoded
-    product = find_one_document('gear', {'affiliate_id': product_id}) or {
-        'name': 'Jackery Explorer 240',
-        'image': 'https://m.media-amazon.com/images/I/41XePYWYlAL._AC_US300_.jpg',
-        'description': 'This exact power station helped me film 43 TikTok videos that generated $873 in affiliate revenue last month.',
-        'affiliate_id': 'jackery-explorer-240',
-        'price': '$199.99',
-        'old_price': '$299.99',
-        'rating': 5,
-        'inventory': random.randint(1, 7)  # Create scarcity with random low inventory
-    }
-    
-    # Generate personalized visitor count (stored in cookie)
-    if not request.cookies.get('visitor_id'):
-        visitor_id = str(uuid.uuid4())
-        session['visitor_id'] = visitor_id
-    
-    # Always create product-specific countdown
-    product['countdown_hours'] = 24 + random.randint(0, 47)  # 1-3 day countdown
-    
-    # Track view in DB
+            
+    # Track visit
     if db:
-        insert_document('product_views', {
-            'product_id': product_id,
+        db.page_views.insert_one({
+            'page': 'gear',
+            'source': source,
+            'utm_campaign': utm_campaign,
             'timestamp': datetime.utcnow(),
-            'visitor_id': session.get('visitor_id', 'unknown')
-        }
-    
-    return render_template('product_detail.html', product=product)   # Add some hardcoded gear items if we don't have a DB
-    gear_from_db = find_documents('gear') if db else []
-    if not db or not gear_from_db:
-        gear_items = [
-            {
-                'name': 'Jackery Explorer 240',
-                'image': 'https://m.media-amazon.com/images/I/41XePYWYlAL._AC_US300_.jpg',
-                'description': 'Perfect for keeping devices charged off-grid',
-                'affiliate_id': 'jackery-explorer-240',
-                'price': '$199.99',
-                'old_price': '$299.99',
-                'savings': 'Save $100',
-                'rating': 5,
-                'badges': ['HOT DEAL', 'BEST VALUE'],
-                'specs': ['240Wh', '250W output', 'Multiple ports']
-            },
-            {
-                'name': 'LifeStraw Personal Water Filter',
-                'image': 'https://m.media-amazon.com/images/I/71SYsNwj7hL._AC_UL320_.jpg',
-                'description': 'Essential survival gear that filters 99.9999% of waterborne bacteria',
-                'affiliate_id': 'lifestraw-filter',
-                'price': '$14.96',
-                'old_price': '$19.95',
-                'savings': 'Save 25%',
-                'rating': 5,
-                'badges': ['BESTSELLER'],
-                'specs': ['1000L capacity', 'No chemicals', 'Compact']
-            }
-        ]
-    else:
-        gear_items = gear_from_db
-        f4bc9ee9c0b319dc482c475b757b9e32f886d8a5
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
+
     return render_template('gear.html', gear_items=gear_items)
 
 @app.route('/about')
 def about():
+    """About page"""
     return render_template('about.html')
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
+    """Contact form page"""
     if request.method == 'POST':
         name = request.form.get('name')
         email = request.form.get('email')
@@ -447,7 +220,7 @@ def contact():
         message = request.form.get('message')
         
         if db:
-            insert_document('contacts', {
+            db.contacts.insert_one({
                 'name': name,
                 'email': email,
                 'subject': subject,
@@ -455,14 +228,24 @@ def contact():
                 'created_at': datetime.utcnow()
             })
         
+        # Also add to email list for marketing
+        if db and email:
+            db.subscribers.update_one(
+                {'email': email},
+                {'$set': {'email': email, 'source': 'contact_form', 'updated_at': datetime.utcnow()}, 
+                 '$setOnInsert': {'created_at': datetime.utcnow()}},
+                upsert=True
+            )
+        
         flash('Message received! We will get back to you soon.', 'success')
-        log_to_azure(f"Contact form submitted by {email}")
+        log_event("contact_form", f"Contact form submitted by {email}")
         return redirect(url_for('contact'))
     
     return render_template('contact.html')
 
 @app.route('/affiliate/<product_id>')
 def affiliate_redirect(product_id):
+    """Affiliate link redirect with tracking"""
     affiliate_urls = {
         'jackery-explorer-240': 'https://www.amazon.com/Jackery-Portable-Explorer-Generator-Emergency/dp/B07D29QNMJ?&linkCode=ll1&tag=gorillcamping-20',
         'lifestraw-filter': 'https://www.amazon.com/LifeStraw-Personal-Filtering-Emergency-Preparedness/dp/B07VMSR74F?&linkCode=ll1&tag=gorillcamping-20'
@@ -472,18 +255,20 @@ def affiliate_redirect(product_id):
     
     # Track click in database
     if db:
-        insert_document('affiliate_clicks', {
+        db.affiliate_clicks.insert_one({
             'product_id': product_id,
             'timestamp': datetime.utcnow(),
-            'user_agent': request.headers.get('User-Agent'),
-            'referrer': request.referrer
-        }
+            'user_agent': request.headers.get('User-Agent', ''),
+            'referrer': request.referrer,
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
     
-    log_to_azure(f"Affiliate click: {product_id}")
+    log_event("affiliate_click", f"Affiliate click: {product_id}")
     return redirect(url)
 
 @app.route('/social/<platform>')
 def social_redirect(platform):
+    """Social media redirect with tracking"""
     social_urls = {
         'reddit': 'https://www.reddit.com/r/gorillacamping',
         'facebook': 'https://www.facebook.com/profile.php?id=61577334442896',
@@ -494,62 +279,83 @@ def social_redirect(platform):
     
     # Track social click
     if db:
-        insert_document('social_clicks', {
+        db.social_clicks.insert_one({
             'platform': platform,
             'timestamp': datetime.utcnow(),
-            'user_agent': request.headers.get('User-Agent')
-        }
+            'user_agent': request.headers.get('User-Agent', ''),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
     
-    log_to_azure(f"Social click: {platform}")
+    log_event("social_click", f"Social click: {platform}")
     return redirect(url)
 
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
+    """Email subscriber collection endpoint"""
     email = request.form.get('email')
+    source = request.form.get('source', 'unknown')
+    
     if not email:
         return jsonify({'success': False, 'message': 'Email is required'})
     
     # Store in our own DB
     if db:
-        update_document('subscribers',
+        db.subscribers.update_one(
             {'email': email},
-            {'$set': {'email': email, 'updated_at': datetime.utcnow()}, 
+            {'$set': {'email': email, 'source': source, 'updated_at': datetime.utcnow()}, 
              '$setOnInsert': {'created_at': datetime.utcnow()}},
             upsert=True
         )
     
-    log_to_azure(f"New subscriber: {email}")
+    log_event("new_subscriber", f"New subscriber: {email}")
+    
+    # Create a MailerLite webhook or other email service integration here
+    
     return jsonify({'success': True, 'message': 'Subscribed successfully'})
 
 @app.route('/guerilla-camping-bible')
 def ebook():
+    """Ebook sales page"""
     return render_template('ebook.html')
 
-@app.route('/sms-signup', methods=['POST'])
-def sms_signup():
-    phone = request.form.get('phone')
-    if not phone:
-        return jsonify({"success": False, "message": "Phone number is required"})
-        
-    # TODO: Replace with your actual Zapier webhook URL
-    zapier_webhook_url = os.environ.get('ZAPIER_WEBHOOK_URL')
-    if not zapier_webhook_url:
-        return jsonify({"success": False, "message": "SMS service not configured"})
-        
-    try:
-        response = requests.post(zapier_webhook_url, 
-                               json={"phone": phone}, 
-                               timeout=10)
-        if response.status_code == 200:
-            return jsonify({"success": True, "message": "Successfully signed up for SMS updates"})
-        else:
-            return jsonify({"success": False, "message": "Failed to sign up for SMS updates"})
-    except requests.RequestException as e:
-        print(f"❌ SMS signup error: {e}")
-        return jsonify({"success": False, "message": "SMS service temporarily unavailable"})
+@app.route('/thank-you')
+def thank_you():
+    """Thank you page after signup"""
+    return render_template('thank_you.html')
+
+@app.route('/sitemap.xml')
+def sitemap():
+    """Dynamic sitemap for SEO"""
+    pages = []
+    # Add static pages
+    base_url = request.host_url.rstrip('/')
+    today = datetime.now().strftime('%Y-%m-%d')
+    
+    # Core pages
+    pages.append({"loc": f"{base_url}/", "lastmod": today, "priority": "1.0"})
+    pages.append({"loc": f"{base_url}/gear", "lastmod": today, "priority": "0.9"})
+    pages.append({"loc": f"{base_url}/about", "lastmod": today, "priority": "0.8"})
+    pages.append({"loc": f"{base_url}/blog", "lastmod": today, "priority": "0.7"})
+    
+    # Add dynamic blog pages
+    if db:
+        posts = db.posts.find({}, {"slug": 1, "updated_at": 1})
+        for post in posts:
+            last_mod = post.get('updated_at', datetime.now()).strftime('%Y-%m-%d')
+            pages.append({
+                "loc": f"{base_url}/blog/{post['slug']}",
+                "lastmod": last_mod,
+                "priority": "0.6"
+            })
+    
+    xml = render_template('sitemap.xml', pages=pages)
+    response = make_response(xml)
+    response.headers["Content-Type"] = "application/xml"
+    return response
 
 @app.route("/api/optimize", methods=['POST'])
 def generative_ai_assistant():
+    """AI assistant with affiliate recommendations"""
     # Limit: 3 free queries per session unless Pro
     if not session.get("pro_user"):
         session['queries'] = session.get('queries', 0) + 1
@@ -559,57 +365,84 @@ def generative_ai_assistant():
     data = request.json
     user_query = data.get("query", "I need some camping advice.")
     
-    # 1. RAG: Retrieve context from your knowledge base using HuggingFace embeddings
-    context = ""
-    if knowledge_base:
-        try:
-            results = knowledge_base.query(query_texts=[user_query], n_results=5)
-            context = "\n\n---\n\n".join(results['documents'][0]) if results['documents'] else ""
-        except Exception as e:
-            print(f"❌ Knowledge base error: {e}")
-    
-    # 2. Generate response
+    # Generate response
     try:
-        ai_response = ask_gemini(user_query, context)
-        # Optionally recommend gear based on AI answer
-        gear_links = ""
+        ai_response = ask_gemini(user_query)
         
+        # Recommend gear based on query content
+        gear_links = ""
+        keywords = ["power", "charging", "battery", "electricity", "devices"]
+        if any(word in user_query.lower() for word in keywords):
+            gear_links = "\n\n*Recommendation: [Jackery Explorer 240](https://gorillacamping.site/affiliate/jackery-explorer-240) - Perfect for keeping devices charged while camping.*"
+        
+        keywords = ["water", "drink", "filter", "stream", "river"]
+        if any(word in user_query.lower() for word in keywords):
+            gear_links += "\n\n*Recommendation: [LifeStraw Filter](https://gorillacamping.site/affiliate/lifestraw-filter) - Essential for safe drinking water in the wilderness.*"
+        
+        # Log AI interaction
         if db:
-            insert_document('ai_logs', {
+            db.ai_logs.insert_one({
                 "question": user_query,
                 "ai_response": ai_response,
                 "timestamp": datetime.utcnow(),
-                "user_agent": request.headers.get('User-Agent'),
-                "ip_hash": hash(request.remote_addr) if request.remote_addr else None,
-            }
+                "visitor_id": request.cookies.get('visitor_id', 'unknown'),
+                "recommendations": gear_links != ""
+            })
         
-        log_to_azure(f"AI query processed: {user_query[:50]}...")
+        log_event("ai_query", f"AI query processed: {user_query[:50]}...")
         return jsonify({"success": True, "response": ai_response + gear_links})
     except Exception as e:
         print(f"❌ AI Error: {e}")
         return jsonify({"success": False, "message": "The AI brain is currently offline. Please try again later."})
 
-@app.route('/tools')
-def tools():
-    # Create a tools comparison site using DO credit
-    # Each tool has affiliate links
-    return render_template('tools.html')
+@app.route('/robots.txt')
+def robots():
+    """SEO: Robots.txt file"""
+    r = Response("""
+User-agent: *
+Allow: /
+Sitemap: https://gorillacamping.site/sitemap.xml
+    """, mimetype='text/plain')
+    return r
 
-@app.route('/infographic/<name>')
-def infographic(name):
-    # Track downloads
+@app.errorhandler(404)
+def page_not_found(e):
+    """Custom 404 page with recommendations"""
+    top_gear = get_default_gear_items()[:2] if not db else list(db.gear.find().limit(2))
+    return render_template('404.html', recommended_gear=top_gear), 404
+
+# --- REVENUE TRACKING ENDPOINTS ---
+
+@app.route('/track/view', methods=['POST'])
+def track_view():
+    """Track page views and product impressions"""
+    data = request.json
     if db:
-        insert_document('downloads', {
-            "infographic": name,
-            "timestamp": datetime.utcnow()
-        }
-    
-    log_to_azure(f"Infographic downloaded: {name}")
-    try:
-        return send_file(f'static/infographics/{name}.pdf')
-    except Exception as e:
-        print(f"❌ Error serving infographic: {e}")
-        return redirect(url_for('home'))
+        db.view_tracking.insert_one({
+            'page': data.get('page'),
+            'products': data.get('products', []),
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
+    return jsonify({'success': True})
 
+@app.route('/track/conversion', methods=['POST'])
+def track_conversion():
+    """Track successful conversions for analytics"""
+    data = request.json
+    if db:
+        db.conversions.insert_one({
+            'type': data.get('type'),
+            'value': data.get('value'),
+            'source': data.get('source'),
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
+    return jsonify({'success': True})
+
+# --- SERVER CONFIG ---
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Use PORT environment variable for Heroku compatibility
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    app.run(host='0.0.0.0', port=port, debug=debug)
