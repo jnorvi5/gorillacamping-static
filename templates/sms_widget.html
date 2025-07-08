@@ -1,0 +1,51 @@
+<!-- Add this SMS signup form to your homepage -->
+<div style="background:#222; padding:25px; border-radius:10px; margin:30px auto; max-width:500px; text-align:center;">
+  <h3 style="color:#00ff88; margin-top:0;">GET FLASH DEALS VIA SMS</h3>
+  <p>90% open rate vs email's 20% - never miss a limited-time camping gear deal</p>
+  
+  <form id="sms-form" style="margin:20px 0;">
+    <input type="tel" id="phone-input" placeholder="Your phone number..." style="padding:12px; width:70%; border-radius:8px; border:none;" required>
+    <button type="submit" style="padding:12px; background:#00ff88; color:#111; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">SIGN UP</button>
+  </form>
+  
+  <p style="font-size:0.8em; margin:0;">Msg & data rates may apply. 2-4 msgs/month.</p>
+</div>
+
+<script>
+document.getElementById('sms-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const phone = document.getElementById('phone-input').value;
+  const btn = this.querySelector('button');
+  const originalText = btn.textContent;
+  
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  
+  try {
+    const response = await fetch('/sms-signup', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({phone: phone})
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      this.innerHTML = '<p style="color:#00ff88;">✓ Successfully signed up!</p>';
+    } else {
+      btn.textContent = 'Error';
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }, 3000);
+    }
+  } catch (err) {
+    btn.textContent = 'Error';
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }, 3000);
+  }
+});
+</script>
