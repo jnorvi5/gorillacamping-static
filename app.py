@@ -179,6 +179,193 @@ def redirect_www():
         url = request.url.replace('www.', '', 1)
         return redirect(url, code=301)
 
+# Add these routes to your app.py file
+
+@app.route('/api/guerilla-chat', methods=['POST'])
+def guerilla_chat():
+    """AI-powered mascot chat that drives revenue"""
+    if request.method == 'POST':
+        data = request.get_json()
+        user_message = data.get('message', '')
+        
+        # Track this conversation in the database
+        if db is not None:
+            db.guerilla_chats.insert_one({
+                'user_message': user_message,
+                'timestamp': datetime.utcnow(),
+                'visitor_id': request.cookies.get('visitor_id', 'unknown'),
+                'page': request.headers.get('Referer')
+            })
+        
+        # Check for product recommendations
+        product_recs = []
+        
+        # Power-related keywords
+        if any(word in user_message.lower() for word in ['power', 'battery', 'charging', 'electricity']):
+            product_recs.append({
+                'id': 'jackery-explorer-240',
+                'name': 'Jackery Explorer 240',
+                'reason': 'This is what I personally use for all my power needs when camping'
+            })
+        
+        # Water-related keywords
+        if any(word in user_message.lower() for word in ['water', 'drink', 'thirsty', 'filter']):
+            product_recs.append({
+                'id': 'lifestraw-filter', 
+                'name': 'LifeStraw Water Filter',
+                'reason': 'It filters 99.9999% of waterborne bacteria from any water source'
+            })
+        
+        # Food-related keywords  
+        if any(word in user_message.lower() for word in ['food', 'eat', 'meal', 'hungry']):
+            product_recs.append({
+                'id': '4patriots-food',
+                'name': '4Patriots Emergency Food Kit',
+                'reason': '25-year shelf life emergency food that tastes amazing'
+            })
+        
+        # Generate AI response using Gemini if available
+        try:
+            if genai:
+                ai_response = ask_gemini(
+                    user_message,
+                    context="You are Guerilla the Gorilla, a badass camping expert with a focus on off-grid living, survival skills, and making money while camping. You have a rugged, no-nonsense personality. Your responses should be helpful but have an edge to them. You curse occasionally. You're an expert on camping gear and especially like recommending products that help people make money while camping through content creation."
+                )
+            else:
+                # Fallback responses if Gemini not available
+                responses = [
+                    "Hell yeah, I can help with that. The key to successful camping is always having the right gear.",
+                    "As a badass gorilla who's seen it all, let me tell you - camping is about preparation and having the right equipment.",
+                    "Listen up, camper. The difference between a miserable night and an awesome adventure is the gear you bring.",
+                    "I've spent years in the wilderness, and the #1 mistake I see is people cheaping out on essential equipment.",
+                    "Want to know how I make money while camping? It's all about creating content and leveraging affiliate marketing."
+                ]
+                ai_response = random.choice(responses)
+            
+            # Add product recommendations to response if appropriate
+            if product_recs and random.random() < 0.7:  # 70% chance to include recommendation
+                product = random.choice(product_recs)
+                rec_text = f"\n\nBy the way, for {product['id'].split('-')[0]} needs, I personally use the {product['name']} - {product['reason']}. Want me to show you more details?"
+                ai_response += rec_text
+                
+            return jsonify({
+                'response': ai_response,
+                'recommendations': product_recs
+            })
+            
+        except Exception as e:
+            print(f"Error generating AI response: {e}")
+            return jsonify({
+                'response': "Sorry, I'm having a bit of trouble right now. Can you try again?",
+                'recommendations': product_recs
+            })
+
+@app.route('/guerilla-stats')
+def guerilla_stats():
+    """Admin dashboard for Guerilla AI revenue stats"""
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    stats = {
+        'total_chats': 0,
+        'product_recommendations': 0,
+        'product_clicks': 0,
+        'conversion_rate': 0,
+        'estimated_revenue': 0,
+        'top_products': []
+    }
+    
+    if db is not None:
+        # Get chat stats
+        stats['total_chats'] = db.guerilla_chats.count_documents({})
+        
+        # Get recommendation stats
+        product_views = list(db.guerilla_product_views.aggregate([
+            {"$group": {"_id": "$product_id", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]))
+        
+        stats['product_recommendations'] = sum(p['count'] for p in product_views)
+        
+        # Get click stats
+        product_clicks = list(db.guerilla_product_clicks.aggregate([
+            {"$group": {"_id": "$product_id", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]))
+        
+        stats['product_clicks'] = sum(p['count'] for p in product_clicks)
+        
+        # Calculate conversion rate
+        if stats['product_recommendations'] > 0:
+            stats['conversion_rate'] = round((stats['product_clicks'] / stats['product_recommendations']) * 100, 2)
+        
+        # Estimated revenue (based on average commission)
+        stats['estimated_revenue'] = round(stats['product_clicks'] * 15.75, 2)  # $15.75 average commission
+        
+        # Get top products
+        top_products = []
+        for product in product_clicks[:5]:  # Top 5 products
+            product_info = {
+                'id': product['_id'],
+                'views': next((p['count'] for p in product_views if p['_id'] == product['_id']), 0),
+                'clicks': product['count']
+            }
+            
+            # Add product details
+            if product['_id'] == 'jackery-explorer-240':
+                product_info['name'] = 'Jackery Explorer 240'
+                product_info['commission'] = '$6.00'
+            elif product['_id'] == 'lifestraw-filter':
+                product_info['name'] = 'LifeStraw Water Filter'
+                product_info['commission'] = '$0.45'
+            elif product['_id'] == '4patriots-food':
+                product_info['name'] = '4Patriots Food Kit'
+                product_info['commission'] = '$49.25'
+            else:
+                product_info['name'] = product['_id']
+                product_info['commission'] = '$5.00'
+                
+            # Calculate conversion rate for this product
+            if product_info['views'] > 0:
+                product_info['conversion_rate'] = round((product_info['clicks'] / product_info['views']) * 100, 2)
+            else:
+                product_info['conversion_rate'] = 0
+                
+            top_products.append(product_info)
+            
+        stats['top_products'] = top_products
+    
+    return render_template('guerilla_stats.html', stats=stats)
+
+@app.route('/track/guerilla-view', methods=['POST'])
+def track_guerilla_view():
+    """Track Guerilla product view"""
+    data = request.get_json()
+    product_id = data.get('product_id')
+    
+    if db is not None and product_id:
+        db.guerilla_product_views.insert_one({
+            'product_id': product_id,
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
+    
+    return jsonify({'success': True})
+
+@app.route('/track/guerilla-click', methods=['POST'])
+def track_guerilla_click():
+    """Track Guerilla product click"""
+    data = request.get_json()
+    product_id = data.get('product_id')
+    
+    if db is not None and product_id:
+        db.guerilla_product_clicks.insert_one({
+            'product_id': product_id,
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
+    
+    return jsonify({'success': True})
 @app.route('/')
 def home():
     # Track visitor for analytics and user count
