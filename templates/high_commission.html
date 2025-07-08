@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}High-Commission Camping Gear - 5-10X More Money{% endblock %}
+{% block meta_description %}Premium camping gear with 20-30% commission rates - earn $50-80 per sale instead of $3-5 from Amazon!{% endblock %}
+
+{% block content %}
+<div class="high-commission-container">
+  <div class="high-commission-header">
+    <h1>HIGH-COMMISSION CAMPING GEAR 💰</h1>
+    <p class="subtitle">These products pay 5-10X more than Amazon affiliate links</p>
+    
+    <div class="commission-explainer" style="background:#222; padding:20px; border-radius:10px; margin:20px 0; border-left:4px solid #00ff88;">
+      <h3 style="color:#00ff88; margin-top:0;">💡 THE MATH: WHY THESE LINKS MAKE YOU MORE MONEY</h3>
+      <p>While Amazon only pays <strong style="color:#ff6b6b;">3-4% commission</strong>, these direct affiliate partnerships pay <strong style="color:#00ff88;">20-30%</strong>.</p>
+      <p><strong>Example:</strong> A $200 product on Amazon earns you $6-8... but these products earn you <strong style="color:#00ff88;">$40-60 per sale!</strong></p>
+    </div>
+  </div>
+  
+  <div id="inventory-alert" style="background:#ff6b6b; color:white; padding:10px 20px; border-radius:8px; margin-bottom:20px; display:none; text-align:center;">
+    <strong>⚠️ Warning:</strong> Inventory is getting low on several items - we update availability every 24 hours
+  </div>
+  
+  <div class="high-commission-items">
+    {% for item in items %}
+    <div class="product-card" style="background:#222; padding:25px; margin:20px 0; border-radius:12px; position:relative; overflow:hidden; border:1px solid rgba(0,255,136,0.3);">
+      
+      <!-- Inventory badge -->
+      <div class="inventory-badge" style="position:absolute; top:15px; right:15px; background:#ff6b6b; color:white; padding:5px 10px; border-radius:20px; font-size:0.8em;">
+        Only {{ item.inventory }} left!
+      </div>
+      
+      <div style="display:flex; flex-wrap:wrap; gap:20px;">
+        <!-- Product image -->
+        <div style="flex:1; min-width:280px; position:relative;">
+          <img src="{{ item.image }}" alt="{{ item.name }}" style="width:100%; border-radius:8px; margin-bottom:10px;">
+          
+          <div style="background:rgba(0,0,0,0.7); color:#00ff88; position:absolute; bottom:10px; left:0; right:0; padding:10px; text-align:center; font-weight:bold;">
+            {{ item.commission }} COMMISSION PER SALE
+          </div>
+        </div>
+        
+        <!-- Product details -->
+        <div style="flex:1; min-width:280px;">
+          <h2 style="color:#00ff88; margin-top:0;">{{ item.name }}</h2>
+          
+          <div style="margin:15px 0;">
+            <span style="text-decoration:line-through; color:#999; margin-right:10px;">{{ item.old_price }}</span>
+            <span style="color:#00ff88; font-size:1.5em; font-weight:bold;">{{ item.price }}</span>
+          </div>
+          
+          <div class="live-viewers" style="margin:15px 0; display:flex; align-items:center;">
+            <span class="pulse-dot" style="display:inline-block; width:10px; height:10px; background:#ff6b6b; border-radius:50%; margin-right:8px;"></span>
+            <span id="viewer-count-{{ loop.index }}">{{ range(5, 14) | random }}</span> people viewing right now
+          </div>
+          
+          <p>{{ item.description }}</p>
+          
+          <div class="countdown" style="margin:20px 0;">
+            <span style="display:block; margin-bottom:5px;">Special commission rate expires in:</span>
+            <div id="countdown-{{ loop.index }}" style="font-family:monospace; background:#333; padding:10px; border-radius:5px; display:inline-block;">23:59:59</div>
+          </div>
+          
+          <a href="{{ item.affiliate_link }}" 
+             class="cta-button" 
+             style="display:inline-block; background:#00ff88; color:#111; text-align:center; padding:15px 30px; font-size:1.1em; font-weight:bold; border-radius:8px; text-decoration:none;"
+             target="_blank" rel="noopener sponsored"
+             onclick="trackHighCommissionClick('{{ item.name }}', '{{ item.price }}', '{{ item.commission }}')">
+            PROMOTE THIS PRODUCT →
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  
+  <div class="commission-cta" style="margin:40px 0; text-align:center;">
+    <h2>Want to become a premium partner?</h2>
+    <p>I'm looking for premium camping and survival product partners who offer 20%+ commission rates.</p>
+    <a href="/contact?subject=Premium_Partner" class="cta-button" style="display:inline-block; background:#00ff88; color:#111; text-align:center; padding:15px 30px; font-size:1.1em; font-weight:bold; border-radius:8px; text-decoration:none;">Contact Me To Partner</a>
+  </div>
+</div>
+
+<script>
+// Show inventory warning with 40% probability
+if (Math.random() < 0.4) {
+  document.getElementById('inventory-alert').style.display = 'block';
+}
+
+// Dynamic visitor counts
+document.querySelectorAll('[id^="viewer-count-"]').forEach(el => {
+  let count = parseInt(el.textContent);
+  
+  setInterval(() => {
+    if (Math.random() < 0.5) {
+      // 60% chance to increase, 40% chance to decrease
+      const direction = Math.random() < 0.6 ? 1 : -1;
+      count = Math.max(3, Math.min(25, count + direction));
+      el.textContent = count;
+      
+      // Flash effect on change
+      el.style.color = '#00ff88';
+      setTimeout(() => {
+        el.style.color = '';
+      }, 500);
+    }
+  }, 8000);
+});
+
+// Countdown timers
+document.querySelectorAll('[id^="countdown-"]').forEach(el => {
+  // Random hours between 12-47 hours
+  let hours = Math.floor(Math.random() * 36) + 12;
+  let minutes = Math.floor(Math.random() * 60);
+  let seconds = Math.floor(Math.random() * 60);
+  
+  let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+  
+  const interval = setInterval(() => {
+    totalSeconds--;
+    
+    if (totalSeconds <= 0) {
+      clearInterval(interval);
+      // Reset to a new random time
+      hours = Math.floor(Math.random() * 12) + 12;
+      minutes = Math.floor(Math.random() * 60);
+      seconds = Math.floor(Math.random() * 60);
+      totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    }
+    
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    
+    el.textContent = 
+      String(h).padStart(2, '0') + ':' +
+      String(m).padStart(2, '0') + ':' +
+      String(s).padStart(2, '0');
+    
+    // Make timer red when under 1 hour
+    if (h < 1) {
+      el.style.color = '#ff6b6b';
+    }
+  }, 1000);
+});
+
+// Track affiliate clicks
+function trackHighCommissionClick(productName, price, commission) {
+  // Send to Google Analytics if available
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'high_commission_click', {
+      'event_category': 'High Commission Affiliate',
+      'event_label': productName,
+      'value': parseFloat(commission.replace(/[^0-9.]/g, ''))
+    });
+  }
+  
+  // Also log to our server
+  fetch('/track/affiliate', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      product_name: productName,
+      price: price,
+      commission: commission,
+      referrer: document.referrer || 'direct'
+    })
+  }).catch(() => {});
+  
+  // Don't prevent navigation
+  return true;
+}
+
+// Animate the pulse dot
+document.querySelectorAll('.pulse-dot').forEach(dot => {
+  setInterval(() => {
+    dot.style.opacity = '0.4';
+    setTimeout(() => {
+      dot.style.opacity = '1';
+    }, 500);
+  }, 1000);
+});
+</script>
+{% endblock %}
