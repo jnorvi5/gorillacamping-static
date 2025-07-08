@@ -1,0 +1,518 @@
+/* Guerilla Chat Widget Styles */
+.guerilla-chat-closed {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+}
+
+.guerilla-toggle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+  border: 3px solid #00ff88;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 10px rgba(0,255,136,0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.3s;
+}
+
+.guerilla-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4), 0 0 20px rgba(0,255,136,0.7);
+}
+
+.guerilla-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.guerilla-notification {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ff3b30;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #111;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.guerilla-chat-container {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 350px;
+  height: 500px;
+  background: #222;
+  border-radius: 16px;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.3), 0 0 15px rgba(0,255,136,0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 2px solid rgba(0,255,136,0.4);
+  display: none;
+  z-index: 1000;
+}
+
+.guerilla-chat-header {
+  background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+  padding: 15px;
+  border-bottom: 2px solid rgba(0,255,136,0.4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.guerilla-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.guerilla-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #00ff88;
+}
+
+.guerilla-name {
+  font-weight: bold;
+  color: #00ff88;
+  font-size: 16px;
+}
+
+.guerilla-status {
+  color: #aaa;
+  font-size: 12px;
+}
+
+.guerilla-close-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.guerilla-close-btn:hover {
+  color: #00ff88;
+}
+
+.guerilla-chat-messages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background: #222;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.guerilla-message {
+  display: flex;
+  gap: 10px;
+  max-width: 85%;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.guerilla-incoming {
+  align-self: flex-start;
+}
+
+.guerilla-outgoing {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.guerilla-msg-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.guerilla-msg-content {
+  background: #333;
+  padding: 12px;
+  border-radius: 16px;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.guerilla-outgoing .guerilla-msg-content {
+  background: #3a3a3a;
+}
+
+.guerilla-msg-content p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.guerilla-msg-content a {
+  color: #00ff88;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.guerilla-msg-content a:hover {
+  text-decoration: underline;
+}
+
+.guerilla-chat-input {
+  padding: 10px 15px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  gap: 10px;
+}
+
+#guerilla-input {
+  flex: 1;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: none;
+  background: #333;
+  color: #fff;
+  font-size: 14px;
+}
+
+#guerilla-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0,255,136,0.5);
+}
+
+#guerilla-send {
+  background: #00ff88;
+  color: #111;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#guerilla-send:hover {
+  background: #00cc6a;
+  transform: scale(1.05);
+}
+
+/* Product Suggestions */
+.guerilla-product-suggestion {
+  border-left: 3px solid #00ff88;
+}
+
+.guerilla-suggestion-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.guerilla-suggestion-btn {
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.guerilla-suggestion-btn:first-child {
+  background: #00ff88;
+  color: #111;
+}
+
+.guerilla-suggestion-btn:first-child:hover {
+  background: #00cc6a;
+}
+
+.guerilla-suggestion-secondary {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.guerilla-suggestion-secondary:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+/* Product Modal */
+.guerilla-modal {
+  display: none;
+  position: fixed;
+  z-index: 1001;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.8);
+  overflow: auto;
+}
+
+.guerilla-modal-content {
+  position: relative;
+  background: #222;
+  margin: 5% auto;
+  padding: 25px;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 16px;
+  box-shadow: 0 5px 30px rgba(0,0,0,0.3), 0 0 20px rgba(0,255,136,0.5);
+  border: 2px solid #00ff88;
+  animation: fadeInUp 0.4s;
+}
+
+.guerilla-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.guerilla-modal-close:hover {
+  color: #00ff88;
+}
+
+.guerilla-product-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.guerilla-product-header {
+  display: flex;
+  gap: 20px;
+}
+
+.guerilla-product-image {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.guerilla-product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.guerilla-product-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #00ff88;
+  margin: 0;
+}
+
+.guerilla-product-price {
+  font-size: 20px;
+  margin: 10px 0;
+}
+
+.guerilla-product-price .original {
+  text-decoration: line-through;
+  color: #aaa;
+  margin-right: 10px;
+}
+
+.guerilla-product-price .discounted {
+  color: #fff;
+  font-weight: bold;
+}
+
+.guerilla-product-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.guerilla-badge {
+  background: rgba(0,255,136,0.2);
+  color: #00ff88;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 10px;
+}
+
+.guerilla-product-desc {
+  margin: 20px 0;
+  line-height: 1.6;
+}
+
+.guerilla-testimonial {
+  background: #333;
+  padding: 15px;
+  border-radius: 10px;
+  font-style: italic;
+  margin: 20px 0;
+  border-left: 3px solid #00ff88;
+}
+
+.guerilla-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.guerilla-buy-btn {
+  flex: 2;
+  background: #00ff88;
+  color: #111;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.guerilla-buy-btn:hover {
+  background: #00cc6a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,255,136,0.4);
+}
+
+.guerilla-wishlist-btn {
+  flex: 1;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.guerilla-wishlist-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.guerilla-guarantee {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.guerilla-guarantee svg {
+  color: #00ff88;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .guerilla-chat-container {
+    width: 90%;
+    height: 80%;
+    bottom: 80px;
+    right: 5%;
+  }
+  
+  .guerilla-modal-content {
+    width: 90%;
+    margin: 10% auto;
+  }
+  
+  .guerilla-product-header {
+    flex-direction: column;
+  }
+  
+  .guerilla-product-image {
+    width: 100%;
+    height: auto;
+  }
+  
+  .guerilla-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Animations */
+.guerilla-breathing {
+  animation: breathing 3s ease-out infinite normal;
+}
+
+@keyframes breathing {
+  0% { box-shadow: 0 0 10px rgba(0,255,136,0.3); }
+  50% { box-shadow: 0 0 25px rgba(0,255,136,0.6); }
+  100% { box-shadow: 0 0 10px rgba(0,255,136,0.3); }
+}
+
+/* Money-generating urgency features */
+.guerilla-live-visitors {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #ff6b6b;
+  margin-top: 10px;
+}
+
+.guerilla-live-visitors .dot {
+  width: 8px;
+  height: 8px;
+  background: #ff6b6b;
+  border-radius: 50%;
+  animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+.guerilla-countdown {
+  background: rgba(0,0,0,0.2);
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 15px;
+  text-align: center;
+}
+
+.guerilla-countdown-timer {
+  font-family: monospace;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ff6b6b;
+}
