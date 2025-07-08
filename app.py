@@ -181,7 +181,6 @@ def redirect_www():
 
 @app.route('/')
 def home():
-    """Homepage with high-conversion email capture"""
     # Track visitor for analytics and user count
     visitor_id = request.cookies.get('visitor_id')
     if not visitor_id:
@@ -210,9 +209,12 @@ def home():
     else:
         track_page_view('home')
     
-   
+    # FIXED: Use only index.html until we create index_b.html
+    template = 'index.html'
     
-template = 'index.html'
+    response = make_response(render_template(template))
+    response.set_cookie('visitor_id', visitor_id, max_age=60*60*24*365)
+    return response
 
 @app.route('/blog')
 def blog():
