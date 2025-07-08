@@ -112,6 +112,44 @@ def get_default_gear_items():
     ]
 
 # --- ROUTES ---
+@app.route('/digital-busking')
+def digital_busking():
+    """Create a digital tip jar - like busking for online content"""
+    
+    # Generate unique "camping tip" each time
+    camping_tips = [
+        "Use dryer lint as a perfect fire starter - free and ultra-lightweight!",
+        "Put a headlamp around a water jug for an instant lantern.",
+        "Freeze water bottles instead of using ice in your cooler.",
+        "Crack eggs into a water bottle before your trip for mess-free camping.",
+        "Doritos make excellent emergency fire starters in a pinch!"
+    ]
+    
+    # Support payment options - Buy Me A Coffee, Ko-fi, PayPal, etc.
+    payment_options = [
+        {
+            "name": "Buy Me A Coffee",
+            "url": "https://www.buymeacoffee.com/gorillacamping",
+            "suggestion": "Buy me a coffee ($5)",
+            "image": "/static/images/coffee-icon.png"
+        },
+        {
+            "name": "Ko-fi",
+            "url": "https://ko-fi.com/gorillacamping",
+            "suggestion": "Buy me a beer ($4)",
+            "image": "/static/images/kofi-icon.png"
+        },
+        {
+            "name": "PayPal",
+            "url": "https://paypal.me/gorillacamping",
+            "suggestion": "Support my next camping trip ($10)",
+            "image": "/static/images/paypal-icon.png"
+        }
+    ]
+    
+    return render_template('digital_busking.html',
+                           camping_tip=random.choice(camping_tips),
+                           payment_options=payment_options)
 @app.before_request
 def redirect_www():
     """SEO Improvement: Redirect www to non-www for better SEO and analytics"""
