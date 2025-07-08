@@ -150,7 +150,73 @@ def blog():
         except Exception as e:
             print(f"Error fetching posts: {e}")
     return render_template('blog.html', posts=posts)
-
+@app.route('/ai-product-description', methods=['POST'])
+def ai_product_description():
+    """Generate high-converting product descriptions with GitHub Student Pack Replicate credits"""
+    import replicate
+    
+    product_name = request.form.get('product_name', '')
+    key_features = request.form.get('key_features', '')
+    
+    prompt = f"""Write a high-converting product description for "{product_name}" with these features: {key_features}.
+    Focus on benefits, not features. Include an emotional hook and a strong call to action.
+    Use a conversational, authentic style that feels like it's written by a real camper who uses this daily.
+    Include a sentence about how this product helps make money while camping through content creation.
+    Maximum 120 words."""
+    
+    try:
+        # Uses free Replicate credits from Student Pack
+        output = replicate.run(
+            "meta/llama-2-70b-chat:02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3",
+            input={"prompt": prompt, "max_length": 2000}
+        )
+        
+        # Combine response chunks
+        ai_text = ''.join(output)
+        
+        # Add money-making angle if not present
+        if "content" not in ai_text.lower() and "money" not in ai_text.lower():
+            ai_text += "\n\nBonus: This gear is perfect for creating viral camping content that can earn $50-100/day in affiliate commissions."
+        
+        return jsonify({"success": True, "text": ai_text})
+    except Exception as e:
+        print(f"AI Error: {e}")
+        return jsonify({"success": False, "error": str(e)})
+@app.route('/survival-gear')
+def survival_gear():
+    """High-commission survival gear (25-30% instead of Amazon's 3-4%)"""
+    survival_items = [
+        {
+            'name': '4Patriots Emergency Food Kit',
+            'image': 'https://via.placeholder.com/300x200?text=Emergency+Food',
+            'description': 'My #1 recommended survival food - lasts 25 years and tastes great!',
+            'affiliate_id': '4patriots-food',
+            'price': '$197',
+            'old_price': '$297',
+            'commission': '$49.25 (25%)',  # vs $5.91 on Amazon (3%)
+            'inventory': random.randint(2, 7)
+        },
+        {
+            'name': 'Alexapure Pro Water Filter',
+            'image': 'https://via.placeholder.com/300x200?text=Water+Filter',
+            'description': 'The ultimate off-grid water solution - I use this daily at camp.',
+            'affiliate_id': 'alexapure-pro',
+            'price': '$249',
+            'old_price': '$349',
+            'commission': '$74.70 (30%)',  # vs $7.47 on Amazon (3%)
+            'inventory': random.randint(1, 5)
+        }
+    ]
+    
+    # Track visit in MongoDB
+    if db is not None:
+        db.page_views.insert_one({
+            'page': 'survival_gear',
+            'timestamp': datetime.utcnow(),
+            'visitor_id': request.cookies.get('visitor_id', 'unknown')
+        })
+    
+    return render_template('survival_gear.html', items=survival_items)
 @app.route('/guerilla-guide')
 def guerilla_guide():
     """Instant digital product sales page"""
