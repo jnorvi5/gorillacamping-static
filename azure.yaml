@@ -1,0 +1,7 @@
+{
+  "language": "python",
+  "buildCommands": [
+    "pip install -r requirements.txt"
+  ],
+  "startCommand": "gunicorn app_optimized:app"
+}
