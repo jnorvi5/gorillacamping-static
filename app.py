@@ -9,11 +9,16 @@ from pymongo import MongoClient
 from urllib.parse import urlparse, parse_qs
 import traceback
 import time
+import logging
 
 # Import our AI optimizer
-from ai_optimizer import ai_optimizer, optimize_ai_call
+from ai_optimizer import ai_optimizer, optimize_ai_call, AIOptimizer
 from guerilla_personality import guerilla, memory
 import google.generativeai as genai
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # --- FLASK SETUP ---
 app = Flask(__name__, static_folder='static')
@@ -30,15 +35,13 @@ except ImportError:
     print("⚠️ flask_compress not installed, continuing without compression")
 
 try:
-    import google.generativeai as genai
-    
     # --- GEMINI AI SETUP ---
-    gemini_api_key = os.environ.get('GEMINI_API_KEY')
+    gemini_api_key = os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY')
     if gemini_api_key:
         genai.configure(api_key=gemini_api_key)
         print("✅ Google Generative AI initialized")
     else:
-        print("⚠️ GEMINI_API_KEY not set, AI features disabled")
+        print("⚠️ GEMINI_API_KEY/GOOGLE_API_KEY not set, AI features disabled")
         genai = None
 except ImportError:
     print("⚠️ google.generativeai not installed, continuing without AI features")
@@ -61,7 +64,12 @@ except Exception as e:
     db = None
 
 # Initialize AI optimizer
-ai_optimizer = AIOptimizer()
+try:
+    ai_optimizer = AIOptimizer()
+    print("✅ AI Optimizer initialized")
+except Exception as e:
+    print(f"⚠️ AI Optimizer error: {e}")
+    ai_optimizer = None
 
 # --- HELPER FUNCTIONS ---
 def log_event(event_type, message, level="INFO"):
@@ -78,15 +86,15 @@ def log_event(event_type, message, level="INFO"):
         except Exception as e:
             print(f"❌ Error logging to MongoDB: {e}")
 
-# Configure Gemini
-genai.configure(api_key=os.environ.get('GOOGLE_API_KEY'))
-
 @optimize_ai_call
 def ask_gemini_optimized(query, context="", user_id=""):
     """
     Optimized Gemini call with perfect Guerilla personality
     """
     try:
+        if not genai:
+            return "AI is taking a break. Ask me again in a sec."
+        
         # Get user context from conversation memory
         user_context = memory.get_context_for_ai()
         
@@ -118,18 +126,20 @@ Respond as Guerilla the Gorilla. Be authentic, concise, and helpful. Share real 
         # Learn from conversation
         memory.learn_from_conversation(query, ai_response)
         
-        # Add conversation to history
-        ai_optimizer.add_to_history(user_id, 'user', query)
-        ai_optimizer.add_to_history(user_id, 'assistant', ai_response)
+        # Add conversation to history if optimizer available
+        if ai_optimizer:
+            ai_optimizer.add_to_history(user_id, 'user', query)
+            ai_optimizer.add_to_history(user_id, 'assistant', ai_response)
+            
+            # Get smart product recommendations
+            user_history = ai_optimizer.get_conversation_history(user_id)
+            recommendations = ai_optimizer.smart_product_recommendation(query, user_history)
+            
+            # Optimize response with recommendations
+            final_response = ai_optimizer.optimize_response(ai_response, recommendations)
+            return final_response
         
-        # Get smart product recommendations
-        user_history = ai_optimizer.get_conversation_history(user_id)
-        recommendations = ai_optimizer.smart_product_recommendation(query, user_history)
-        
-        # Optimize response with recommendations
-        final_response = ai_optimizer.optimize_response(ai_response, recommendations)
-        
-        return final_response
+        return ai_response
         
     except Exception as e:
         logger.error(f"Gemini error: {e}")
@@ -255,16 +265,24 @@ def guerilla_chat():
         ai_response = ask_gemini_optimized(user_message, context, user_id)
         
         # Get analytics for monitoring
-        analytics = ai_optimizer.get_analytics()
-        
-        response_data = {
-            'response': ai_response,
-            'user_id': user_id,
-            'analytics': {
+        if ai_optimizer:
+            analytics = ai_optimizer.get_analytics()
+            analytics_summary = {
                 'total_cost': f"${analytics['total_cost']:.4f}",
                 'avg_response_time': f"{analytics['avg_response_time']:.2f}s",
                 'total_calls': analytics['total_calls']
             }
+        else:
+            analytics_summary = {
+                'total_cost': "$0.00",
+                'avg_response_time': "0.0s",
+                'total_calls': 0
+            }
+        
+        response_data = {
+            'response': ai_response,
+            'user_id': user_id,
+            'analytics': analytics_summary
         }
         
         return jsonify(response_data)
@@ -275,13 +293,6 @@ def guerilla_chat():
             'response': "Something went sideways. Try asking again.",
             'error': str(e)
         }), 500
-
-@app.route('/api/gorilla-ai', methods=['POST'])
-def gorilla_ai():
-    """
-    Legacy endpoint updated with new personality
-    """
-    return guerilla_chat()  # Redirect to optimized version
 
 @app.route('/api/optimize', methods=['POST'])
 def optimize_endpoint():
@@ -298,22 +309,23 @@ def optimize_endpoint():
         # Test the optimization system
         start_time = time.time()
         
-        # Check cache
-        cached = ai_optimizer.get_cached_response(query)
-        if cached:
-            response_time = time.time() - start_time
-            return jsonify({
-                'response': cached,
-                'cache_hit': True,
-                'response_time': f"{response_time:.3f}s",
-                'cost_saved': True
-            })
+        # Check cache if optimizer available
+        if ai_optimizer:
+            cached = ai_optimizer.get_cached_response(query)
+            if cached:
+                response_time = time.time() - start_time
+                return jsonify({
+                    'response': cached,
+                    'cache_hit': True,
+                    'response_time': f"{response_time:.3f}s",
+                    'cost_saved': True
+                })
         
         # Generate new response
         ai_response = ask_gemini_optimized(query)
         response_time = time.time() - start_time
         
-        analytics = ai_optimizer.get_analytics()
+        analytics = ai_optimizer.get_analytics() if ai_optimizer else {}
         
         return jsonify({
             'response': ai_response,
@@ -328,7 +340,15 @@ def optimize_endpoint():
 @app.route('/api/ai-analytics', methods=['GET'])
 def ai_analytics():
     """Get AI usage analytics"""
-    analytics = ai_optimizer.get_analytics()
+    analytics = ai_optimizer.get_analytics() if ai_optimizer else {
+        'total_cost': 0,
+        'total_calls': 0,
+        'avg_response_time': 0,
+        'cache_hits': 0,
+        'redis_connected': False,
+        'ai_online': bool(genai),
+        'cost_breakdown': {}
+    }
     return jsonify(analytics)
 
 # --- EXISTING ROUTES (keeping the same) ---
