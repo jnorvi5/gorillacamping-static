@@ -16,9 +16,9 @@ def main():
     os.environ.setdefault('FLASK_ENV', 'production')
     
     try:
-        # Use the emergency app that definitely works
-        from app_emergency import app
-        print("✅ Emergency app loaded - guaranteed to work!")
+        # Use the instant app that starts in 2 seconds
+        from app_instant import app
+        print("✅ Instant app loaded - starts immediately!")
         
         # Run the app
         port = int(os.environ.get('PORT', 8000))
