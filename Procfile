@@ -1,2 +1,1 @@
-web: gunicorn app:app
-worker: python data_agent.py
+web: python startup.py
