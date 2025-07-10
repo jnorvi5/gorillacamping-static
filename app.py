@@ -10,7 +10,10 @@ from urllib.parse import urlparse, parse_qs
 import traceback
 import time
 
-# Keep it simple for now - no extra dependencies
+# Import our AI optimizer
+from ai_optimizer import ai_optimizer, optimize_ai_call
+from guerilla_personality import guerilla, memory
+import google.generativeai as genai
 
 # --- FLASK SETUP ---
 app = Flask(__name__, static_folder='static')
@@ -57,6 +60,9 @@ except Exception as e:
     print(f"❌ MongoDB connection error: {e}")
     db = None
 
+# Initialize AI optimizer
+ai_optimizer = AIOptimizer()
+
 # --- HELPER FUNCTIONS ---
 def log_event(event_type, message, level="INFO"):
     """Simple logging function"""
@@ -72,34 +78,72 @@ def log_event(event_type, message, level="INFO"):
         except Exception as e:
             print(f"❌ Error logging to MongoDB: {e}")
 
-def ask_gemini(user_query, context=""):
-    """Generate AI response with Google Gemini"""
-    if not genai:
-        return "AI services are currently unavailable."
-    
+# Configure Gemini
+genai.configure(api_key=os.environ.get('GOOGLE_API_KEY'))
+
+@optimize_ai_call
+def ask_gemini_optimized(query, context="", user_id=""):
+    """
+    Optimized Gemini call with perfect Guerilla personality
+    """
     try:
-        model = genai.GenerativeModel("gemini-pro")
+        # Get user context from conversation memory
+        user_context = memory.get_context_for_ai()
         
-        # Guerilla personality context
-        guerilla_context = """You are Guerilla the Gorilla, a badass camping expert with a focus on off-grid living, survival skills, and making money while camping. You have a rugged, no-nonsense personality. Your responses should be helpful but have an edge to them. You curse occasionally. You're an expert on camping gear and especially like recommending products that help people make money while camping through content creation."""
+        # Build the perfect Guerilla prompt
+        personality_prompt = guerilla.get_personality_prompt()
         
-        full_prompt = f"{guerilla_context}\n\n{context}\n\nUser: {user_query}\n\nGuerilla:"
+        full_prompt = f"""
+{personality_prompt}
+
+USER CONTEXT: {user_context}
+CONVERSATION CONTEXT: {context}
+
+USER MESSAGE: {query}
+
+Respond as Guerilla the Gorilla. Be authentic, concise, and helpful. Share real experience, not sales pitches.
+"""
+
+        # Initialize Gemini model
+        model = genai.GenerativeModel('gemini-pro')
         
+        # Generate response
         response = model.generate_content(full_prompt)
-        return response.text
+        ai_response = response.text
+        
+        # Apply Guerilla personality filters
+        ai_response = guerilla.filter_response(ai_response)
+        ai_response = guerilla.add_guerilla_touch(ai_response)
+        
+        # Learn from conversation
+        memory.learn_from_conversation(query, ai_response)
+        
+        # Add conversation to history
+        ai_optimizer.add_to_history(user_id, 'user', query)
+        ai_optimizer.add_to_history(user_id, 'assistant', ai_response)
+        
+        # Get smart product recommendations
+        user_history = ai_optimizer.get_conversation_history(user_id)
+        recommendations = ai_optimizer.smart_product_recommendation(query, user_history)
+        
+        # Optimize response with recommendations
+        final_response = ai_optimizer.optimize_response(ai_response, recommendations)
+        
+        return final_response
         
     except Exception as e:
-        print(f"❌ Gemini API Error: {e}")
+        logger.error(f"Gemini error: {e}")
         
-        # Fallback responses
+        # Authentic Guerilla fallback responses
         fallback_responses = [
             "System's taking a smoke break. Ask me again in a sec.",
-            "Tech's acting up. But hey, what's your real question?", 
+            "Tech's acting up. But hey, what's your real question?",
             "Connection's wonky. Try that again?",
-            "Hell yeah, I can help with that. The key to successful camping is always having the right gear.",
-            "As a badass gorilla who's seen it all, let me tell you - camping is about preparation and having the right equipment."
+            "Servers are napping. Give it another shot.",
+            "Network hiccup. What were you asking about?"
         ]
         
+        import random
         return random.choice(fallback_responses)
 
 def get_default_gear_items():
@@ -195,74 +239,55 @@ def track_page_view(page_name, source=None, metadata=None):
 
 @app.route('/api/guerilla-chat', methods=['POST'])
 def guerilla_chat():
-    """AI-powered mascot chat that drives revenue"""
+    """
+    Perfect Guerilla AI chat with optimization
+    """
     try:
         data = request.get_json()
         if not data or 'message' not in data:
             return jsonify({'error': 'Message is required'}), 400
         
         user_message = data['message']
+        user_id = data.get('user_id', f"user_{int(time.time())}")
+        context = data.get('context', '')
         
-        # Track this conversation in the database
-        if db is not None:
-            db.guerilla_chats.insert_one({
-                'user_message': user_message,
-                'timestamp': datetime.utcnow(),
-                'visitor_id': request.cookies.get('visitor_id', 'unknown'),
-                'page': request.headers.get('Referer')
-            })
+        # Get optimized response
+        ai_response = ask_gemini_optimized(user_message, context, user_id)
         
-        # Check for product recommendations
-        product_recs = []
+        # Get analytics for monitoring
+        analytics = ai_optimizer.get_analytics()
         
-        # Power-related keywords
-        if any(word in user_message.lower() for word in ['power', 'battery', 'charging', 'electricity']):
-            product_recs.append({
-                'id': 'jackery-explorer-240',
-                'name': 'Jackery Explorer 240',
-                'reason': 'This is what I personally use for all my power needs when camping'
-            })
-        
-        # Water-related keywords
-        if any(word in user_message.lower() for word in ['water', 'drink', 'thirsty', 'filter']):
-            product_recs.append({
-                'id': 'lifestraw-filter', 
-                'name': 'LifeStraw Water Filter',
-                'reason': 'It filters 99.9999% of waterborne bacteria from any water source'
-            })
-        
-        # Food-related keywords  
-        if any(word in user_message.lower() for word in ['food', 'eat', 'meal', 'hungry']):
-            product_recs.append({
-                'id': '4patriots-food',
-                'name': '4Patriots Emergency Food Kit',
-                'reason': '25-year shelf life emergency food that tastes amazing'
-            })
-        
-        # Generate AI response using Gemini if available
-        ai_response = ask_gemini(user_message, context="You are responding to a question about camping, gear, or survival.")
-        
-        # Add product recommendations to response if appropriate
-        if product_recs and random.random() < 0.7:  # 70% chance to include recommendation
-            product = random.choice(product_recs)
-            rec_text = f"\n\nBy the way, for {product['id'].split('-')[0]} needs, I personally use the {product['name']} - {product['reason']}. Want me to show you more details?"
-            ai_response += rec_text
-            
-        return jsonify({
+        response_data = {
             'response': ai_response,
-            'recommendations': product_recs
-        })
+            'user_id': user_id,
+            'analytics': {
+                'total_cost': f"${analytics['total_cost']:.4f}",
+                'avg_response_time': f"{analytics['avg_response_time']:.2f}s",
+                'total_calls': analytics['total_calls']
+            }
+        }
+        
+        return jsonify(response_data)
         
     except Exception as e:
-        print(f"Error generating AI response: {e}")
+        logger.error(f"Chat error: {e}")
         return jsonify({
-            'response': "Sorry, I'm having a bit of trouble right now. Can you try again?",
-            'recommendations': []
-        })
+            'response': "Something went sideways. Try asking again.",
+            'error': str(e)
+        }), 500
+
+@app.route('/api/gorilla-ai', methods=['POST'])
+def gorilla_ai():
+    """
+    Legacy endpoint updated with new personality
+    """
+    return guerilla_chat()  # Redirect to optimized version
 
 @app.route('/api/optimize', methods=['POST'])
 def optimize_endpoint():
-    """Simple optimization endpoint"""
+    """
+    Direct optimization endpoint for testing
+    """
     try:
         data = request.get_json()
         query = data.get('query', '')
@@ -270,19 +295,41 @@ def optimize_endpoint():
         if not query:
             return jsonify({'error': 'Query required'}), 400
         
-        # Generate response using simple Gemini call
-        ai_response = ask_gemini(query)
+        # Test the optimization system
+        start_time = time.time()
+        
+        # Check cache
+        cached = ai_optimizer.get_cached_response(query)
+        if cached:
+            response_time = time.time() - start_time
+            return jsonify({
+                'response': cached,
+                'cache_hit': True,
+                'response_time': f"{response_time:.3f}s",
+                'cost_saved': True
+            })
+        
+        # Generate new response
+        ai_response = ask_gemini_optimized(query)
+        response_time = time.time() - start_time
+        
+        analytics = ai_optimizer.get_analytics()
         
         return jsonify({
-            'success': True,
-            'response': ai_response
+            'response': ai_response,
+            'cache_hit': False,
+            'response_time': f"{response_time:.3f}s",
+            'analytics': analytics
         })
         
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ai-analytics', methods=['GET'])
+def ai_analytics():
+    """Get AI usage analytics"""
+    analytics = ai_optimizer.get_analytics()
+    return jsonify(analytics)
 
 # --- EXISTING ROUTES (keeping the same) ---
 
@@ -432,7 +479,7 @@ def gorilla_ai():
     
     # Generate AI response
     try:
-        ai_response = ask_gemini(user_query)
+        ai_response = ask_gemini_optimized(user_query)
         
         # Add subtle product recommendations
         if product_matches:
