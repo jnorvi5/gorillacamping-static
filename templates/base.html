@@ -29,7 +29,7 @@
     <!-- Social Meta Tags -->
     <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
-    <meta property="og:image" content="https://gorillacamping.site{{ url_for('static', filename='images/og-gorilla-camping.jpg') }}">
+    <meta property="og:image" content="https://gorillacamping.site{{ url_for('static', filename='img/logo.png') }}">
     <meta property="og:url" content="https://gorillacamping.site{{ request.path }}">
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:site_name" content="Gorilla Camping">
@@ -37,7 +37,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ self.title() }}">
     <meta name="twitter:description" content="{{ self.meta_description() }}">
-    <meta name="twitter:image" content="https://gorillacamping.site{{ url_for('static', filename='images/og-gorilla-camping.jpg') }}">
+    <meta name="twitter:image" content="https://gorillacamping.site{{ url_for('static', filename='img/logo.png') }}">
 
     <!-- Schema.org Structured Data -->
     <script type="application/ld+json">
@@ -46,7 +46,7 @@
       "@type": "Organization",
       "name": "Gorilla Camping",
       "url": "https://gorillacamping.site",
-      "logo": "https://gorillacamping.site{{ url_for('static', filename='images/logo.png') }}",
+      "logo": "https://gorillacamping.site{{ url_for('static', filename='img/logo.png') }}",
       "description": "Guerilla-style camping guides, gear reviews, and off-grid living tips for budget-conscious adventurers.",
       "founder": {
         "@type": "Person",
@@ -112,7 +112,7 @@
     <header class="gc-header">
         <div class="logo-container">
             <a href="/" aria-label="Gorilla Camping Home">
-                <img src="{{ url_for('static', filename='images/logo.png') }}"
+                <img src="{{ url_for('static', filename='img/logo.png') }}"
                      alt="Gorilla Camping Logo - Guerilla Style Camping"
                      class="header-logo-glow"
                      width="140"
