@@ -2,7 +2,7 @@
 <div id="guerilla-chat-widget" class="guerilla-chat-closed">
   <!-- Chat toggle button with gorilla icon -->
   <div id="guerilla-toggle" class="guerilla-toggle">
-    <img src="{{ url_for('static', filename='images/guerilla-icon.png') }}" alt="Guerilla the Gorilla" class="guerilla-icon">
+    <img src="{{ static_base_url }}/images/guerilla-icon.png" alt="Guerilla the Gorilla" class="guerilla-icon">
     <div class="guerilla-notification" id="guerilla-notification">1</div>
   </div>
   
@@ -10,7 +10,7 @@
   <div class="guerilla-chat-container">
     <div class="guerilla-chat-header">
       <div class="guerilla-identity">
-        <img src="{{ url_for('static', filename='images/guerilla-mascot.png') }}" alt="Guerilla" class="guerilla-avatar">
+        <img src="{{ static_base_url }}/images/guerilla-mascot.png" alt="Guerilla" class="guerilla-avatar">
         <div class="guerilla-info">
           <div class="guerilla-name">Guerilla</div>
           <div class="guerilla-status">Badass Camping Expert</div>
@@ -22,7 +22,7 @@
     <div class="guerilla-chat-messages" id="guerilla-messages">
       <!-- Initial message -->
       <div class="guerilla-message guerilla-incoming">
-        <img src="{{ url_for('static', filename='images/guerilla-mascot.png') }}" class="guerilla-msg-avatar">
+        <img src="{{ static_base_url }}/images/guerilla-mascot.png" class="guerilla-msg-avatar">
         <div class="guerilla-msg-content">
           <p>Yo! I'm Guerilla the Gorilla. Need advice on camping gear, survival tips, or making money while living off-grid? Ask me anything!</p>
         </div>
@@ -30,7 +30,7 @@
       
       <!-- Product suggestion will appear after 10 seconds -->
       <div class="guerilla-message guerilla-incoming guerilla-product-suggestion" id="guerilla-initial-suggestion" style="display:none;">
-        <img src="{{ url_for('static', filename='images/guerilla-mascot.png') }}" class="guerilla-msg-avatar">
+        <img src="{{ static_base_url }}/images/guerilla-mascot.png" class="guerilla-msg-avatar">
         <div class="guerilla-msg-content">
           <p>Most people ask me about <strong>power solutions for camping</strong>. Want to see the gear I personally use?</p>
           <div class="guerilla-suggestion-actions">

@@ -731,5 +731,9 @@ def page_not_found(e):
     """404 error handler"""
     return render_template('404.html'), 404
 
+@app.context_processor
+def inject_static_base_url():
+    return dict(static_base_url="https://static.gorillacamping.site")  # or your Cloudflare Pages URL
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000))) 
