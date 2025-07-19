@@ -10,5 +10,3 @@ print("Email Subscribers:")
 for sub in subscribers.find():
     print(sub)
 
-
-
