@@ -20,6 +20,16 @@ app = Flask(__name__, static_folder='static')
 app.secret_key = os.environ.get('SECRET_KEY') or 'guerilla-camping-secret-2025'
 app.config['SESSION_COOKIE_SECURE'] = True  # For HTTPS
 
+# Manual static file serving as backup
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    """Manual static file serving as backup"""
+    try:
+        return send_from_directory('static', filename)
+    except Exception as e:
+        print(f"Static file error: {e}")
+        return f"File not found: {filename}", 404
+
 # --- HANDLE OPTIONAL DEPENDENCIES ---
 try:
     from flask_compress import Compress
@@ -432,11 +442,6 @@ def ai_chat_redirect():
 def index():
     """Homepage with link to new chat interface"""
     return render_template('index.html', chat_url='/chat')
-
-@app.route('/test')
-def test():
-    """Test page to verify deployment"""
-    return render_template('test.html')
 
 @app.route('/blog')
 def blog():
