@@ -51,6 +51,21 @@ def contact():
     """Contact page"""
     return render_template('contact_simple.html')
 
+@app.route('/blog')
+def blog():
+    """Blog page"""
+    return render_template('blog.html')
+
+@app.route('/social/<platform>')
+def social_redirect(platform):
+    """Redirect to social media platforms"""
+    social_links = {
+        'reddit': 'https://www.reddit.com/r/gorillacamping',
+        'facebook': 'https://www.facebook.com/gorillacamping',
+        'tiktok': 'https://www.tiktok.com/@gorillacamping'
+    }
+    return redirect(social_links.get(platform, '/'))
+
 @app.route('/affiliate/<product>')
 def affiliate(product):
     """Affiliate redirects"""
@@ -62,4 +77,5 @@ def affiliate(product):
     return redirect(links.get(product, '/'))
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False) 
