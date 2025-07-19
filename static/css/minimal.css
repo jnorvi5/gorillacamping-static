@@ -1,0 +1,73 @@
+/* Minimal Gorilla Camping CSS */
+:root {
+  --gorilla-green: #00ff88;
+  --dark-bg: #111;
+  --text-white: #fff;
+}
+
+body {
+  background: var(--dark-bg);
+  color: var(--text-white);
+  font-family: 'Montserrat', 'Arial', sans-serif;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.gc-header {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+}
+
+.header-logo-glow {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 1rem;
+  display: block;
+  border-radius: 50%;
+  box-shadow: 0 0 32px var(--gorilla-green);
+}
+
+.gc-motto-glow {
+  margin: 2rem 0 3rem 0;
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 900;
+  color: var(--gorilla-green);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px var(--gorilla-green);
+}
+
+.gc-nav {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.gc-nav a {
+  color: var(--text-white);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.7em 1.5em;
+  border-radius: 8px;
+  background: rgba(0,255,136,0.1);
+  transition: all 0.2s ease;
+}
+
+.gc-nav a:hover {
+  background: rgba(0,255,136,0.2);
+  transform: translateY(-2px);
+}
+
+.gc-footer {
+  margin-top: 4rem;
+  padding: 2rem 0;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  border-top: 2px solid rgba(0,255,136,0.3);
+  text-align: center;
+  color: #ccc;
+} 
