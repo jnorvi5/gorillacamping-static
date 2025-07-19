@@ -1,0 +1,2 @@
+Deployment trigger - updated at 2025-07-19 06:35
+This file forces Azure to redeploy the application. 
