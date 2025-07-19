@@ -1,0 +1,59 @@
+{% extends 'base_simple.html' %}
+
+{% block title %}Gorilla Camping - Home{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>GUERILLA CAMPING: UNCONVENTIONAL ADVENTURE</h1>
+    <p>Off-grid living and camping tips from a badass perspective</p>
+</div>
+
+<!-- Featured Products -->
+<div class="products">
+    <div class="product-card">
+        <img src="https://via.placeholder.com/300x200/00ff88/111?text=JACKERY" alt="Jackery Explorer">
+        <h3>Jackery Explorer 240</h3>
+        <p class="price"><del>$299.99</del> <strong>$199.99</strong></p>
+        <a href="/affiliate/jackery" class="cta-button">GET DEAL →</a>
+    </div>
+    
+    <div class="product-card">
+        <img src="https://via.placeholder.com/300x200/00ff88/111?text=LIFESTRAW" alt="LifeStraw">
+        <h3>LifeStraw Water Filter</h3>
+        <p class="price"><del>$19.95</del> <strong>$14.96</strong></p>
+        <a href="/affiliate/lifestraw" class="cta-button">GET DEAL →</a>
+    </div>
+    
+    <div class="product-card">
+        <img src="https://via.placeholder.com/300x200/00ff88/111?text=FOOD+KIT" alt="4Patriots Food">
+        <h3>4Patriots Emergency Food Kit</h3>
+        <p class="price"><del>$297</del> <strong>$197</strong></p>
+        <a href="/affiliate/food" class="cta-button">GET DEAL →</a>
+    </div>
+</div>
+
+<!-- Chat CTA Section -->
+<div class="chat-section">
+    <h2>🦍 Chat with Guerilla the Gorilla</h2>
+    <p>Get instant, authentic advice from someone who's actually lived it.</p>
+    
+    <div class="chat-demo">
+        <div class="demo-message user">
+            "What's the best power setup for van life?"
+        </div>
+        <div class="demo-message ai">
+            🦍 "Used Jackery 240 for 2 years. Still charges my laptop, phone, lights. Lightweight, reliable. Works."
+        </div>
+    </div>
+    
+    <a href="#" class="chat-button" onclick="openChat()">
+        Start Chatting Now →
+    </a>
+</div>
+
+<script>
+function openChat() {
+    alert("Chat feature coming soon! This is where Guerilla will help you with camping advice.");
+}
+</script>
+{% endblock %} 
