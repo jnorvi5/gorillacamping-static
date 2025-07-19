@@ -733,7 +733,7 @@ def page_not_found(e):
 
 @app.context_processor
 def inject_static_base_url():
-    return dict(static_base_url="https://static.gorillacamping.site")  # or your Cloudflare Pages URL
+    return dict(static_base_url="")  # Use relative paths for local static files
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000))) 
