@@ -11,25 +11,25 @@
     <!-- CookieYes - MUST BE FIRST FOR COMPLIANCE -->
     <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/f9240018d9682ec755f25926/script.js"></script>
     
-    <link rel="stylesheet" href="{{ static_base_url }}/css/guerilla.css">
+    <link rel="stylesheet" href="https://static.gorillacamping.site/css/guerilla.css">
     <!-- Canonical URL -->
     <link rel="canonical" href="https://gorillacamping.site{{ request.path }}">
     
     <!-- Favicon - Complete Set -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ static_base_url }}/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ static_base_url }}/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ static_base_url }}/favicon-16x16.png">
-    <link rel="manifest" href="{{ static_base_url }}/site.webmanifest">
-    <link rel="icon" href="{{ static_base_url }}/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://static.gorillacamping.site/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://static.gorillacamping.site/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://static.gorillacamping.site/favicon-16x16.png">
+    <link rel="manifest" href="https://static.gorillacamping.site/site.webmanifest">
+    <link rel="icon" href="https://static.gorillacamping.site/favicon.ico" type="image/x-icon">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="{{ static_base_url }}/styles.css">
+    <link rel="stylesheet" href="https://static.gorillacamping.site/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
 
     <!-- Social Meta Tags -->
     <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
-    <meta property="og:image" content="{{ static_base_url }}/img/logo.png">
+    <meta property="og:image" content="https://static.gorillacamping.site/img/logo.png">
     <meta property="og:url" content="https://gorillacamping.site{{ request.path }}">
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:site_name" content="Gorilla Camping">
@@ -37,7 +37,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ self.title() }}">
     <meta name="twitter:description" content="{{ self.meta_description() }}">
-    <meta name="twitter:image" content="{{ static_base_url }}/img/logo.png">
+    <meta name="twitter:image" content="https://static.gorillacamping.site/img/logo.png">
 
     <!-- Schema.org Structured Data -->
     <script type="application/ld+json">
@@ -46,7 +46,7 @@
       "@type": "Organization",
       "name": "Gorilla Camping",
       "url": "https://gorillacamping.site",
-      "logo": "{{ static_base_url }}/img/logo.png",
+      "logo": "https://static.gorillacamping.site/img/logo.png",
       "description": "Guerilla-style camping guides, gear reviews, and off-grid living tips for budget-conscious adventurers.",
       "founder": {
         "@type": "Person",
@@ -112,7 +112,7 @@
     <header class="gc-header">
         <div class="logo-container">
             <a href="/" aria-label="Gorilla Camping Home">
-                <img src="{{ static_base_url }}/img/logo.png"
+                <img src="https://static.gorillacamping.site/img/logo.png"
                      alt="Gorilla Camping Logo - Guerilla Style Camping"
                      class="header-logo-glow"
                      width="140"
@@ -153,7 +153,6 @@
                        class="social-link reddit" 
                        onclick="trackSocialClick('reddit', 'footer_click')"
                        aria-label="Join us on Reddit">
-                        <!-- Reddit SVG here -->
                         Reddit
                     </a>
                     
@@ -161,7 +160,6 @@
                        class="social-link facebook" 
                        onclick="trackSocialClick('facebook', 'footer_click')"
                        aria-label="Follow us on Facebook">
-                        <!-- Facebook SVG here -->
                         Facebook
                     </a>
                     
@@ -169,7 +167,6 @@
                        class="social-link tiktok" 
                        onclick="trackSocialClick('tiktok', 'footer_click')"
                        aria-label="Follow us on TikTok">
-                        <!-- TikTok SVG here -->
                         TikTok
                     </a>
                 </div>
@@ -186,7 +183,7 @@
       <div class="modal-body">
         <div id="chat-log" class="mb-3" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
             <div class="ai-message">
-                <img src="{{ static_base_url }}/images/guerilla-mascot.png" alt="Guerilla the Gorilla" style="width:56px;vertical-align:middle;margin-right:16px;border-radius:50%;box-shadow:0 0 12px #00ff88;">
+                <img src="https://static.gorillacamping.site/img/guerilla_mascot.png" alt="Guerilla the Gorilla" style="width:56px;vertical-align:middle;margin-right:16px;border-radius:50%;box-shadow:0 0 12px #00ff88;">
                 <span>Yo! I'm Guerilla the Gorilla—the baddest, smartest ape in these woods. Ask me anything about camping, gear, hustling, or surviving like a legend.</span>
             </div>
         </div>
@@ -245,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const messageDiv = document.createElement('div');
         messageDiv.classList.add(sender === 'user' ? 'user-message' : 'ai-message');
         if(sender === 'ai') {
-            messageDiv.innerHTML = `<img src="{{ static_base_url }}/images/guerilla-mascot.png" alt="Guerilla" style="width:36px;vertical-align:middle;margin-right:8px;border-radius:50%;box-shadow:0 0 6px #00ff88;"> <span>${text}</span>`;
+            messageDiv.innerHTML = `<img src="https://static.gorillacamping.site/img/guerilla_mascot.png" alt="Guerilla" style="width:36px;vertical-align:middle;margin-right:8px;border-radius:50%;box-shadow:0 0 6px #00ff88;"> <span>${text}</span>`;
         } else {
             messageDiv.innerHTML = `<span style="font-weight:bold;color:#00ff88;margin-right:8px;">You:</span> <span>${text}</span>`;
         }
@@ -257,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
             <!-- Add this to your footer (above copyright/disclaimer) -->
 <div id="guerilla-tips" style="font-size:1.1em;color:#00ff88;margin-bottom:1em;">
-    <img src="{{ static_base_url }}/images/guerilla-mascot.png" alt="Guerilla tip" style="width:32px;vertical-align:middle;margin-right:10px;border-radius:50%;box-shadow:0 0 4px #00ff88;">
+    <img src="https://static.gorillacamping.site/img/guerilla_mascot.png" alt="Guerilla tip" style="width:32px;vertical-align:middle;margin-right:10px;border-radius:50%;box-shadow:0 0 4px #00ff88;">
     <span id="guerilla-tip-text">Guerilla says: “If it ain’t broke, you can still fix it.”</span>
 </div>
 <script>
@@ -418,12 +415,12 @@ setTimeout(function() {
                     // Track with Google Analytics
                     if (typeof gtag !== '
 
-<script src="{{ static_base_url }}/js/guerilla.js"></script>
+<script src="https://static.gorillacamping.site/js/guerilla.js"></script>
 <!-- Guerilla Mascot Chat - Affiliate Revenue Generator -->
 <div id="guerilla-chat" style="position:fixed; bottom:20px; right:20px; z-index:9999;">
   <!-- Chat toggle button -->
   <div id="guerilla-toggle" style="width:60px; height:60px; background:#111; border-radius:50%; border:2px solid #00ff88; box-shadow:0 0 15px rgba(0,255,136,0.4); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative;">
-    <img src="{{ static_base_url }}/images/logo.png" alt="Guerilla" style="width:40px; height:40px; border-radius:50%;">
+    <img src="https://static.gorillacamping.site/img/logo.png" alt="Guerilla" style="width:40px; height:40px; border-radius:50%;">
     <span id="guerilla-badge" style="position:absolute; top:-5px; right:-5px; background:#ff4136; color:white; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold; border:2px solid #111;">1</span>
   </div>
   
@@ -432,7 +429,7 @@ setTimeout(function() {
     <!-- Header -->
     <div style="background:#111; padding:10px 15px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(0,255,136,0.3);">
       <div style="display:flex; align-items:center; gap:10px;">
-        <img src="{{ static_base_url }}/images/logo.png" style="width:30px; height:30px; border-radius:50%; border:2px solid #00ff88;">
+        <img src="https://static.gorillacamping.site/img/logo.png" style="width:30px; height:30px; border-radius:50%; border:2px solid #00ff88;">
         <div>
           <div style="font-weight:bold; color:#00ff88;">Guerilla</div>
           <div style="font-size:12px; color:#aaa;">Camping Expert</div>
@@ -583,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (sender === 'ai') {
       messageDiv.innerHTML = `
-        <img src="{{ static_base_url }}/images/logo.png" style="width:30px; height:30px; border-radius:50%; align-self:flex-start;">
+        <img src="https://static.gorillacamping.site/img/logo.png" style="width:30px; height:30px; border-radius:50%; align-self:flex-start;">
         <div style="background:#333; padding:10px; border-radius:10px; color:white; max-width:80%;">${text}</div>
       `;
     } else {
@@ -607,7 +604,7 @@ document.addEventListener('DOMContentLoaded', function() {
     productDiv.style.gap = '10px';
     
     productDiv.innerHTML = `
-      <img src="{{ static_base_url }}/images/logo.png" style="width:30px; height:30px; border-radius:50%; align-self:flex-start;">
+      <img src="https://static.gorillacamping.site/img/logo.png" style="width:30px; height:30px; border-radius:50%; align-self:flex-start;">
       <div style="max-width:80%;">
         <div style="background:#333; padding:10px; border-radius:10px 10px 0 0; color:white;">Check this out:</div>
         <div style="border:1px solid rgba(0,255,136,0.3); border-top:none; border-radius:0 0 10px 10px; overflow:hidden; background:rgba(0,0,0,0.3);">
@@ -667,3 +664,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
     {% include 'guerilla_chat.html' %}
                                       
+
+</html>
