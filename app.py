@@ -23,7 +23,7 @@ app.config['SESSION_COOKIE_SECURE'] = True  # For HTTPS
 # Manual static file serving as backup
 @app.route('/static/<path:filename>')
 def static_files(filename):
-    """Manual static file serving as backup"""
+    """Manual static file serving as backup - FORCE REDEPLOY"""
     try:
         return send_from_directory('static', filename)
     except Exception as e:
