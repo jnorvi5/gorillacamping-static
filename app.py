@@ -433,6 +433,11 @@ def index():
     """Homepage with link to new chat interface"""
     return render_template('index.html', chat_url='/chat')
 
+@app.route('/test')
+def test():
+    """Test page to verify deployment"""
+    return render_template('test.html')
+
 @app.route('/blog')
 def blog():
     """Blog page with camping articles"""
