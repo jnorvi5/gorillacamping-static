@@ -1,40 +1,47 @@
+/**
+ * Gorilla Camping - Guerilla AI Chat
+ * STATIC SITE: This file belongs in gorillacamping-static/js/guerilla-chat.js
+ */
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Create chat container if it doesn't exist
-    if (!document.getElementById('guerilla-chat')) {
-        const chatContainer = document.createElement('div');
-        chatContainer.id = 'guerilla-chat';
-        chatContainer.style = "position:fixed; bottom:20px; right:20px; z-index:9999;";
+    // Don't create duplicate chat widgets
+    if (document.getElementById('guerilla-chat')) return;
+    
+    // Create chat container
+    const chatContainer = document.createElement('div');
+    chatContainer.id = 'guerilla-chat';
+    chatContainer.style = "position:fixed; bottom:20px; right:20px; z-index:9999;";
+    
+    chatContainer.innerHTML = `
+        <div id="guerilla-toggle" style="width:60px; height:60px; background:#111; border-radius:50%; border:2px solid #00ff88; box-shadow:0 0 15px rgba(0,255,136,0.4); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative;">
+            <img src="/img/logo.png" alt="Guerilla" style="width:40px; height:40px; border-radius:50%;">
+            <span id="guerilla-badge" style="position:absolute; top:-5px; right:-5px; background:#ff4136; color:white; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold; border:2px solid #111;">1</span>
+        </div>
         
-        chatContainer.innerHTML = `
-            <div id="guerilla-toggle" style="width:60px; height:60px; background:#111; border-radius:50%; border:2px solid #00ff88; box-shadow:0 0 15px rgba(0,255,136,0.4); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative;">
-                <img src="/img/logo.png" alt="Guerilla" style="width:40px; height:40px; border-radius:50%;">
-                <span id="guerilla-badge" style="position:absolute; top:-5px; right:-5px; background:#ff4136; color:white; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold; border:2px solid #111;">1</span>
+        <div id="guerilla-box" style="position:absolute; bottom:75px; right:0; width:320px; background:#222; border-radius:10px; overflow:hidden; display:none; box-shadow:0 0 20px rgba(0,0,0,0.3); border:2px solid rgba(0,255,136,0.3);">
+            <div style="background:#111; padding:10px 15px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(0,255,136,0.3);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <img src="/img/logo.png" style="width:30px; height:30px; border-radius:50%; border:2px solid #00ff88;">
+                    <div>
+                        <div style="font-weight:bold; color:#00ff88;">Guerilla</div>
+                        <div style="font-size:12px; color:#aaa;">Camping Expert</div>
+                    </div>
+                </div>
+                <div id="guerilla-close" style="cursor:pointer; font-size:20px; color:#aaa;">×</div>
             </div>
             
-            <div id="guerilla-box" style="position:absolute; bottom:75px; right:0; width:320px; background:#222; border-radius:10px; overflow:hidden; display:none; box-shadow:0 0 20px rgba(0,0,0,0.3); border:2px solid rgba(0,255,136,0.3);">
-                <div style="background:#111; padding:10px 15px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(0,255,136,0.3);">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <img src="/img/logo.png" style="width:30px; height:30px; border-radius:50%; border:2px solid #00ff88;">
-                        <div>
-                            <div style="font-weight:bold; color:#00ff88;">Guerilla</div>
-                            <div style="font-size:12px; color:#aaa;">Camping Expert</div>
-                        </div>
-                    </div>
-                    <div id="guerilla-close" style="cursor:pointer; font-size:20px; color:#aaa;">×</div>
-                </div>
-                
-                <div id="guerilla-messages" style="height:300px; overflow-y:auto; padding:15px;"></div>
-                
-                <div style="padding:10px; display:flex; gap:10px; border-top:1px solid rgba(255,255,255,0.1);">
-                    <input id="guerilla-input" type="text" placeholder="Ask about camping gear..." style="flex:1; padding:8px 12px; border-radius:20px; border:1px solid rgba(0,255,136,0.3); background:#333; color:white; outline:none;">
-                    <button id="guerilla-send" style="background:#00ff88; color:#111; border:none; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">→</button>
-                </div>
+            <div id="guerilla-messages" style="height:300px; overflow-y:auto; padding:15px;"></div>
+            
+            <div style="padding:10px; display:flex; gap:10px; border-top:1px solid rgba(255,255,255,0.1);">
+                <input id="guerilla-input" type="text" placeholder="Ask about camping gear..." style="flex:1; padding:8px 12px; border-radius:20px; border:1px solid rgba(0,255,136,0.3); background:#333; color:white; outline:none;">
+                <button id="guerilla-send" style="background:#00ff88; color:#111; border:none; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">→</button>
             </div>
-        `;
-        
-        document.body.appendChild(chatContainer);
-    }
+        </div>
+    `;
+    
+    document.body.appendChild(chatContainer);
 
+    // Get elements
     const toggle = document.getElementById('guerilla-toggle');
     const close = document.getElementById('guerilla-close');
     const chatBox = document.getElementById('guerilla-box');
@@ -93,14 +100,10 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({ message: text })
         })
-        .then(response => {
-            if (!response.ok) throw new Error('Network response failed');
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             // Remove loading indicator
-            const loadingEl = document.getElementById(loadingId);
-            if (loadingEl) loadingEl.remove();
+            document.getElementById(loadingId).remove();
             
             // Add AI response
             addMessage(data.response, 'ai');
@@ -114,8 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             // Remove loading indicator
-            const loadingEl = document.getElementById(loadingId);
-            if (loadingEl) loadingEl.remove();
+            document.getElementById(loadingId).remove();
             
             // Add error message
             addMessage("Sorry, I'm having trouble connecting right now. Try again or check out my recommended gear below:", 'ai');
@@ -129,7 +131,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Rest of the chat functions...
     function addMessage(text, sender) {
         const messageDiv = document.createElement('div');
         messageDiv.style.marginBottom = '15px';
@@ -241,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div style="background:#00ff88; text-align:center; padding:8px;">
                         <a href="${product.link}" style="color:#111; text-decoration:none; font-weight:bold;" 
-                           onclick="trackAffiliateClick('${product.link}', '${product.name}')">VIEW DEAL →</a>
+                           onclick="trackAffiliateClick('${productId}', '${product.name}')">VIEW DEAL →</a>
                     </div>
                 </div>
             </div>
@@ -288,3 +289,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 30000);
 });
+
+// Global tracking function for affiliate clicks
+function trackAffiliateClick(productId, productName) {
+    // Track with Google Analytics if available
+    if (typeof gtag === 'function') {
+        gtag('event', 'affiliate_click', {
+            'event_category': 'Affiliate',
+            'event_label': productId,
+            'value': 1
+        });
+    }
+    
+    // Track with backend using sendBeacon (works during page unload)
+    try {
+        navigator.sendBeacon(`${CONFIG.API_URL}/api/affiliate-click`, 
+            JSON.stringify({
+                product_id: productId,
+                product_name: productName,
+                source: 'chat_widget'
+            })
+        );
+    } catch(e) {
+        console.log('Error tracking click', e);
+    }
+    
+    return true; // Allow the default link action
+}
