@@ -12,11 +12,17 @@ from datetime import datetime
 from flask import Flask, render_template, jsonify, request, redirect, url_for, session
 from flask_cors import CORS
 import requests
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+import logging
+
 
 # --- FLASK SETUP ---
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'gorilla-secret-2025')
 CORS(app, supports_credentials=True)  # Enable CORS for API access from static frontend
+
+logger = logging.getLogger(__name__)
+logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=YOUR_INSTRUMENTATION_KEY'))
 
 # --- MONGODB SETUP (if available) ---
 mongodb_uri = os.environ.get('MONGODB_URI')
