@@ -5,6 +5,10 @@
     <meta name="description" content="Hand-picked, field-tested camping gear for budget, utility, and reliability. Perfect for guerilla-style adventurers!">
     <meta name="keywords" content="camping gear, best camping gear, guerilla camping, affordable camping equipment, budget camping gear, outdoor gear reviews, gorilla camping.site">
     <link rel="stylesheet" href="/css/guerilla.css">
+    <!-- Configuration and Core Scripts -->
+<script src="/js/config.js"></script>
+<script src="/js/analytics.js"></script>
+<script src="/js/preload.js"></script>
 </head>
 <body>
 <div class="gear-grid" id="gear-list">
@@ -42,5 +46,7 @@ fetch('https://gorillacamping.site/api/gear')
     document.getElementById('gear-list').innerHTML = '<div>Error loading gear.</div>';
   });
 </script>
+    <!-- Guerilla Chat Integration -->
+<script src="/js/guerilla-chat.js"></script>
 </body>
 </html>
