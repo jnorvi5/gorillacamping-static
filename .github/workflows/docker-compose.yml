@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    restart: always
+    volumes:
+      - ./:/app
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
