@@ -1,3 +1,0 @@
-Deployment trigger - updated at 2025-07-19 07:50
-FORCE DEPLOY: Using app_simple.py with base_simple.html templates
-This file forces Azure to redeploy the application with the correct guerilla styling. 

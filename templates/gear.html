@@ -1,484 +1,390 @@
-{% extends "base.html" %}
-{% block title %}Best Camping Gear for Guerilla Campers | GorillaCamping.site{% endblock %}
-{% block meta_description %}Hand-picked, field-tested camping gear for budget, utility, and reliability. Perfect for guerilla-style adventurers!{% endblock %}
-{% block meta_keywords %}camping gear, best camping gear, guerilla camping, affordable camping equipment, budget camping gear, outdoor gear reviews, gorilla camping.site{% endblock %}
-
-{% block extra_head %}
-<!-- Add this right after the opening content block in gear.html -->
-
-<div class="flash-sale-banner">
-  <div class="flash-header">
-    <div class="flash-icon">⚡</div>
-    <h2>FLASH SALE: AMAZON PRIME EXCLUSIVE DEALS</h2>
-    <div class="flash-timer" id="flashSaleTimer">23:59:59</div>
-  </div>
-  <div class="flash-message">
-    <p>I've secured <strong>exclusive affiliate discounts</strong> on the exact gear that helped me go from <strong>$0 to $1,273/month</strong> in just 3 months. Limited inventory available at these prices!</p>
-  </div>
-</div>
-
-<style>
-.flash-sale-banner {
-  background: linear-gradient(135deg, #ff9900, #ff5722);
-  border-radius: 8px;
-  margin: 20px 0;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
-}
-
-.flash-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(0,0,0,0.2);
-  padding: 10px 20px;
-}
-
-.flash-icon {
-  font-size: 24px;
-  animation: pulse 1.5s infinite;
-}
-
-.flash-header h2 {
-  margin: 0;
-  color: white;
-  font-size: clamp(1rem, 5vw, 1.5rem);
-}
-
-.flash-timer {
-  background: rgba(0,0,0,0.3);
-  color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-weight: bold;
-  font-family: monospace;
-}
-
-.flash-message {
-  padding: 15px 20px;
-  color: white;
-}
-
-.flash-message p {
-  margin: 0;
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
-}
-
-/* Make gear items look like they're selling fast */
-.gear-item {
-  position: relative;
-  overflow: hidden;
-}
-
-/* Add "HOT SELLER" ribbon to first 3 items */
-.gear-item:nth-child(-n+3)::before {
-  content: "HOT SELLER";
-  position: absolute;
-  top: 19px;
-  right: -35px;
-  transform: rotate(45deg);
-  background: #f44336;
-  color: white;
-  padding: 5px 40px;
-  font-size: 12px;
-  font-weight: bold;
-  z-index: 1;
-}
-
-/* Add custom dot-pulse animation to CTAs */
-.gear-button {
-  position: relative;
-  overflow: hidden;
-}
-
-.gear-button::after {
-  content: "";
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  width: 8px;
-  height: 8px;
-  background: rgba(255,255,255,0.8);
-  border-radius: 50%;
-  animation: dot-pulse 1.5s infinite;
-}
-
-@keyframes dot-pulse {
-  0% { transform: scale(0.8); opacity: 0.5; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(0.8); opacity: 0.5; }
-}
-</style>
-
-<script>
-// Flash sale countdown timer
-document.addEventListener('DOMContentLoaded', function() {
-  const timerElement = document.getElementById('flashSaleTimer');
-  
-  // Calculate end time - based on user's local timezone at midnight
-  const now = new Date();
-  const endTime = new Date(now);
-  endTime.setHours(23, 59, 59, 999);  // Set to end of today
-  
-  // For testing - make it end in 24 hours
-  // const endTime = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-  
-  function updateTimer() {
-    const now = new Date();
-    const diff = endTime - now;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gear - Gorilla Camping</title>
     
-    if (diff <= 0) {
-      // Reset to next day at midnight when it ends
-      endTime.setDate(endTime.getDate() + 1);
-      updateTimer();
-      return;
+    <style>
+    /* GORILLA CAMPING - CLEAN & SIMPLE */
+    :root {
+        --gorilla-green: #00ff88;
+        --dark-bg: #111;
+        --text-white: #fff;
+        --text-gray: #ccc;
     }
-    
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    
-    timerElement.textContent = 
-      String(hours).padStart(2, '0') + ':' +
-      String(minutes).padStart(2, '0') + ':' +
-      String(seconds).padStart(2, '0');
-  }
-  
-  // Update timer every second
-  updateTimer();
-  setInterval(updateTimer, 1000);
-});
 
-// Gear item sold notifications
-function showSoldNotification() {
-  const notification = document.createElement('div');
-  notification.className = 'sold-notification';
-  
-  // Random names from popular camping states
-  const names = ['Mike from Colorado', 'Sarah from Montana', 'John from Oregon', 'Lisa from Washington', 'David from Utah'];
-  
-  // Random gear items
-  const items = ['Jackery Explorer', 'LifeStraw Filter', 'Coleman Stove', 'Emergency Kit', 'Survival Knife'];
-  
-  const randomName = names[Math.floor(Math.random() * names.length)];
-  const randomItem = items[Math.floor(Math.random() * items.length)];
-  
-  notification.innerHTML = `
-    <div class="notification-content">
-      <div class="notification-icon">✅</div>
-      <div class="notification-text">
-        <strong>${randomName}</strong> just purchased<br>
-        ${randomItem}
-      </div>
-    </div>
-  `;
-  
-  document.body.appendChild(notification);
-  
-  // Animate in
-  setTimeout(() => notification.classList.add('show'), 100);
-  
-  // Remove after 5 seconds
-  setTimeout(() => {
-    notification.classList.remove('show');
-    setTimeout(() => notification.remove(), 500);
-  }, 5000);
-}
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-// Show random sales notifications
-function scheduleSoldNotifications() {
-  // Show first notification after 30s
-  setTimeout(() => {
-    showSoldNotification();
-    
-    // Then show one every 30-90 seconds
-    setInterval(() => {
-      showSoldNotification();
-    }, Math.random() * 60000 + 30000);
-  }, 30000);
-}
+    body {
+        background: var(--dark-bg);
+        color: var(--text-white);
+        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
+        min-height: 100vh;
+    }
 
-scheduleSoldNotifications();
-</script>
+    .header {
+        text-align: center;
+        padding: 2rem 1rem;
+        background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+    }
 
-<style>
-.sold-notification {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  padding: 12px;
-  z-index: 1000;
-  max-width: 300px;
-  transform: translateY(100px);
-  opacity: 0;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
+    .logo {
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 1rem;
+        display: block;
+        border-radius: 50%;
+        box-shadow: 0 0 32px var(--gorilla-green);
+        filter: drop-shadow(0 0 24px var(--gorilla-green));
+    }
 
-.sold-notification.show {
-  transform: translateY(0);
-  opacity: 1;
-}
+    .motto {
+        margin: 2rem 0 3rem 0;
+        font-size: clamp(2rem, 6vw, 4rem);
+        font-weight: 900;
+        color: var(--gorilla-green);
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 0 10px var(--gorilla-green);
+        border: 4px solid var(--gorilla-green);
+        padding: 1.5em 2em;
+        border-radius: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        box-shadow: 0 0 20px var(--gorilla-green);
+    }
 
-.notification-content {
-  display: flex;
-  align-items: center;
-}
+    .nav {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
 
-.notification-icon {
-  background: #4CAF50;
-  color: white;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-}
+    .nav a {
+        color: var(--text-white);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.1rem;
+        padding: 0.7em 1.5em;
+        border-radius: 8px;
+        background: rgba(0,255,136,0.1);
+        transition: all 0.2s ease;
+        box-shadow: 0 0 6px rgba(0,255,136,0.4);
+    }
 
-.notification-text {
-  font-size: 14px;
-  color: #333;
-}
-</style>
-<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-<style>
-/* Sticky CTA button */
-.sticky-cta {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 9999;
-  background: linear-gradient(90deg, #ff6b35, #00ff88);
-  color: #111;
-  padding: 18px 36px;
-  border-radius: 35px;
-  font-size: 1.2rem;
-  font-weight: bolder;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.25);
-  cursor: pointer;
-  animation: cta-bounce 1.8s infinite;
-  transition: background 0.2s, color 0.2s;
-}
-.sticky-cta:hover {
-  background: #00ff88;
-  color: #222;
-}
+    .nav a:hover {
+        background: rgba(0,255,136,0.2);
+        box-shadow: 0 0 12px rgba(0,255,136,0.6);
+        transform: translateY(-2px);
+    }
 
-@keyframes cta-bounce {
-  0%,100% { transform: translateY(0);}
-  20% { transform: translateY(-8px);}
-  40% { transform: translateY(0);}
-  60% { transform: translateY(-4px);}
-  80% { transform: translateY(0);}
-}
+    .main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
 
-/* Affiliate button pulse+wiggle */
-.gear-button.pulse {
-  animation: pulse 2s infinite, wiggle 3s infinite;
-}
-@keyframes wiggle {
-  0%,100% { transform: rotate(0); }
-  10% { transform: rotate(-2deg);}
-  20% { transform: rotate(2deg);}
-  30% { transform: rotate(-1deg);}
-  40% { transform: rotate(1deg);}
-  50% { transform: rotate(0);}
-}
-</style>
-{% endblock %}
+    .hero {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
 
-{% block content %}
-<div style="background:#111;border:2px solid #00ff88;padding:25px;margin:30px auto;max-width:500px;border-radius:12px;text-align:center;">
-  <h3 style="color:#00ff88;font-size:1.6em;margin-top:0;">FREE: SECRET CAMPING SPOTS MAP</h3>
-  <p>Join 2,847+ guerilla campers getting paid to camp</p>
-  <div class="ml-embedded" data-form="7qFupG"></div>
-</div>
-<!-- Sticky CTA -->
-<a href="#top-essentials" class="sticky-cta" id="stickyGearCta">💰 Get the $1,000/Month Gear List</a>
- 
-<div class="gear-grid">
-  {% for gear in gear_items %}
-    <div class="gear-item" id="{{ gear.affiliate_id }}">
-      <div class="gear-img">
-        {% if gear.badges %}
-          <div class="urgency-badge">{{ gear.badges[0] }}</div>
-        {% endif %}
-        <img src="{{ gear.image }}" alt="{{ gear.name }}" loading="lazy">
-      </div>
-      <div class="gear-info">
-        <h2>{{ gear.name }} {% if gear.badges|length > 1 %}<span class="badge best-value">{{ gear.badges[1] }}</span>{% endif %}</h2>
-        <div class="gear-rating">{% for _ in range(gear.rating or 0) %}⭐{% endfor %}</div>
-        <p>{{ gear.description }}</p>
-        {% if gear.specs %}
-        <div class="gear-specs">
-          {% for spec in gear.specs %}
-            <span class="spec">{{ spec }}</span>
-          {% endfor %}
+    .hero h1 {
+        color: var(--gorilla-green);
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 10px rgba(0,255,136,0.5);
+    }
+
+    .hero p {
+        color: var(--text-gray);
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+    }
+
+    .products {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .product-card {
+        background: #181f1b;
+        border-radius: 14px;
+        padding: 1.5rem;
+        border: 1px solid rgba(0,255,136,0.2);
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(0,255,136,0.1);
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 20px rgba(0,255,136,0.3);
+        border-color: var(--gorilla-green);
+    }
+
+    .product-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .product-card h3 {
+        color: var(--gorilla-green);
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .product-card .price {
+        color: var(--text-gray);
+        margin-bottom: 1rem;
+    }
+
+    .product-card .price del {
+        color: #666;
+    }
+
+    .product-card .price strong {
+        color: var(--gorilla-green);
+        font-size: 1.2rem;
+    }
+
+    .cta-button {
+        display: inline-block;
+        padding: 0.8em 1.5em;
+        background: linear-gradient(135deg, var(--gorilla-green), #00cc6a);
+        color: var(--dark-bg);
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 12px rgba(0,255,136,0.4);
+    }
+
+    .cta-button:hover {
+        background: linear-gradient(135deg, #00cc6a, var(--gorilla-green));
+        box-shadow: 0 0 20px rgba(0,255,136,0.6);
+        transform: translateY(-2px);
+        text-decoration: none;
+        color: var(--dark-bg);
+    }
+
+    .chat-section {
+        background: rgba(0,255,136,0.05);
+        border: 2px solid rgba(0,255,136,0.3);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 3rem 0;
+        text-align: center;
+    }
+
+    .chat-section h2 {
+        color: var(--gorilla-green);
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .chat-button {
+        display: inline-block;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #4a8a4a, #2d5a2d);
+        color: white;
+        text-decoration: none;
+        border-radius: 25px;
+        font-size: 1.3em;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+        border: none;
+        cursor: pointer;
+    }
+
+    .chat-button:hover {
+        background: linear-gradient(135deg, #5a9a5a, #3d6a3d);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 255, 0, 0.5);
+        text-decoration: none;
+        color: white;
+    }
+
+    .footer {
+        margin-top: 4rem;
+        padding: 2rem 0;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        border-top: 2px solid rgba(0,255,136,0.3);
+        text-align: center;
+        color: var(--text-gray);
+    }
+
+    .footer p {
+        margin-bottom: 0.5rem;
+    }
+
+    .footer a {
+        color: var(--gorilla-green);
+        text-decoration: none;
+    }
+
+    .footer a:hover {
+        color: #39ff14;
+        text-shadow: 0 0 8px rgba(0,255,136,0.5);
+    }
+
+    @media (max-width: 768px) {
+        .motto {
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            padding: 1em 1.5em;
+        }
+        
+        .nav {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .nav a {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .products {
+            grid-template-columns: 1fr;
+        }
+    }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo-container">
+            <a href="/" aria-label="Gorilla Camping Home">
+                <img src="https://via.placeholder.com/140x140/00ff88/111?text=GORILLA" 
+                     alt="Gorilla Camping Logo" 
+                     class="logo">
+            </a>
         </div>
-        {% endif %}
-        <div class="price-box">
-          {% if gear.old_price %}<span class="old-price">{{ gear.old_price }}</span>{% endif %}
-          <span class="new-price">{{ gear.price }}</span>
-          {% if gear.savings %}<span class="savings">{{ gear.savings }}</span>{% endif %}
+        <h1 class="motto">Life is short, just camp through it!</h1>
+        <nav class="nav">
+            <a href="/">Home</a>
+            <a href="/gear">Gear</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="hero">
+            <h1>🦍 Guerilla Gear Guide</h1>
+            <p>Essential gear for off-grid living, tested and approved by someone who actually uses it.</p>
         </div>
-        <a href="{{ url_for('affiliate_redirect', product_id=gear.affiliate_id) }}"
-           class="affiliate-link gear-button pulse"
-           data-product="{{ gear.name }}"
-           target="_blank" rel="noopener sponsored">🔥 GET DEAL NOW →</a>
-      </div>
-    </div>
-  {% endfor %}
-</div>
-<section class="gear-section">
-  <div class="gear-header">
-    <h1>💰 Gorilla Camping Gear That PAYS FOR ITSELF <span class="badge">2025</span></h1>
-    <p class="gear-intro">
-      These are my hand-picked, tested, and <strong>actually used</strong> pieces of gear. Every item is chosen for value, utility, and that guerilla spirit! I only recommend what I use myself—and what can help YOU make money camping too.
-    </p>
-    <p class="gear-philosophy">
-      <em>"If it can't survive a week in the Virginia woods with zero backup plan AND help me create content that pays, it doesn't make this list."</em> – Jon
-    </p>
-    <div class="urgent-banner" style="background: linear-gradient(45deg, #ff6b35, #f7931e); color: white; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; box-shadow: 0 4px 15px rgba(255,107,53,0.3);">
-      <h3 style="margin: 0 0 10px 0;">🔥 BLACK FRIDAY PRICES EXTENDED!</h3>
-      <p style="margin: 0; font-size: 14px;">These exact items helped me build a $1000+/month camping business. Links expire soon!</p>
-    </div>
-    <div class="affiliate-disclosure" style="font-size:0.95em; color:#666; margin-top:10px;">
-      This page contains affiliate links. I may earn a small commission if you buy through them—at no extra cost to you. I only recommend gear I personally use and trust.
-    </div>
-  </div>
 
-  <!-- MONEY-MAKING TOP 5 -->
-  <div class="top-essentials" id="top-essentials" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; margin: 20px 0; border-radius: 12px; box-shadow: 0 8px 25px rgba(102,126,234,0.3);">
-    <h2>🎯 TOP 5 GEAR THAT BUILDS YOUR CAMPING EMPIRE</h2>
-    <ol style="font-size: 18px; line-height: 1.6;">
-      <li><a href="#jackery-explorer" style="color: #00ff88;">Solar Generator (Content Creation Power)</a></li>
-      <li><a href="#lifestraw-filter" style="color: #00ff88;">Water Filter (Survival Content Gold)</a></li>
-      <li><a href="#coleman-stove" style="color: #00ff88;">Reliable Stove (Food Content)</a></li>
-      <li><a href="#leatherman-wave" style="color: #00ff88;">Multi-tool (Gear Review Content)</a></li>
-      <li><a href="#emergency-kit" style="color: #00ff88;">Emergency Kit (Viral Safety Content)</a></li>
-    </ol>
-    <!-- Copy to Clipboard Button -->
-    <button id="copyGearList" style="margin-top:15px; background:#00ff88; color:#222; padding:8px 16px; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
-      📋 Copy Gear List to Share
-    </button>
-    <small id="copyConfirm" style="display:none; color:#28a745; margin-left:10px;">Copied!</small>
-  </div>
-
-  <div class="gear-grid">
-    <!-- GEAR ITEMS ... (rest unchanged, just make sure buttons use .gear-button.pulse for top items) -->
-    <!-- Example for Jackery: -->
-    <div class="gear-item" id="jackery-explorer">
-      <div class="gear-img">
-        <div class="urgency-badge">LIMITED TIME</div>
-        <img src="https://m.media-amazon.com/images/I/41XePYWYlAL._AC_US300_.jpg"
-             alt="Jackery Explorer 240 Solar Generator for Guerilla Camping"
-             loading="lazy">
-      </div>
-      <div class="gear-info">
-        <h2>Jackery Explorer 240 Solar Generator <span class="badge best-value">CONTENT KING</span></h2>
-        <div class="gear-rating">⭐⭐⭐⭐⭐ (Used 8+ months) | 📹 50+ Videos Made</div>
-        <p>
-          <strong>Money Story:</strong> This bad boy powered my laptop/camera gear for 6 months of content creation in the wilderness. Made me $2,847 in affiliate commissions from ONE viral camping video!
-        </p>
-        <div class="gear-specs">
-          <span class="spec">240Wh Capacity</span>
-          <span class="spec">Powers Laptop 8hrs</span>
-          <span class="spec">Content Creation Ready</span>
+        <div class="products">
+            <div class="product-card">
+                <img src="https://via.placeholder.com/300x200/00ff88/111?text=JACKERY" alt="Jackery Power Station">
+                <h3>Jackery Explorer 240</h3>
+                <div class="price">
+                    <del>$299.99</del> <strong>$199.99</strong>
+                </div>
+                <p>My #1 recommendation for power. Keeps my laptop, phone, and lights running for days. Paid for itself with just 2 viral videos.</p>
+                <a href="/affiliate/jackery" class="cta-button">VIEW DEAL →</a>
+            </div>
+            
+            <div class="product-card">
+                <img src="https://via.placeholder.com/300x200/00ff88/111?text=LIFESTRAW" alt="LifeStraw Filter">
+                <h3>LifeStraw Personal Water Filter</h3>
+                <div class="price">
+                    <del>$19.95</del> <strong>$14.96</strong>
+                </div>
+                <p>Essential survival gear. Filters 99.9999% of waterborne bacteria. My #1 affiliate earner!</p>
+                <a href="/affiliate/lifestraw" class="cta-button">VIEW DEAL →</a>
+            </div>
+            
+            <div class="product-card">
+                <img src="https://via.placeholder.com/300x200/00ff88/111?text=4PATRIOTS" alt="4Patriots Food Kit">
+                <h3>4Patriots Emergency Food Kit</h3>
+                <div class="price">
+                    <del>$297</del> <strong>$197</strong>
+                </div>
+                <p>25-year shelf life survival food. Actually tastes decent. 25% commission vs Amazon's 3%.</p>
+                <a href="/affiliate/food" class="cta-button">VIEW DEAL →</a>
+            </div>
+            
+            <div class="product-card">
+                <img src="https://via.placeholder.com/300x200/00ff88/111?text=TENT" alt="Camping Tent">
+                <h3>Coleman Sundome Tent</h3>
+                <div class="price">
+                    <del>$89.99</del> <strong>$59.99</strong>
+                </div>
+                <p>Reliable 4-person tent. Waterproof, easy setup. Perfect for guerilla camping.</p>
+                <a href="/affiliate/tent" class="cta-button">VIEW DEAL →</a>
+            </div>
+            
+            <div class="product-card">
+                <img src="https://via.placeholder.com/300x200/00ff88/111?text=SLEEPING" alt="Sleeping Bag">
+                <h3>Marmot Trestles Sleeping Bag</h3>
+                <div class="price">
+                    <del>$129.99</del> <strong>$89.99</strong>
+                </div>
+                <p>Rated for 30°F. Lightweight, compressible. My go-to for cold weather camping.</p>
+                <a href="/affiliate/sleeping" class="cta-button">VIEW DEAL →</a>
+            </div>
+            
+            <div class="product-card">
+                <img src="https://via.placeholder.com/300x200/00ff88/111?text=COOKING" alt="Camping Stove">
+                <h3>MSR WhisperLite Stove</h3>
+                <div class="price">
+                    <del>$149.99</del> <strong>$119.99</strong>
+                </div>
+                <p>Reliable liquid fuel stove. Works in any weather. Essential for serious camping.</p>
+                <a href="/affiliate/stove" class="cta-button">VIEW DEAL →</a>
+            </div>
         </div>
-        <div class="price-box">
-          <span class="old-price">$299.99</span>
-          <span class="new-price">$199.99</span>
-          <span class="savings">SAVE $100!</span>
+
+        <div class="chat-section">
+            <h2>🤖 Need Gear Advice?</h2>
+            <p>Ask Guerilla about specific gear for your situation.</p>
+            <button class="chat-button" onclick="startChat()">Ask Guerilla</button>
         </div>
-        <a href="{{ url_for('affiliate_redirect', product_id='jackery-explorer-240') }}"
-           class="affiliate-link gear-button pulse"
-           data-product="Jackery Explorer 240"
-           target="_blank" rel="noopener sponsored">🔥 GET DEAL NOW (33% OFF) →</a>
-      </div>
-    </div>
-    <!-- rest of gear items... (keep .pulse class on best sellers/buttons) -->
-  </div>
+    </main>
 
-  <!-- EMAIL CAPTURE -->
-  <div class="gear-newsletter" style="background: #f8f9fa; padding: 30px; border-radius: 12px; margin: 40px 0;">
-    <h3>🔥 Get EXCLUSIVE Gear Deals + Make Money Tips</h3>
-    <p>Join 2,847+ campers getting my weekly gear finds, affiliate secrets, and content ideas that actually pay.</p>
-    <!-- Sticky (on mobile) signup form -->
-    <form class="subscribe-form" id="stickySignup" style="display: flex; gap: 10px; max-width: 400px; margin: 20px auto;">
-      <input type="email" id="stickyEmail" placeholder="Your email..." style="flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 6px;" required>
-      <button type="submit" style="background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold;">JOIN FREE</button>
-    </form>
-    <small style="color: #666;">No spam. Unsubscribe anytime. I hate spam too.</small>
-  </div>
-</section>
+    <footer class="footer">
+        <p>&copy; 2025 Gorilla Camping. All Rights Reserved.</p>
+        <p>Guerilla-style affiliate marketing. Some links may earn us a small commission.</p>
+        <p>Built with Flask & Pure Guerilla Hustle 🦍💪</p>
+    </footer>
 
-<script>
-// Sticky CTA scroll to gear
-document.getElementById('stickyGearCta').onclick = function(e) {
-  e.preventDefault();
-  document.getElementById('top-essentials').scrollIntoView({behavior:"smooth"});
-}
-
-// Copy Gear List
-document.getElementById('copyGearList').onclick = function() {
-  const gearList = `TOP 5 GUERILLA CAMPING GEAR:
-1. Solar Generator (Content Creation Power)
-2. LifeStraw Water Filter (Survival Content Gold)
-3. Coleman Stove (Food Content)
-4. Leatherman Wave+ (Gear Review Content)
-5. Emergency Kit (Viral Safety Content)
-See full stories & deals at https://gorillacamping.site/gear`;
-  navigator.clipboard.writeText(gearList).then(function() {
-    document.getElementById('copyConfirm').style.display = 'inline';
-    setTimeout(() => {
-      document.getElementById('copyConfirm').style.display = 'none';
-    }, 2000);
-  });
-}
-
-// Sticky email signup (AJAX to /subscribe)
-document.getElementById('stickySignup').onsubmit = async function(e) {
-  e.preventDefault();
-  const email = document.getElementById('stickyEmail').value.trim();
-  if (!email) return;
-  const btn = this.querySelector('button');
-  btn.disabled = true;
-  btn.textContent = 'Joining...';
-  const resp = await fetch('/subscribe', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    body: 'email=' + encodeURIComponent(email)
-  });
-  const data = await resp.json();
-  btn.textContent = data.success ? 'Joined!' : 'Error';
-  setTimeout(()=>{btn.textContent='JOIN FREE'; btn.disabled=false;}, 2000);
-};
-</script>
-// Add this to your gear.html template
-document.querySelectorAll('.affiliate-link').forEach(link => {
-  // Add urgency
-  const badge = document.createElement('span');
-  badge.className = 'hot-deal';
-  badge.innerHTML = '🔥 HOT DEAL';
-  link.parentNode.insertBefore(badge, link);
-  
-  // Add countdown timer
-  const countdown = document.createElement('div');
-  countdown.className = 'countdown';
-  countdown.id = 'countdown-' + Math.random().toString(36).substr(2, 9);
-  countdown.innerHTML = '<span>Deal ends in: </span><span class="timer">23:59:59</span>';
-  link.parentNode.insertBefore(countdown, link.nextSibling);
-  
-  // Pulse animation on buttons
-  link.classList.add('pulse-animation');
-});
-{% endblock %}
+    <script>
+    function startChat() {
+        const message = prompt("What gear do you need help with?");
+        if (message) {
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Guerilla says: ' + data.response);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Guerilla is taking a break. Try again later!');
+            });
+        }
+    }
+    </script>
+</body>
+</html>
