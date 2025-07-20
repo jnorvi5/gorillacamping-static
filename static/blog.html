@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guerilla Camping Blog - Off-Grid Tips & Gear Reviews</title>
+    <meta name="description" content="Raw, unfiltered camping advice from an Army veteran - get guerilla-style camping tips, gear reviews, and off-grid living strategies.">
+    <meta name="keywords" content="Gorilla Camping Blog, Guerilla Camping, Off-Grid Living, Camping Tips, Gear Reviews, Budget Camping, Veteran Camping">
+    <link rel="stylesheet" href="/css/guerilla.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Guerilla Camping Blog - Off-Grid Living & Survival Tips">
+    <meta property="og:description" content="Raw, unfiltered camping advice from someone who's actually lived it. No BS, just what works for off-grid camping and survival.">
+    <meta property="og:image" content="https://static.gorillacamping.site/img/logo.png">
+    <meta property="og:url" content="https://gorillacamping.site/blog">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Guerilla Camping Blog - Off-Grid Living & Survival Tips">
+    <meta name="twitter:description" content="Raw, unfiltered camping advice from someone who's actually lived it. No BS, just what works.">
+    <meta name="twitter:image" content="https://static.gorillacamping.site/img/logo.png">
+    
+    <!-- Preload essential assets -->
+    <link rel="preload" href="/css/guerilla.css" as="style">
+    <link rel="preload" href="/img/logo.png" as="image">
+    <link rel="dns-prefetch" href="https://api.gorillacamping.azurewebsites.net">
+    
+    <!-- Structured data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": "Guerilla Camping Blog",
+      "url": "https://gorillacamping.site/blog",
+      "description": "Off-grid camping tips, gear reviews, and survival strategies from an Army veteran.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Gorilla Camping",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://static.gorillacamping.site/img/logo.png"
+        }
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Jon",
+        "description": "Army veteran and off-grid camping expert"
+      }
+    }
+    </script>
+</head>
+<body>
+    <header class="gc-header">
+        <div class="logo-container">
+            <a href="/" aria-label="Gorilla Camping Home">
+                <img src="/img/logo.png" alt="Gorilla Camping Logo" class="header-logo-glow" width="140" height="140" loading="eager">
+            </a>
+        </div>
+        <h1 class="gc-motto-glow">Life is short, just camp through it!</h1>
+        <nav class="gc-nav" role="navigation" aria-label="Main Navigation">
+            <a href="/">Home</a>
+            <a href="/blog" class="active" aria-current="page">Blog</a>
+            <a href="/gear">Gear</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+        </nav>
+    </header>
+
+    <main role="main">
+        <section class="blog-section">
+            <h1>Guerilla Camping Blog</h1>
+            <p class="blog-intro">Raw, unfiltered camping advice from someone who's actually lived it. No BS, just what works.</p>
+            
+            <div class="blog-filters">
+                <button class="filter-btn active" data-filter="all">All Posts</button>
+                <button class="filter-btn" data-filter="gear">Gear Reviews</button>
+                <button class="filter-btn" data-filter="survival">Survival</button>
+                <button class="filter-btn" data-filter="off-grid">Off-Grid Living</button>
+            </div>
+            
+            <div class="blog-container">
+                <ul class="blog-list" id="blog-list">
+                    <li class="loading-skeleton">
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-meta"></div>
+                        <div class="skeleton-excerpt"></div>
+                        <div class="skeleton-link"></div>
+                    </li>
+                    <li class="loading-skeleton">
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-meta"></div>
+                        <div class="skeleton-excerpt"></div>
+                        <div class="skeleton-link"></div>
+                    </li>
+                </ul>
+                
+                <div id="blog-error" class="blog-error" style="display: none;">
+                    <h2>Temporarily Unavailable</h2>
+                    <p>Our blog is taking a short wilderness break. Check back in a few minutes.</p>
+                    <button id="retry-button" class="cta-button">Try Again</button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Featured Product -->
+        <div class="featured-product">
+            <div class="featured-product-content">
+                <div class="featured-badge">GUERILLA APPROVED</div>
+                <h2>Jackery Explorer 240</h2>
+                <p>My #1 power solution for off-grid camping. I've tested dozens - this one's reliable, powerful enough for essentials, and reasonably priced.</p>
+                <div class="price-box">
+                    <span class="old-price">$299.99</span>
+                    <span class="new-price">$199.99</span>
+                    <span class="savings">Save 33%</span>
+                </div>
+                <a href="/affiliate/jackery-explorer-240" class="cta-button" onclick="trackAffiliateClick('/affiliate/jackery-explorer-240', 'Jackery Explorer 240', 'blog_page_featured')">GET THIS DEAL →</a>
+            </div>
+            <div class="featured-product-image">
+                <img src="/img/products/jackery.jpg" alt="Jackery Explorer 240" loading="lazy">
+            </div>
+        </div>
+        
+        <!-- Email Capture -->
+        <div class="email-capture">
+          <h3>FREE: "10 Secret Camping Spots The Government Doesn't Want You To Know About"</h3>
+          <p>Join 2,847+ guerilla campers getting weekly money-saving gear tips</p>
+          <form id="signup-form" action="https://app.mailerlite.com/webforms/submit/7qFupG" method="post" target="_blank">
+            <input type="email" name="email" placeholder="Your email..." required>
+            <input type="hidden" name="source" value="blog_page">
+            <button type="submit" class="signup-button">GET FREE ACCESS</button>
+          </form>
+          <div class="email-social-proof">
+            <img src="/img/icons/verified.svg" alt="Verified" width="16" height="16">
+            <span>Joined by 147 campers this week</span>
+          </div>
+        </div>
+    </main>
+
+    <footer class="gc-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="/img/logo-small.png" alt="Gorilla Camping" width="60" height="60">
+                <p>Off-grid camping with a guerilla mindset</p>
+            </div>
+            <div class="footer-links">
+                <h4>Navigate</h4>
+                <a href="/">Home</a>
+                <a href="/blog">Blog</a>
+                <a href="/gear">Gear</a>
+                <a href="/about">About</a>
+                <a href="/contact">Contact</a>
+            </div>
+            <div class="footer-social">
+                <h4>Join the Tribe</h4>
+                <div class="social-links">
+                    <a href="https://www.reddit.com/r/gorillacamping" target="_blank" rel="noopener" aria-label="Reddit">Reddit</a>
+                    <a href="https://www.facebook.com/profile.php?id=61577334442896" target="_blank" rel="noopener" aria-label="Facebook">Facebook</a>
+                    <a href="https://www.tiktok.com/@gorillacamping" target="_blank" rel="noopener" aria-label="TikTok">TikTok</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Gorilla Camping. All Rights Reserved.</p>
+            <p>Built with pure Guerilla hustle 🏕️</p>
+        </div>
+    </footer>
+
+    <script>
+    // Replace with your actual Azure backend API URL
+    const API_URL = 'https://api.gorillacamping.azurewebsites.net';
+    
+    // Check for cached data first (5 minute TTL)
+    function fetchBlogPosts() {
+        const cachedData = localStorage.getItem('blog_posts');
+        const cachedTimestamp = localStorage.getItem('blog_posts_timestamp');
+        const now = new Date().getTime();
+        
+        // Use cache if it's less than 5 minutes old
+        if (cachedData && cachedTimestamp && (now - parseInt(cachedTimestamp) < 5 * 60 * 1000)) {
+            renderPosts(JSON.parse(cachedData));
+            console.log('Using cached blog data');
+            
+            // Refresh cache in background after rendering from cache
+            fetchFreshData();
+        } else {
+            // No valid cache, fetch fresh data
+            fetchFreshData();
+        }
+    }
+    
+    // Fetch fresh data from API
+    function fetchFreshData() {
+        fetch(`${API_URL}/api/blog-posts`, {
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Network response failed');
+            }
+            return res.json();
+        })
+        .then(posts => {
+            // Cache the fresh data
+            localStorage.setItem('blog_posts', JSON.stringify(posts));
+            localStorage.setItem('blog_posts_timestamp', new Date().getTime().toString());
+            
+            // Render the posts
+            renderPosts(posts);
+        })
+        .catch(error => {
+            console.error('Error fetching blog posts:', error);
+            document.getElementById('blog-list').style.display = 'none';
+            document.getElementById('blog-error').style.display = 'block';
+        });
+    }
+    
+    // Render posts to DOM
+    function renderPosts(posts) {
+        const ul = document.getElementById('blog-list');
+        ul.innerHTML = '';
+        
+        if (posts.length === 0) {
+            ul.innerHTML = '<li class="no-posts">New posts coming soon! Subscribe to be notified.</li>';
+            return;
+        }
+        
+        posts.forEach(post => {
+            const li = document.createElement('li');
+            li.className = 'blog-item';
+            li.dataset.categories = post.tags ? post.tags.join(' ') : '';
+            
+            // Format date nicely
+            const postDate = new Date(post.created_at);
+            const formattedDate = new Intl.DateTimeFormat('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            }).format(postDate);
+            
+            li.innerHTML = `
+                <article>
+                    ${post.featured_image ? 
+                        `<div class="post-image">
+                            <a href="/blog/${post.slug}">
+                                <img src="${post.featured_image}" alt="${post.title}" loading="lazy">
+                            </a>
+                        </div>` : ''}
+                    <h2><a href="/blog/${post.slug}">${post.title}</a></h2>
+                    <div class="meta">
+                        <span class="date">Posted on ${formattedDate}</span>
+                        ${post.tags && post.tags.length ? 
+                            `<span class="tags">
+                                ${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            </span>` : ''}
+                    </div>
+                    <p class="excerpt">${post.excerpt || post.content.substring(0, 150).replace(/<[^>]*>/g, '') + '...'}</p>
+                    <a href="/blog/${post.slug}" class="read-more" 
+                       onclick="trackPageView('/blog/${post.slug}', '${post.title}')">
+                        Read Full Post →
+                    </a>
+                </article>
+            `;
+            ul.appendChild(li);
+        });
+        
+        // Track view with analytics
+        if (typeof gtag === 'function') {
+            gtag('event', 'page_view', {
+                page_title: 'Blog Page',
+                page_location: window.location.href,
+                page_path: '/blog'
+            });
+        }
+    }
+    
+    // Handle "Try Again" button
+    document.getElementById('retry-button').addEventListener('click', function() {
+        document.getElementById('blog-error').style.display = 'none';
+        document.getElementById('blog-list').style.display = 'block';
+        fetchBlogPosts();
+    });
+    
+    // Filter posts by category
+    document.querySelectorAll('.filter-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.dataset.filter;
+            const posts = document.querySelectorAll('.blog-item');
+            
+            posts.forEach(post => {
+                if (filter === 'all' || post.dataset.categories.includes(filter)) {
+                    post.style.display = 'block';
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+            
+            // Track filter usage
+            if (typeof gtag === 'function') {
+                gtag('event', 'filter_posts', {
+                    'event_category': 'Content',
+                    'event_label': filter
+                });
+            }
+        });
+    });
+    
+    // Handle email form submission
+    document.getElementById('signup-form').addEventListener('submit', function(e) {
+        // Track signup 
+        if (typeof gtag === 'function') {
+            gtag('event', 'signup', {
+                'event_category': 'Engagement',
+                'event_label': 'blog_page'
+            });
+        }
+    });
+    
+    // Track affiliate clicks
+    function trackAffiliateClick(link, productName, position) {
+        // Track with Google Analytics
+        if (typeof gtag === 'function') {
+            gtag('event', 'affiliate_click', {
+                'event_category': 'Affiliate',
+                'event_label': productName,
+                'value': 1,
+                'position': position
+            });
+        }
+        
+        // Track with backend (can still work even if the redirect happens quickly)
+        navigator.sendBeacon(`${API_URL}/api/affiliate-click`, JSON.stringify({
+            product_id: link.split('/').pop(),
+            source: 'blog_page',
+            position: position
+        }));
+    }
+    
+    // Track page views for better analytics
+    function trackPageView(path, title) {
+        if (typeof gtag === 'function') {
+            gtag('event', 'page_view', {
+                page_title: title,
+                page_path: path
+            });
+        }
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchBlogPosts();
+    });
+    </script>
+    
+    <!-- Guerilla Chat Integration -->
+    <script src="/js/guerilla-chat.js" defer></script>
+    
+    <!-- Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JPKKPRXX6S"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-JPKKPRXX6S', {
+        'custom_map': {
+          'dimension1': 'user_type',
+          'dimension2': 'traffic_source'
+        }
+      });
+      
+      // Set custom dimensions
+      gtag('set', 'user_type', localStorage.getItem('user_type') || 'new');
+      gtag('set', 'traffic_source', sessionStorage.getItem('traffic_source') || document.referrer || 'direct');
+    </script>
+</body>
+</html>
