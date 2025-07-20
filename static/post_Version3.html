@@ -5,6 +5,10 @@
     <meta name="description" id="meta-desc" content="">
     <meta name="keywords" content="Gorilla Camping, Guerilla Camping, Blog, Outdoor, Camping, Review">
     <link rel="stylesheet" href="/css/guerilla.css">
+    <!-- Configuration and Core Scripts -->
+<script src="/js/config.js"></script>
+<script src="/js/analytics.js"></script>
+<script src="/js/preload.js"></script>
 </head>
 <body>
 <article class="blog-post" id="blog-post">
@@ -36,5 +40,7 @@ fetch(`https://gorillacamping.site/api/blog-post/${getSlug()}`)
     document.getElementById('blog-post').innerHTML = '<h1>Error loading post</h1>';
   });
 </script>
+    <!-- Guerilla Chat Integration -->
+<script src="/js/guerilla-chat.js"></script>
 </body>
 </html>
