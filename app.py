@@ -1,18 +1,3 @@
-#!/usr/bin/env python3
-"""
-<<<<<<< HEAD
-🦍 GORILLA CAMPING - CLEAN & SIMPLE
-"""
-from flask import Flask, render_template, jsonify, request, redirect
-import os
-
-app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'gorilla-secret-2025')
-
-=======
-🦍 GORILLA CAMPING - AI-OPTIMIZED BACKEND
-Split architecture implementation with cost-effective AI
-"""
 import os
 import uuid
 import json
@@ -32,7 +17,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'gorilla-secret-2025')
 CORS(app, supports_credentials=True)  # Enable CORS for API access from static frontend
 
 logger = logging.getLogger(__name__)
-logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=YOUR_INSTRUMENTATION_KEY'))
+logger.addHandler(AzureLogHandler(connection_string=os.environ[InstrumentationKey=bc1d26ba-0d5d-4b48-8a95-8890aff793b5;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/;ApplicationId=5b75eaaf-63d2-4e57-a3ea-b1522e0b69f3]))
 
 # --- MONGODB SETUP (if available) ---
 mongodb_uri = os.environ.get('MONGODB_URI')
