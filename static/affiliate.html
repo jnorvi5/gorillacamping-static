@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to Product | Gorilla Camping</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #00ff88;
+            text-align: center;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+        }
+        h1 { margin-bottom: 20px; }
+        .loader {
+            border: 5px solid rgba(0, 255, 136, 0.2);
+            border-radius: 50%;
+            border-top: 5px solid #00ff88;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .subtitle { max-width: 500px; margin: 0 auto; }
+    </style>
+    <script src="/js/config.js"></script>
+<!-- Configuration and Core Scripts -->
+<script src="/js/config.js"></script>
+<script src="/js/analytics.js"></script>
+<script src="/js/preload.js"></script>
+</head>
+<body>
+    <h1>Finding You the Best Deal...</h1>
+    <div class="loader"></div>
+    <p class="subtitle">Guerilla's hunting for the best price on this gear. You'll be redirected in just a moment.</p>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Extract product ID from URL path
+            const path = window.location.pathname;
+            const productId = path.split('/').pop();
+            
+            // Track the click
+            fetch(`${CONFIG.API_URL}/api/affiliate-click`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    product_id: productId,
+                    source: 'affiliate_page'
+                })
+            }).catch(e => console.log('Tracking error:', e));
+            
+            // Redirect after a short delay for tracking and user experience
+            setTimeout(() => {
+                window.location.href = `${CONFIG.API_URL}/affiliate/${productId}`;
+            }, 1500);
+        });
+    </script>
+</body>
+    <!-- Guerilla Chat Integration -->
+<script src="/js/guerilla-chat.js"></script>
+</html>

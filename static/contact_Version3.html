@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Contact - Gorilla Camping</title>
+    <meta name="description" content="Contact Gorilla Camping for gear reviews, collaborations, and guerilla camping advice. Get in touch guerilla-style!">
+    <link rel="stylesheet" href="/css/guerilla.css">
+    <!-- Configuration and Core Scripts -->
+<script src="/js/config.js"></script>
+<script src="/js/analytics.js"></script>
+<script src="/js/preload.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="contact-hero">
+        <h1>Get In Touch - Guerilla Style! 🏕️</h1>
+        <p>Brand collaborations? Gear questions? Let's talk business!</p>
+    </div>
+    <div class="contact-form-section">
+        <h2>Drop Me a Line</h2>
+        <form id="contact-form" class="contact-form">
+            <input type="text" name="name" placeholder="Your Name *" required>
+            <input type="email" name="email" placeholder="Your Email *" required>
+            <select name="subject" required>
+                <option value="">What's This About? *</option>
+                <option value="collaboration">🤝 Brand Collaboration</option>
+                <option value="gear-review">⚙️ Gear Review Request</option>
+                <option value="affiliate">💰 Affiliate Partnership</option>
+                <option value="general">💬 General Question</option>
+                <option value="guest-post">📝 Guest Post Opportunity</option>
+            </select>
+            <textarea name="message" rows="6" placeholder="Your Message *" required></textarea>
+            <button type="submit" class="btn-primary">Send Message 🚀</button>
+        </form>
+        <div id="form-status"></div>
+    </div>
+</div>
+<script>
+document.getElementById('contact-form').onsubmit = async function(e) {
+  e.preventDefault();
+  const data = {
+    name: this.name.value,
+    email: this.email.value,
+    subject: this.subject.value,
+    message: this.message.value
+  };
+  const status = document.getElementById('form-status');
+  status.textContent = "Sending...";
+  const resp = await fetch('https://gorillacamping.site/api/contact', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data)
+  });
+  const result = await resp.json();
+  if (result.success) {
+    status.textContent = "Thanks for reaching out! I'll get back to you soon.";
+    this.reset();
+  } else {
+    status.textContent = "Error: " + (result.error || "Could not send message.");
+  }
+};
+</script>
+</body>
+    <!-- Guerilla Chat Integration -->
+<script src="/js/guerilla-chat.js"></script>
+</html>

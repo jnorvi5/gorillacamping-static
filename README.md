@@ -1,0 +1,2 @@
+# gorillacamping-static
+static pages

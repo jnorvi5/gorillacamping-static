@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags, title, etc. -->
+    <script src="/js/config.js"></script>
+    <!-- Configuration and Core Scripts -->
+<script src="/js/config.js"></script>
+<script src="/js/analytics.js"></script>
+<script src="/js/preload.js"></script>
+</head>
+<body>
+    <!-- Header, navigation, etc. -->
+    <div class="gear-container">
+        <h1>Guerilla-Approved Camping Gear</h1>
+        <div class="gear-grid" id="gear-list">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>Loading gear recommendations...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch(`${CONFIG.API_URL}/api/gear`)
+            .then(res => {
+                if (!res.ok) throw new Error('Network response failed');
+                return res.json();
+            })
+            .then(gear_items => {
+                const grid = document.getElementById('gear-list');
+                grid.innerHTML = '';
+                
+                if (gear_items.length === 0) {
+                    grid.innerHTML = '<div class="no-gear">No gear recommendations found.</div>';
+                    return;
+                }
+                
+                gear_items.forEach(gear => {
+                    const div = document.createElement('div');
+                    div.className = "gear-item";
+                    div.innerHTML = `
+                        <div class="gear-img">
+                            <img src="${gear.image}" alt="${gear.name}" loading="lazy">
+                        </div>
+                        <div class="gear-info">
+                            <h2>${gear.name}</h2>
+                            <div class="gear-rating">${'⭐'.repeat(gear.rating || 0)}</div>
+                            <p>${gear.description}</p>
+                            <div class="price-box">
+                                ${gear.old_price ? `<span class="old-price">${gear.old_price}</span>` : ''}
+                                <span class="new-price">${gear.price}</span>
+                                ${gear.savings ? `<span class="savings">${gear.savings}</span>` : ''}
+                            </div>
+                            <a href="/affiliate/${gear.affiliate_id}" 
+                               class="affiliate-link gear-button" 
+                               onclick="trackAffiliateClick('${gear.affiliate_id}', '${gear.name}')"
+                               rel="noopener">🔥 GET DEAL NOW →</a>
+                        </div>
+                    `;
+                    grid.appendChild(div);
+                });
+            })
+            .catch(error => {
+                document.getElementById('gear-list').innerHTML = 
+                    '<div class="error">Error loading gear. Please try again later.</div>';
+                console.error('Error fetching gear:', error);
+            });
+    });
+    
+    function trackAffiliateClick(productId, productName) {
+        // Track with Google Analytics if available
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'affiliate_click', {
+                'event_category': 'Affiliate',
+                'event_label': productId,
+                'value': 1
+            });
+        }
+        
+        // Track with backend
+        navigator.sendBeacon(`${CONFIG.API_URL}/api/affiliate-click`, 
+            JSON.stringify({ 
+                product_id: productId,
+                product_name: productName,
+                source: 'gear_page'
+            })
+        );
+        
+        return true; // Allow the link to continue
+    }
+    </script>
+    <!-- Guerilla Chat Integration -->
+<script src="/js/guerilla-chat.js"></script>
+</body>
+</html>
