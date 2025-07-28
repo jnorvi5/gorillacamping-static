@@ -1,0 +1,8 @@
+# Affiliate link redirects
+/affiliate/:product /affiliate.html 200
+
+# Blog post routing
+/blog/* /blog.html 200
+
+# Handle default paths
+/* /:splat.html 200

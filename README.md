@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Gorilla Camping
 A Flask site for off-grid nomads with Azure cloud integration.
 
@@ -71,3 +72,7 @@ See `.github/workflows/main_gorillacamping.yml` for the deployment pipeline.
 - Social media integration
 - SEO optimization
 - Azure cloud services support
+=======
+# gorillacamping-static
+static pages
+>>>>>>> aa5e7ab323cac90cec1050108ac07ed1e3753c30

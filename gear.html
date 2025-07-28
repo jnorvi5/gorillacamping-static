@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Camping Gear for Guerilla Campers | GorillaCamping.site</title>
+    <meta name="description" content="Hand-picked, field-tested camping gear for budget, utility, and reliability. Perfect for guerilla-style adventurers!">
+    <meta name="keywords" content="camping gear, best camping gear, guerilla camping, affordable camping equipment, budget camping gear, outdoor gear reviews, gorilla camping.site">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/guerilla.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/webmanifest.json">
+</head>
+<body>
+    <header class="header">
+        <div class="logo-container">
+            <a href="/" aria-label="Gorilla Camping Home">
+                <img src="/img/logo.png" 
+                     alt="Gorilla Camping Logo" 
+                     class="logo">
+            </a>
+        </div>
+        <h1 class="motto">Life is short, camp your way through it!</h1>
+        <nav class="nav">
+            <a href="/">Home</a>
+            <a href="/gear.html" class="active">Gear</a>
+            <a href="/blog.html">Blog</a>
+            <a href="/about.html">About</a>
+            <a href="/contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="gear-grid" id="gear-list">
+            <div>Loading gear...</div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Gorilla Camping. All Rights Reserved.</p>
+        <p>Guerilla-style affiliate marketing. Some links may earn us a small commission.</p>
+        <p>Built with Pure Guerilla Hustle 🦍💪</p>
+    </footer>
+
+    <script>
+    fetch('https://gorillacamping.site/api/gear')
+      .then(res => res.json())
+      .then(gear_items => {
+        const grid = document.getElementById('gear-list');
+        grid.innerHTML = '';
+        gear_items.forEach(gear => {
+          const div = document.createElement('div');
+          div.className = "gear-item";
+          div.innerHTML = `
+            <div class="gear-img">
+              <img src="${gear.image}" alt="${gear.name}" loading="lazy">
+            </div>
+            <div class="gear-info">
+              <h2>${gear.name}</h2>
+              <div class="gear-rating">${'⭐'.repeat(gear.rating || 0)}</div>
+              <p>${gear.description}</p>
+              <div class="price-box">
+                ${gear.old_price ? `<span class="old-price">${gear.old_price}</span>` : ''}
+                <span class="new-price">${gear.price}</span>
+                ${gear.savings ? `<span class="savings">${gear.savings}</span>` : ''}
+              </div>
+              <a href="/affiliate/${gear.affiliate_id}" class="affiliate-link gear-button" target="_blank" rel="noopener sponsored">🔥 GET DEAL NOW →</a>
+            </div>
+          `;
+          grid.appendChild(div);
+        });
+      })
+      .catch(() => {
+        document.getElementById('gear-list').innerHTML = '<div>Error loading gear.</div>';
+      });
+    </script>
+    <script src="/conversions.js"></script>
+    <script src="/exit-intent.js"></script>
+</body>
+</html>
