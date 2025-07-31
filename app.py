@@ -19,6 +19,14 @@ CORS(app, supports_credentials=True)  # Enable CORS for API access from static f
 logger = logging.getLogger(__name__)
 logger.addHandler(AzureLogHandler(connection_string=os.environ[InstrumentationKey=bc1d26ba-0d5d-4b48-8a95-8890aff793b5;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/;ApplicationId=5b75eaaf-63d2-4e57-a3ea-b1522e0b69f3]))
 
+# Configure CORS for your domains
+CORS(app, origins=[
+    "https://gorillacamping.site", 
+    "https://www.gorillacamping.site",
+    "https://gorillacamping.pages.dev",  # Cloudflare Pages default domain
+    "http://localhost:3000",  # For local development
+], supports_credentials=True)
+
 # --- MONGODB SETUP (if available) ---
 mongodb_uri = os.environ.get('MONGODB_URI')
 if mongodb_uri:
